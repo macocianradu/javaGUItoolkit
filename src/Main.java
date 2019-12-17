@@ -16,5 +16,23 @@ public class Main {
 
         Button button = new Button();
         win.addVisual(button);
+        int x = 20;
+        int y = 20;
+        while(true){
+            if(x > win.getWidth()){
+                x = 0;
+                y+=20;
+            }
+            if(y > win.getHeight()){
+                y = 0;
+            }
+            button.setLocation(x, y);
+            x+=10;
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

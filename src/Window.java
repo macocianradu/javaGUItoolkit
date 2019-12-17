@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
+import java.awt.image.BufferedImage;
 
 public class Window extends Visual {
     public CustomFrame frame;
@@ -10,9 +11,8 @@ public class Window extends Visual {
         super();
         this.frame = new CustomFrame();
         this.addWindowStateListener(e -> {
-            setImageBuffer(frame.getImageBuffer());
-            triggerBufferChange();
-            repaint();
+            this.setSize(getWidth(), getHeight());
+            revalidate();
         });
     }
 
@@ -20,8 +20,12 @@ public class Window extends Visual {
     public void setSize(int width, int height)
     {
         this.frame.setSize(width, height);
-        this.setImageBuffer(this.frame.getImageBuffer());
         super.setSize(width, height);
+        revalidate();
+    }
+
+    public void setFrameImageBuffer(BufferedImage imageBuffer){
+        this.frame.setImageBuffer(imageBuffer);
     }
 
     public void setSize(Dimension dimension) {

@@ -13,6 +13,6 @@ public class Button extends Visual {
     {
         Graphics g = imageBuffer.getGraphics();
         g.setColor(Color.BLUE);
-        g.fillRect(10, 33, 500, 500);
+        g.fillRect(0, 0, getWidth(), getHeight());
     }
 }

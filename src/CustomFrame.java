@@ -7,16 +7,6 @@ public class CustomFrame extends Frame {
     public CustomFrame()
     {
         super();
-        this.addWindowStateListener(e -> {
-            imageBuffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-            imageBuffer.getGraphics().setColor(Color.WHITE);
-            imageBuffer.getGraphics().fillRect(0, 0, getWidth(), getHeight());
-            imageBuffer.getGraphics().setColor(Color.BLACK);
-        });
-    }
-
-    public BufferedImage getImageBuffer() {
-        return this.imageBuffer;
     }
 
     public CustomFrame(String name)
@@ -24,20 +14,8 @@ public class CustomFrame extends Frame {
         super(name);
     }
 
-    @Override
-    public void setSize(Dimension d)
-    {
-        this.setSize(d.width, d.height);
-    }
-
-    @Override
-    public void setSize(int width, int height)
-    {
-        super.setSize(width, height);
-        this.imageBuffer = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-        this.imageBuffer.getGraphics().setColor(Color.WHITE);
-        this.imageBuffer.getGraphics().fillRect(0, 0, this.getWidth(), this.getHeight());
-        this.imageBuffer.getGraphics().setColor(Color.BLACK);
+    public void setImageBuffer(BufferedImage imageBuffer) {
+        this.imageBuffer = imageBuffer;
     }
 
     @Override
