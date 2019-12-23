@@ -1,3 +1,7 @@
+package guiTree;
+
+import guiTree.Visual;
+
 import java.awt.*;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
@@ -17,7 +21,7 @@ public class Window extends Visual {
     }
 
     @Override
-    public void setSize(int width, int height)
+    public void setSize(Integer width, Integer height)
     {
         this.frame.setSize(width, height);
         super.setSize(width, height);
@@ -26,6 +30,7 @@ public class Window extends Visual {
 
     public void setFrameImageBuffer(BufferedImage imageBuffer){
         this.frame.setImageBuffer(imageBuffer);
+        this.frame.repaint();
     }
 
     public void setSize(Dimension dimension) {
@@ -54,5 +59,9 @@ public class Window extends Visual {
 
     public void setPositionRelativeTo(Component c){
         frame.setLocationRelativeTo(c);
+    }
+
+    public void setPositionRelativeTo(){
+        frame.setLocationRelativeTo(null);
     }
 }

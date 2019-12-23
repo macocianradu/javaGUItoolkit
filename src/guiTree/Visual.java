@@ -1,3 +1,5 @@
+package guiTree;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -16,13 +18,14 @@ public class Visual {
     /*--------------------------------------------------------------------
                         Attributes
     ---------------------------------------------------------------------*/
-    private int width;
-    private int height;
-    private int locationX;
-    private int locationY;
+    private String name;
+    private Integer width;
+    private Integer height;
+    private Integer locationX;
+    private Integer locationY;
     private Color backgroundColor;
     private Color foregroundColor;
-    private Boolean valid;
+    private Boolean active;
 
 
     /*--------------------------------------------------------------------
@@ -33,13 +36,23 @@ public class Visual {
         this.parent = null;
         this.backgroundColor = Color.WHITE;
         this.foregroundColor = Color.BLACK;
-        valid = false;
+
+        this.active = this instanceof Window;
     }
 
 
     /*--------------------------------------------------------------------
                     Attributes Methods
     ---------------------------------------------------------------------*/
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public int getWidth()
     {
         return this.width;
@@ -50,13 +63,12 @@ public class Visual {
         return this.height;
     }
 
-    public void setSize(int width, int height){
+    public void setSize(Integer width, Integer height){
         this.width = width;
         this.height = height;
 
         initializeImageBuffer(width, height);
 
-        this.valid = false;
         this.revalidate();
     }
 
@@ -68,10 +80,9 @@ public class Visual {
         return this.locationY;
     }
 
-    public void setLocation(int x, int y){
+    public void setLocation(Integer x, Integer y){
         this.locationX = x;
         this.locationY = y;
-        this.valid = false;
         this.revalidate();
     }
 
@@ -81,7 +92,6 @@ public class Visual {
 
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
-        this.valid = false;
         this.revalidate();
     }
 
@@ -91,7 +101,6 @@ public class Visual {
 
     public void setForegroundColor(Color foregroundColor) {
         this.foregroundColor = foregroundColor;
-        this.valid = false;
         this.revalidate();
     }
 
@@ -101,8 +110,8 @@ public class Visual {
     }
 
     private void calculateInitialLocation(){
-        this.locationX = 200;
-        this.locationY = 200;
+        this.locationX = 20;
+        this.locationY = 50;
     }
 
 
@@ -116,9 +125,9 @@ public class Visual {
         child.calculateInitialLocation();
         child.calculateInitialSize();
         child.imageBuffer = new BufferedImage(child.getWidth(), child.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
-        child.valid = false;
 
-        this.revalidate();
+        child.active = true;
+        child.revalidate();
     }
 
     private void setParent(Visual parent)
@@ -142,16 +151,14 @@ public class Visual {
     }
 
     public void revalidate() {
+        if(!this.active){
+            return;
+        }
         initializeImageBuffer(width, height);
         this.paint(imageBuffer);
         for(Visual v:children){
-            if(!v.valid){
-                v.paint(v.imageBuffer);
-            }
             this.imageBuffer.getGraphics().drawImage(v.imageBuffer, v.locationX, v.locationY, null);
-            v.valid = true;
         }
-        this.valid = true;
         if(!(this instanceof Window)){
             this.parent.revalidate();
         }
@@ -169,7 +176,7 @@ public class Visual {
                             Helper Methods
     ---------------------------------------------------------------------*/
 
-    private void initializeImageBuffer(int width, int height){
+    private void initializeImageBuffer(Integer width, Integer height){
         this.imageBuffer = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
         this.imageBuffer.getGraphics().setColor(backgroundColor);
         this.imageBuffer.getGraphics().fillRect(0, 0, width, height);
