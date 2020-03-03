@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<Window Visible="true" Size="640, 480" PositionRelativeTo="null">
-    <Button BackgroundColor="#990000"/>
-</Window>

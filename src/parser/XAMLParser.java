@@ -23,11 +23,18 @@ public class XAMLParser {
             String methodName = "set";
             methodName = methodName.concat(attribute.getNodeName());
             List<Object> parameterList = convertStringToPrimitives(object, attribute.getNodeValue(), methodName);
-            Method method = getMethod(object, methodName, parameterList);
+            if(parameterList == null) {
+                break;
+            }
+            Class<?>[] parameterTypes = new Class[parameterList.size()];
+            for(int index = 0; index < parameterList.size(); index++){
+                parameterTypes[index] = parameterList.get(index).getClass();
+            }
             try {
+                Method method = object.getClass().getMethod(methodName, parameterTypes);
                 assert method != null;
                 method.invoke(object, parameterList.toArray());
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
         }

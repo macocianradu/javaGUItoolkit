@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<Window Name="window" Visible="true" Size="640, 480">
+    <Button Name="button1" BackgroundColor="#990000" Size="200, 200" Label="button1">
+        <Button Name="button4" BackgroundColor="#009999" Size="100, 100" Label="button4">
+            <Button Name="button2" BackgroundColor="#000099" Label="button2"/>
+        </Button>
+    </Button>
+    <Button Name="button3" BackgroundColor="#009900" Location="300, 300" Label="button3"/>
+</Window>

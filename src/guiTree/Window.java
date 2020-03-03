@@ -1,19 +1,19 @@
 package guiTree;
 
-import guiTree.Visual;
-
 import java.awt.*;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 public class Window extends Visual {
     public CustomFrame frame;
+    private List<Visual> listenerList;
 
     public Window()
     {
         super();
-        this.frame = new CustomFrame();
+        this.frame = new CustomFrame(this);
         this.addWindowStateListener(e -> {
             this.setSize(getWidth(), getHeight());
             revalidate();
@@ -63,5 +63,15 @@ public class Window extends Visual {
 
     public void setPositionRelativeTo(){
         frame.setLocationRelativeTo(null);
+    }
+
+    public void setUndecorated(Boolean undecorated){frame.setUndecorated(undecorated);}
+
+    public void addListener(Visual listener) {
+        this.listenerList.add(listener);
+    }
+
+    public void removeListener(Visual listener) {
+        this.listenerList.remove(listener);
     }
 }
