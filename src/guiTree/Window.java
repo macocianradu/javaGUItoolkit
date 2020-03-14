@@ -4,11 +4,9 @@ import java.awt.*;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
-import java.util.List;
 
 public class Window extends Visual {
     public CustomFrame frame;
-    private List<Visual> listenerList;
 
     public Window()
     {
@@ -25,11 +23,14 @@ public class Window extends Visual {
     {
         this.frame.setSize(width, height);
         super.setSize(width, height);
-        revalidate();
     }
 
     public void setFrameImageBuffer(BufferedImage imageBuffer){
         this.frame.setImageBuffer(imageBuffer);
+        this.frame.repaint();
+    }
+
+    public void repaint() {
         this.frame.repaint();
     }
 
@@ -57,6 +58,10 @@ public class Window extends Visual {
         frame.dispose();
     }
 
+    public void repaint(long tm) {
+        frame.repaint(tm);
+    }
+
     public void setPositionRelativeTo(Component c){
         frame.setLocationRelativeTo(c);
     }
@@ -66,12 +71,4 @@ public class Window extends Visual {
     }
 
     public void setUndecorated(Boolean undecorated){frame.setUndecorated(undecorated);}
-
-    public void addListener(Visual listener) {
-        this.listenerList.add(listener);
-    }
-
-    public void removeListener(Visual listener) {
-        this.listenerList.remove(listener);
-    }
 }

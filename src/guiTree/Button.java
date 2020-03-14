@@ -1,6 +1,6 @@
 package guiTree;
 
-import guiTree.events.MouseListener;
+import guiTree.events.MouseAdapter;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 
 public class Button extends Visual {
     private String label;
+    private Boolean pressed;
 
     public Button() {
         this("");
@@ -16,45 +17,17 @@ public class Button extends Visual {
     public Button(String label) {
         super();
         this.label = label;
-        this.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                if(getBackgroundColor() == Color.BLACK) {
-                    setBackgroundColor(Color.RED);
-                }
-                else {
-                    setBackgroundColor(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent mouseEvent) {
-
-            }
-
+        pressed = false;
+        this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
-
+                pressed = true;
+                revalidate();
             }
-
             @Override
-            public void mouseEntered(MouseEvent mouseEvent) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent mouseEvent) {
-
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent mouseEvent) {
-
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent mouseEvent) {
-
+            public void mouseReleased(MouseEvent mouseEvent) {
+                pressed = false;
+                revalidate();
             }
         });
     }
@@ -62,11 +35,32 @@ public class Button extends Visual {
     @Override
     public void paint(BufferedImage imageBuffer)
     {
-        Graphics g = imageBuffer.getGraphics();
-        g.setColor(this.getBackgroundColor());
+        //Get Graphics
+        Graphics2D g = imageBuffer.createGraphics();
+
+        //Set Transparency
+        g.setComposite(AlphaComposite.Clear);
+        g.fillRect(0, 0, getWidth(), getHeight());
+        g.setComposite(AlphaComposite.Src);
+
+        //Choose background
+        if(pressed) {
+            g.setColor(Color.GRAY);
+        }
+        else {
+            g.setColor(this.getBackgroundColor());
+        }
+
+        //Draw Button
         g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 50, 50);
         g.setColor(this.getForegroundColor());
-        g.drawString(this.label, this.getWidth()/2, this.getHeight()/2);
+
+        //Draw Label
+        int textWidth = g.getFontMetrics().stringWidth(label);
+        int textHeight = g.getFontMetrics().getHeight();
+        g.drawString(this.label, this.getWidth()/2 - textWidth/2, this.getHeight()/2 + textHeight/2);
+
+        g.dispose();
     }
 
     public void setLabel(String label) {

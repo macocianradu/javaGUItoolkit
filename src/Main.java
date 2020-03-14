@@ -10,6 +10,7 @@ public class Main {
         try{
             Window window = XAMLParser.parse("ui.xml");
             assert window != null;
+            window.revalidate();
             Button button = (Button)window.findByName("button1");
             window.addWindowListener(new WindowAdapter() {
                 @Override
@@ -17,7 +18,30 @@ public class Main {
                     window.dispose();
                 }
             });
-
+            long now;
+            long prev = 0;
+            while(true) {
+                now = System.currentTimeMillis();
+                if(now - prev >= 1000) {
+                    int x = button.getLocationX();
+                    int y = button.getLocationY();
+                    if(x + button.getWidth() >= window.getWidth()) {
+                        x = 0;
+                        if(y + button.getHeight() >= window.getHeight()) {
+                            y = 0;
+                        }
+                        else {
+                            y += 30;
+                        }
+                    }
+                    else {
+                        x += 30;
+                    }
+                    button.setLocation(x, y);
+                    prev = now;
+                    window.revalidate();
+                }
+            }
         }catch (Exception e){
             e.printStackTrace();
         }

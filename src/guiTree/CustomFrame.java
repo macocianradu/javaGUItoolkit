@@ -3,6 +3,7 @@ package guiTree;
 import guiTree.events.KeyEventGetter;
 import guiTree.events.MouseWheelGetter;
 
+import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -10,7 +11,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-public class CustomFrame extends Frame {
+public class CustomFrame extends JFrame {
     private BufferedImage imageBuffer;
     private Window parentWindow;
 
