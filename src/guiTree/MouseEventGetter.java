@@ -12,41 +12,36 @@ public class MouseEventGetter implements MouseInputListener {
 
     @Override
     public void mouseDragged(MouseEvent mouseEvent) {
-        callingWindow.mouseDragged(mouseEvent, 0, 0);
+        callingWindow.mouseDragged(mouseEvent);
     }
 
     @Override
     public void mouseMoved(MouseEvent mouseEvent) {
         callingWindow.mouseMoved(mouseEvent, 0, 0);
-        System.out.println("MOVED");
     }
 
     @Override
     public void mouseClicked(MouseEvent mouseEvent) {
-        callingWindow.mouseClicked(mouseEvent, 0, 0);
-        System.out.println("CLICKED");
+        callingWindow.mouseClicked(mouseEvent);
     }
 
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
-        callingWindow.mousePressed(mouseEvent, 0, 0);
-        System.out.println("PRESSED");
+        callingWindow.mousePressed(mouseEvent);
     }
 
     @Override
     public void mouseReleased(MouseEvent mouseEvent) {
-        callingWindow.mouseReleased(mouseEvent, 0, 0);
+        callingWindow.mouseReleased(mouseEvent);
     }
 
     @Override
     public void mouseEntered(MouseEvent mouseEvent) {
         callingWindow.mouseEntered(mouseEvent, 0, 0);
-        System.out.println("ENTERED");
     }
 
     @Override
     public void mouseExited(MouseEvent mouseEvent) {
-        callingWindow.mouseExited(mouseEvent, 0, 0);
-        System.out.println("EXITED");
+        callingWindow.mouseExited(mouseEvent);
     }
 }

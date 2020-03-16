@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XAMLParser {
-    private final static String packageName = "guiTree.";
+    private final static String packageGuiTree = "guiTree.";
+    private final static String packageComponents = "guiTree.Components.";
     private static Converter valueConverter = new Converter();
 
     private static void setAttributes(Object object, NamedNodeMap attributeList){
@@ -119,7 +120,13 @@ public class XAMLParser {
     }
 
     private static Object parseNode(Node parentNode)throws Exception{
-        Class<?> parentClass = Class.forName(packageName.concat(parentNode.getNodeName()));
+        Class<?> parentClass;
+        try {
+            parentClass = Class.forName(packageComponents.concat(parentNode.getNodeName()));
+        }
+        catch (ClassNotFoundException e) {
+            parentClass = Class.forName(packageGuiTree.concat(parentNode.getNodeName()));
+        }
         Object parentObject = parentClass.getDeclaredConstructor().newInstance();
 
         setAttributes(parentObject, parentNode.getAttributes());

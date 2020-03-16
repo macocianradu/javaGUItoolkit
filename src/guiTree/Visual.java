@@ -16,6 +16,7 @@ public class Visual {
     /*--------------------------------------------------------------------
                             Tree Elements
     ---------------------------------------------------------------------*/
+
     private List<Visual> children;
     private Visual parent;
     private BufferedImage imageBuffer;
@@ -27,33 +28,50 @@ public class Visual {
     /*--------------------------------------------------------------------
                         Attributes
     ---------------------------------------------------------------------*/
+
     private Integer width;
     private Integer height;
     private Integer locationX;
     private Integer locationY;
     private Color backgroundColor;
     private Color foregroundColor;
+    private Color fontColor;
     private Boolean active;
     private Boolean dirty;
+    private static Visual entered;
+    private Boolean focused;
     private Boolean pressed;
 
 
     /*--------------------------------------------------------------------
                         Constructors
     ---------------------------------------------------------------------*/
+
     public Visual() {
+        this(0, 0);
+    }
+
+    public Visual(int width, int height) {
         this.children = new ArrayList<>();
         this.mouseWheelListeners = new ArrayList<>();
         this.mouseListeners = new ArrayList<>();
         this.keyListeners = new ArrayList<>();
         this.parent = null;
         this.backgroundColor = Color.WHITE;
-        this.foregroundColor = Color.BLACK;
+        this.foregroundColor = Color.BLUE;
+        this.fontColor = Color.BLACK;
 
         this.dirty = true;
         this.active = this instanceof Window;
-    }
+        this.focused = false;
+        this.pressed = false;
 
+        this.width = width;
+        this.height = height;
+
+        this.locationX = 0;
+        this.locationY = 0;
+    }
 
     /*--------------------------------------------------------------------
                     Attributes Setters
@@ -63,7 +81,7 @@ public class Visual {
         this.name = name;
     }
 
-    public void setSize(Integer width, Integer height){
+    public void setSize(Integer width, Integer height) {
         this.width = width;
         this.height = height;
 
@@ -72,7 +90,7 @@ public class Visual {
         this.dirty = true;
     }
 
-    public void setLocation(Integer x, Integer y){
+    public void setLocation(Integer x, Integer y) {
         this.locationX = x;
         this.locationY = y;
         this.dirty = true;
@@ -88,21 +106,25 @@ public class Visual {
         this.dirty = true;
     }
 
+    public void setFontColor(Color fontColor) {
+        this.fontColor = fontColor;
+    }
+
     private void calculateInitialSize() {
-        if(this.width == null) {
-            this.width = 20;
+        if(this.width <= 0) {
+            this.width = 1;
         }
-        if(this.height == null){
-            this.height = 20;
+        if(this.height <= 0){
+            this.height = 1;
         }
     }
 
-    private void calculateInitialLocation(){
-        if(this.locationX == null) {
-            this.locationX = 20;
+    private void calculateInitialLocation() {
+        if(this.locationX == 0) {
+            this.locationX = 1;
         }
-        if(this.locationY == null){
-            this.locationY = 50;
+        if(this.locationY == 0){
+            this.locationY = 1;
         }
     }
 
@@ -114,21 +136,19 @@ public class Visual {
         return name;
     }
 
-    public int getWidth()
-    {
+    public int getWidth() {
         return this.width;
     }
 
-    public int getHeight()
-    {
+    public int getHeight() {
         return this.height;
     }
 
-    public int getLocationX(){
+    public int getLocationX() {
         return this.locationX;
     }
 
-    public int getLocationY(){
+    public int getLocationY() {
         return this.locationY;
     }
 
@@ -140,11 +160,15 @@ public class Visual {
         return foregroundColor;
     }
 
+    public Color getFontColor() {
+        return fontColor;
+    }
+
     /*--------------------------------------------------------------------
                             Tree Methods
     ---------------------------------------------------------------------*/
 
-    public Visual findByName(String name){
+    public Visual findByName(String name) {
         if(this.name.equals(name)){
             return this;
         }
@@ -161,9 +185,15 @@ public class Visual {
     }
 
     public void addVisual(Visual child) {
+        this.addVisual(child, -1, -1);
+    }
+
+    public void addVisual(Visual child, int x, int y) {
         this.children.add(child);
         child.setParent(this);
-        child.calculateInitialLocation();
+        if(x == -1 && y == -1) {
+            child.calculateInitialLocation();
+        }
         child.calculateInitialSize();
 
         if(this.active) {
@@ -181,18 +211,16 @@ public class Visual {
         this.dirty = true;
     }
 
-    private void setParent(Visual parent)
-    {
+    private void setParent(Visual parent) {
         this.parent = parent;
     }
 
-    private void handleNotification() {
+    public void handleNotification(int notify) {
 
     }
 
-    private void notifyParent()
-    {
-        this.parent.handleNotification();
+    public void notifyParent(int notify) {
+        this.parent.handleNotification(notify);
     }
 
     private void repaint() {
@@ -234,94 +262,58 @@ public class Visual {
     /*--------------------------------------------------------------------
                             Listener Methods
     ---------------------------------------------------------------------*/
-    void addMouseListener(MouseListener mouseListener) {
+    public void addMouseListener(MouseListener mouseListener) {
         this.mouseListeners.add(mouseListener);
     }
 
-    void removeMouseListener(MouseListener mouseListener) {
+    public void removeMouseListener(MouseListener mouseListener) {
         this.mouseListeners.remove(mouseListener);
     }
 
-    void addMouseWheelListener(MouseWheelListener mouseWheelListener) {
+    public void addMouseWheelListener(MouseWheelListener mouseWheelListener) {
         this.mouseWheelListeners.add(mouseWheelListener);
     }
 
-    void removeMouseWheelListener(MouseWheelListener mouseWheelListener) {
+    public void removeMouseWheelListener(MouseWheelListener mouseWheelListener) {
         this.mouseWheelListeners.remove(mouseWheelListener);
     }
 
-    void addKeyListener(KeyListener keyListener) {
+    public void addKeyListener(KeyListener keyListener) {
         this.keyListeners.add(keyListener);
     }
 
-    void removeKeyListener(KeyListener keyListener) {
+    public void removeKeyListener(KeyListener keyListener) {
         this.keyListeners.remove(keyListener);
     }
 
-    void mouseClicked(MouseEvent mouseEvent, int offsetX, int offsetY) {
-        boolean front = true;
-        int mouseX = mouseEvent.getX() - offsetX;
-        int mouseY = mouseEvent.getY() - offsetY;
-        for(Visual v: children) {
-            if(mouseX > v.getLocationX() &&
-                    mouseY > v.getLocationY() &&
-                    mouseX < v.getWidth() + v.getLocationX() &&
-                    mouseY < v.getHeight() + v.getLocationY()) {
-                front = false;
-                v.mouseClicked(mouseEvent, v.locationX + offsetX, v.locationY + offsetY);
-            }
+    void mouseClicked(MouseEvent mouseEvent) {
+        for(MouseListener mouseListener: entered.mouseListeners) {
+            mouseListener.mouseClicked(mouseEvent);
         }
-        if(front) {
-            for(MouseListener mouseListener: mouseListeners) {
-                mouseListener.mouseClicked(mouseEvent);
-            }
-            dirty = true;
-        }
+        dirty = true;
+        entered.focused = true;
     }
 
-    void mouseReleased(MouseEvent mouseEvent, int offsetX, int offsetY) {
-        boolean front = true;
-        int mouseX = mouseEvent.getX() - offsetX;
-        int mouseY = mouseEvent.getY() - offsetY;
-        for(Visual v: children) {
-            if(mouseX > v.getLocationX() &&
-                    mouseY > v.getLocationY() &&
-                    mouseX < v.getWidth() + v.getLocationX() &&
-                    mouseY < v.getHeight() + v.getLocationY()) {
-                front = false;
-                v.mouseReleased(mouseEvent, offsetX + v.locationX, offsetY + v.locationY);
-            }
+    void mouseReleased(MouseEvent mouseEvent) {
+        for(MouseListener mouseListener: entered.mouseListeners) {
+            mouseListener.mouseReleased(mouseEvent);
         }
-        if(front) {
-            for(MouseListener mouseListener: mouseListeners) {
-                mouseListener.mouseReleased(mouseEvent);
-            }
-            dirty = true;
-        }
+        dirty = true;
+        entered.pressed = false;
     }
 
-    void mousePressed(MouseEvent mouseEvent, int offsetX, int offsetY) {
-        boolean front = true;
-        int mouseX = mouseEvent.getX() - offsetX;
-        int mouseY = mouseEvent.getY() - offsetY;
-        for(Visual v: children) {
-            if(mouseX > v.getLocationX() &&
-                    mouseY > v.getLocationY() &&
-                    mouseX < v.getWidth() + v.getLocationX() &&
-                    mouseY < v.getHeight() + v.getLocationY()) {
-                front = false;
-                v.mousePressed(mouseEvent, offsetX + v.locationX, offsetY + v.locationY);
-            }
+    void mousePressed(MouseEvent mouseEvent) {
+        for(MouseListener mouseListener: entered.mouseListeners) {
+            mouseListener.mousePressed(mouseEvent);
         }
-        if(front) {
-            for(MouseListener mouseListener: mouseListeners) {
-                mouseListener.mousePressed(mouseEvent);
-            }
-            dirty = true;
-        }
+        dirty = true;
+        entered.pressed = true;
     }
 
     void mouseEntered(MouseEvent mouseEvent, int offsetX, int offsetY) {
+        if(entered != null && entered.pressed){
+            return;
+        }
         boolean front = true;
         int mouseX = mouseEvent.getX() - offsetX;
         int mouseY = mouseEvent.getY() - offsetY;
@@ -335,6 +327,7 @@ public class Visual {
             }
         }
         if(front) {
+            entered = this;
             for(MouseListener mouseListener: mouseListeners) {
                 mouseListener.mouseEntered(mouseEvent);
             }
@@ -342,87 +335,74 @@ public class Visual {
         }
     }
 
-    void mouseExited(MouseEvent mouseEvent, int offsetX, int offsetY) {
-        boolean front = true;
-        int mouseX = mouseEvent.getX() - offsetX;
-        int mouseY = mouseEvent.getY() - offsetY;
-        for(Visual v: children) {
-            if(mouseX > v.getLocationX() &&
-                    mouseY > v.getLocationY() &&
-                    mouseX < v.getWidth() + v.getLocationX() &&
-                    mouseY < v.getHeight() + v.getLocationY()) {
-                front = false;
-                v.mouseExited(mouseEvent, offsetX + v.locationX, offsetY + v.locationY);
-            }
+    void mouseExited(MouseEvent mouseEvent) {
+        if(entered == null) {
+            return;
         }
-        if(front) {
-            for(MouseListener mouseListener: mouseListeners) {
-                mouseListener.mouseExited(mouseEvent);
-            }
-            dirty = true;
+        if(entered.pressed) {
+            return;
         }
+        for (MouseListener mouseListener : entered.mouseListeners) {
+            mouseListener.mouseExited(mouseEvent);
+        }
+        entered = null;
+        dirty = true;
     }
 
-    void mouseDragged(MouseEvent mouseEvent, int offsetX, int offsetY) {
-        boolean front = true;
-        int mouseX = mouseEvent.getX() - offsetX;
-        int mouseY = mouseEvent.getY() - offsetY;
-        for(Visual v: children) {
-            if(mouseX > v.getLocationX() &&
-                    mouseY > v.getLocationY() &&
-                    mouseX < v.getWidth() + v.getLocationX() &&
-                    mouseY < v.getHeight() + v.getLocationY()) {
-                front = false;
-                v.mouseDragged(mouseEvent, offsetX + v.locationX, offsetY + v.locationY);
-            }
+    void mouseDragged(MouseEvent mouseEvent) {
+        for (MouseListener mouseListener : entered.mouseListeners) {
+            mouseListener.mouseDragged(mouseEvent);
         }
-        if(front) {
-            for(MouseListener mouseListener: mouseListeners) {
-                mouseListener.mouseDragged(mouseEvent);
-            }
-            dirty = true;
-        }
+        entered.dirty = true;
     }
 
     void mouseMoved(MouseEvent mouseEvent, int offsetX, int offsetY) {
+        if(entered != null && entered.pressed){
+            return;
+        }
         boolean front = true;
         int mouseX = mouseEvent.getX() - offsetX;
         int mouseY = mouseEvent.getY() - offsetY;
+        if(entered != null) {
+            if (!entered.isInside(mouseEvent.getX(), mouseEvent.getY())) {
+                for (MouseListener mouseListener : entered.mouseListeners) {
+                    mouseListener.mouseExited(mouseEvent);
+                }
+                entered = this;
+            }
+        }
         for(Visual v: children) {
-            if(mouseX > v.getLocationX() &&
-                    mouseY > v.getLocationY() &&
-                    mouseX < v.getWidth() + v.getLocationX() &&
-                    mouseY < v.getHeight() + v.getLocationY()) {
+            if(v.isInside(mouseX, mouseY)) {
                 front = false;
                 v.mouseMoved(mouseEvent, offsetX + v.locationX, offsetY + v.locationY);
             }
         }
         if(front) {
-            for(MouseListener mouseListener: mouseListeners) {
-                mouseListener.mouseMoved(mouseEvent);
+            if(this.isInside(mouseEvent.getX(), mouseEvent.getY())) {
+                if (this != entered && entered != null) {
+                    for (MouseListener mouseListener : entered.mouseListeners) {
+                        mouseListener.mouseExited(mouseEvent);
+                    }
+                    entered = this;
+                    for (MouseListener mouseListener : mouseListeners) {
+                        mouseListener.mouseEntered(mouseEvent);
+                    }
+                }
+                else {
+                    for (MouseListener mouseListener : mouseListeners) {
+                        mouseListener.mouseMoved(mouseEvent);
+                    }
+                }
             }
             dirty = true;
         }
     }
 
     void mouseWheelMoved(MouseWheelEvent mouseWheelEvent, int offsetX, int offsetY) {
-        boolean front = true;
-        int mouseX = mouseWheelEvent.getX() - offsetX;
-        int mouseY = mouseWheelEvent.getY() - offsetY;
-        for(Visual v: children) {
-            if(mouseX > v.getLocationX() &&
-                    mouseY > v.getLocationY() &&
-                    mouseX < v.getWidth() + v.getLocationX() &&
-                    mouseY < v.getHeight() + v.getLocationY()) {
-                front = false;
-                v.mouseWheelMoved(mouseWheelEvent, offsetX + v.locationX, offsetY + v.locationY);
-            }
-        }
-        if(front) {
+        if(focused) {
             for(MouseWheelListener mouseWheelListener: mouseWheelListeners) {
                 mouseWheelListener.mouseWheelMoved(mouseWheelEvent);
             }
-            dirty = true;
         }
     }
 
@@ -456,5 +436,9 @@ public class Visual {
         for(Visual child: children) {
             child.deactivate();
         }
+    }
+
+    private boolean isInside(int x, int y) {
+        return x > locationX && x < locationX +  width && y > locationY && y < locationY + height;
     }
 }
