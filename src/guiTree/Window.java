@@ -2,21 +2,29 @@ package guiTree;
 
 import guiTree.Components.TitleBar;
 import guiTree.Helper.Point2d;
+import guiTree.Listeners.Direction;
+import guiTree.Listeners.ResizeListener;
 import guiTree.events.MouseAdapter;
+import guiTree.Components.Panel;
 
-import javax.tools.Tool;
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class Window extends Visual {
     public CustomFrame frame;
     private TitleBar titleBar;
+    private Panel mainPanel;
+    private ResizeListener windowResizeListener;
+    private Point2d oldSize;
+    private Point2d oldLocation;
 
-    public Window()
-    {
+    public Window() {
         super();
         this.frame = new CustomFrame(this);
         this.setUndecorated(true);
@@ -24,16 +32,48 @@ public class Window extends Visual {
             this.setSize(getWidth(), getHeight());
             revalidate();
         });
+        Direction[] directions = {Direction.SOUTH, Direction.EAST, Direction.WEST};
+        windowResizeListener = new ResizeListener(directions, new Point2d(getWidth(), getHeight()), new Point2d(getLocationX(), getLocationY()));
+        this.addMouseListener(windowResizeListener);
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent mouseEvent) {
+                setSize(windowResizeListener.size.x, windowResizeListener.size.y);
+                setLocation(windowResizeListener.location.x, windowResizeListener.location.y);
+            }
+            @Override
+            public void mouseMoved(MouseEvent mouseEvent) {
+                frame.setCursor(windowResizeListener.cursor);
+            }
+            @Override
+            public void mouseExited(MouseEvent mouseEvent) {
+                frame.setCursor(windowResizeListener.cursor);
+            }
+        });
+        this.mainPanel = new Panel();
+
+        super.addVisual(mainPanel);
+
+        BufferedImage icon = null;
+        try {
+            icon = ImageIO.read(new File("resources\\icons\\square_white.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        TitleBar bar = new TitleBar("Working Title", icon);
+        bar.setBackgroundColor(Color.GRAY);
+        this.setTitleBar(bar);
     }
 
     @Override
-    public void setSize(Integer width, Integer height)
-    {
+    public void setSize(Integer width, Integer height) {
         this.frame.setSize(width, height);
         super.setSize(width, height);
         if(this.titleBar != null) {
             this.titleBar.setSize(this.getWidth(), titleBar.getHeight());
         }
+        windowResizeListener.setSize(width, height);
+        mainPanel.setSize(width, height);
         revalidate();
     }
 
@@ -78,12 +118,25 @@ public class Window extends Visual {
         titleBar.setSize(this.getWidth(), titleBar.getHeight());
 
         if(this.getTitleBar() != null) {
-            this.removeVisual(this.titleBar);
+            mainPanel.removeVisual(this.titleBar);
         }
 
         this.titleBar = titleBar;
-        this.addVisual(titleBar, 0, 0);
-        this.titleBar.addMouseListener(new TitleBarMouseListener());
+        mainPanel.addVisual(titleBar);
+        this.titleBar.addMouseListener(new MouseAdapter() {
+            private int startX;
+            private int startY;
+
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                startX = mouseEvent.getX();
+                startY = mouseEvent.getY();
+            }
+            @Override
+            public void mouseDragged(MouseEvent mouseEvent) {
+                setLocation(mouseEvent.getXOnScreen() - startX, mouseEvent.getYOnScreen() - startY);
+            }
+        });
     }
 
     public TitleBar getTitleBar() {
@@ -104,66 +157,57 @@ public class Window extends Visual {
         frame.setState(state);
     }
 
-    private void moveTo(int x, int y) {
+    public int getState() {
+        return frame.getState();
+    }
+
+    public void setLocation(int x, int y) {
         this.frame.setLocation(x, y);
+        windowResizeListener.setLocation(x, y);
+    }
+
+    public void setMainPanel(Panel panel) {
+        this.removeVisual(mainPanel);
+        this.addVisual(panel);
+        this.mainPanel = panel;
+    }
+
+    public Panel getMainPanel() {
+        return this.mainPanel;
     }
 
     @Override
     public void handleNotification(int notify) {
         switch(notify) {
-            case TitleBar.CLOSE:
+            case TitleBar.CLOSE: {
                 dispose();
                 break;
-            case TitleBar.MINIMIZE:
+            }
+            case TitleBar.MINIMIZE: {
                 setState(Frame.ICONIFIED);
                 break;
-            case TitleBar.MAXIMIZE:
+            }
+            case TitleBar.MAXIMIZE: {
                 Rectangle screenBounds = frame.getGraphicsConfiguration().getBounds();
+                oldSize = new Point2d(getWidth(), getHeight());
+                oldLocation = new Point2d(frame.getX(), frame.getY());
                 this.setSize(screenBounds.width, screenBounds.height);
-                this.moveTo(screenBounds.x, screenBounds.y);
+                this.setLocation(screenBounds.x, screenBounds.y);
                 setState(Frame.MAXIMIZED_BOTH);
                 break;
-        }
-    }
-
-    private class WindowMouseListener extends MouseAdapter{
-        private Boolean resizing;
-        private Boolean moving;
-        private Point2d initialLocation;
-
-        @Override
-        public void mousePressed(MouseEvent mouseEvent) {
-            this.initialLocation = new Point2d(mouseEvent.getX(), mouseEvent.getY());
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent mouseEvent) {
-            moving = false;
-            resizing = false;
-        }
-    }
-
-
-    private class TitleBarMouseListener extends MouseAdapter {
-        private Boolean moving = false;
-        private Point2d initialLocation;
-
-        @Override
-        public void mouseDragged(MouseEvent mouseEvent) {
-            if(moving) {
-                moveTo(mouseEvent.getXOnScreen() - initialLocation.x, mouseEvent.getYOnScreen() - initialLocation.y);
+            }
+            case TitleBar.NORMALIZE: {
+                Rectangle screenBounds = frame.getGraphicsConfiguration().getBounds();
+                this.setSize(oldSize.x, oldSize.y);
+                this.setLocation(oldLocation.x, oldLocation.y);
+                setState(Frame.NORMAL);
+                break;
             }
         }
+    }
 
-        @Override
-        public void mousePressed(MouseEvent mouseEvent) {
-            moving = true;
-            initialLocation = new Point2d(mouseEvent.getX(), mouseEvent.getY());
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent mouseEvent) {
-            moving = false;
-        }
+    @Override
+    public void addVisual(Visual v) {
+        mainPanel.addVisual(v);
     }
 }

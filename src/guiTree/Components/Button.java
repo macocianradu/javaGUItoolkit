@@ -37,36 +37,30 @@ public class Button extends Visual {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
-                System.out.println("Pressed: " + getName());
                 pressed = true;
                 revalidate();
             }
             @Override
             public void mouseReleased(MouseEvent mouseEvent) {
-                System.out.println("Released: " + getName());
                 pressed = false;
                 revalidate();
             }
             @Override
             public void mouseEntered(MouseEvent mouseEvent) {
-                System.out.println("Entered: " + getName());
                 hovered = true;
                 revalidate();
             }
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
-                System.out.println("Exited: " + getName());
                 hovered = false;
                 revalidate();
             }
             @Override
             public void mouseDragged(MouseEvent mouseEvent) {
-                System.out.println("DRAGGING: " + getName());
                 revalidate();
             }
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
-                System.out.println("Moved: " + getName());
                 revalidate();
             }
         });

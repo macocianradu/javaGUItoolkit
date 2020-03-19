@@ -12,6 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Visual {
+    /*--------------------------------------------------------------------
+                            Constant Values
+    ---------------------------------------------------------------------*/
+    public static final int SIZE_CHANGED = 1;
+    public static final int LOCATION_CHANGED = 2;
 
     /*--------------------------------------------------------------------
                             Tree Elements
@@ -57,6 +62,7 @@ public class Visual {
         this.mouseListeners = new ArrayList<>();
         this.keyListeners = new ArrayList<>();
         this.parent = null;
+        this.name = "";
         this.backgroundColor = Color.WHITE;
         this.foregroundColor = Color.BLUE;
         this.fontColor = Color.BLACK;
@@ -88,12 +94,27 @@ public class Visual {
         initializeImageBuffer();
 
         this.dirty = true;
+        this.notifyParent(SIZE_CHANGED);
     }
+
+//    public void setSize(Float width, Float height) {
+//        this.width = Math.round(this.parent.width * width);
+//        this.height = Math.round(this.parent.height * height);
+//    }
 
     public void setLocation(Integer x, Integer y) {
         this.locationX = x;
         this.locationY = y;
         this.dirty = true;
+        notifyParent(LOCATION_CHANGED);
+    }
+
+    public void setLocationX(Integer x) {
+        this.locationX = x;
+    }
+
+    public void setLocationY(Integer y) {
+        this.locationY = y;
     }
 
     public void setBackgroundColor(Color backgroundColor) {
@@ -120,11 +141,11 @@ public class Visual {
     }
 
     private void calculateInitialLocation() {
-        if(this.locationX == 0) {
-            this.locationX = 1;
+        if(this.locationX <= 0) {
+            this.locationX = 0;
         }
-        if(this.locationY == 0){
-            this.locationY = 1;
+        if(this.locationY <= 0){
+            this.locationY = 0;
         }
     }
 
@@ -185,15 +206,9 @@ public class Visual {
     }
 
     public void addVisual(Visual child) {
-        this.addVisual(child, -1, -1);
-    }
-
-    public void addVisual(Visual child, int x, int y) {
         this.children.add(child);
         child.setParent(this);
-        if(x == -1 && y == -1) {
-            child.calculateInitialLocation();
-        }
+        child.calculateInitialLocation();
         child.calculateInitialSize();
 
         if(this.active) {
@@ -220,7 +235,9 @@ public class Visual {
     }
 
     public void notifyParent(int notify) {
-        this.parent.handleNotification(notify);
+        if(parent != null) {
+            this.parent.handleNotification(notify);
+        }
     }
 
     private void repaint() {
@@ -410,6 +427,9 @@ public class Visual {
                             Helper Methods
     ---------------------------------------------------------------------*/
     private void initializeImageBuffer(){
+        if(this.width == 0 || this.height == 0) {
+            return;
+        }
         this.imageBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         clearImageBuffer();
     }

@@ -1,6 +1,5 @@
 package guiTree.Components;
 
-import guiTree.Helper.Point2d;
 import guiTree.Visual;
 import guiTree.events.MouseAdapter;
 
@@ -9,9 +8,10 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 public class TitleBar extends Visual {
-    public static final int MINIMIZE = 1;
-    public static final int MAXIMIZE = 2;
-    public static final int CLOSE = 3;
+    public static final int CLOSE = 10;
+    public static final int MINIMIZE = 11;
+    public static final int NORMALIZE = 12;
+    public static final int MAXIMIZE = 13;
 
     private BufferedImage icon;
     private String title;
@@ -60,22 +60,39 @@ public class TitleBar extends Visual {
         this.setLocation(0, 0);
 
         setButtonLocation();
+
+        this.addVisual(close);
+        this.addVisual(minimize);
+        this.addVisual(maximize);
+        minimize.setName("minimize");
+        maximize.setName("maximize");
+        close.setName("close");
         close.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                notifyParent(3);
+            public void mouseReleased(MouseEvent mouseEvent) {
+                notifyParent(CLOSE);
             }
         });
         maximize.addMouseListener(new MouseAdapter() {
+            private boolean isMaximized = false;
             @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                notifyParent(2);
+            public void mouseReleased(MouseEvent mouseEvent) {
+                if(isMaximized) {
+                    notifyParent(NORMALIZE);
+                    maximize.setIcon("square_white");
+                    isMaximized = false;
+                }
+                else {
+                    maximize.setIcon("normalize_white");
+                    notifyParent(MAXIMIZE);
+                    isMaximized = true;
+                }
             }
         });
         minimize.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                notifyParent(1);
+            public void mouseReleased(MouseEvent mouseEvent) {
+                notifyParent(MINIMIZE);
             }
         });
     }
@@ -134,15 +151,9 @@ public class TitleBar extends Visual {
     private void setButtonLocation() {
         int buttonOffset = this.getWidth() - close.getWidth();
         close.setLocation(buttonOffset, 0);
-        close.setName("close");
         buttonOffset -= maximize.getWidth();
         maximize.setLocation(buttonOffset, 0);
-        maximize.setName("maximize");
         buttonOffset -= minimize.getWidth();
         minimize.setLocation(buttonOffset, 0);
-        minimize.setName("minimize");
-        this.addVisual(close);
-        this.addVisual(minimize);
-        this.addVisual(maximize);
     }
 }

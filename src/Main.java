@@ -1,15 +1,11 @@
 import guiTree.Components.Button;
-import guiTree.Components.TitleBar;
+import guiTree.Components.Panel;
 import guiTree.Window;
+import guiTree.events.MouseAdapter;
 import parser.XAMLParser;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.awt.event.MouseEvent;
+
 
 public class Main {
     public static void main(String[] args) {
@@ -17,17 +13,20 @@ public class Main {
             Window window = XAMLParser.parse("ui.xml");
             assert window != null;
             window.revalidate();
-            Button button = (Button)window.findByName("button1");
-
-            BufferedImage icon = null;
-            try {
-                icon = ImageIO.read(new File("resources\\icons\\square_white.png"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            TitleBar bar = new TitleBar("Working Title", icon);
-            bar.setBackgroundColor(Color.GRAY);
-            window.setTitleBar(bar);
+            Button button = (Button)window.findByName("button3");
+            button.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent mouseEvent) {
+                    Panel panel = window.getMainPanel();
+                    if(panel.getOverlapping()) {
+                        panel.setOverlapping(false);
+                    }
+                    else {
+                        panel.setOverlapping(true);
+                    }
+                    window.revalidate();
+                }
+            });
 
             window.revalidate();
             long now;

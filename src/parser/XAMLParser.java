@@ -143,7 +143,6 @@ public class XAMLParser {
                 if(parentObject instanceof Visual && childObject instanceof Visual) {
                     addVisual((Visual) parentObject, (Visual) childObject);
                 }
-                System.out.println("\nCurrent Element :" + childNode.getNodeName());
             }
         }
         return parentObject;
