@@ -36,6 +36,8 @@ public class Visual {
 
     private Integer width;
     private Integer height;
+    private Float relativeWidth;
+    private Float relativeHeight;
     private Integer locationX;
     private Integer locationY;
     private Color backgroundColor;
@@ -53,7 +55,7 @@ public class Visual {
     ---------------------------------------------------------------------*/
 
     public Visual() {
-        this(0, 0);
+        this(1, 1);
     }
 
     public Visual(int width, int height) {
@@ -74,6 +76,8 @@ public class Visual {
 
         this.width = width;
         this.height = height;
+        this.relativeWidth = -1.0f;
+        this.relativeHeight = -1.0f;
 
         this.locationX = 0;
         this.locationY = 0;
@@ -87,20 +91,38 @@ public class Visual {
         this.name = name;
     }
 
-    public void setSize(Integer width, Integer height) {
-        this.width = width;
-        this.height = height;
+    private void setSize() {
+        if(parent != null) {
+            if(relativeWidth > 0.0) {
+                width = Math.round(relativeWidth * parent.width);
+            }
+            if(relativeHeight > 0.0) {
+                height = Math.round(relativeHeight * parent.height);
+            }
 
+        }
         initializeImageBuffer();
 
+        for(Visual v: children) {
+            if(v.relativeHeight > 0.0 || v.relativeWidth > 0.0) {
+                v.setSize();
+            }
+        }
         this.dirty = true;
         this.notifyParent(SIZE_CHANGED);
     }
 
-//    public void setSize(Float width, Float height) {
-//        this.width = Math.round(this.parent.width * width);
-//        this.height = Math.round(this.parent.height * height);
-//    }
+    public void setSize(Integer width, Integer height) {
+        this.width = width;
+        this.height = height;
+        setSize();
+    }
+
+    public void setSize(Float width, Float height) {
+        relativeWidth = width;
+        relativeHeight = height;
+        setSize();
+    }
 
     public void setLocation(Integer x, Integer y) {
         this.locationX = x;
@@ -129,15 +151,6 @@ public class Visual {
 
     public void setFontColor(Color fontColor) {
         this.fontColor = fontColor;
-    }
-
-    private void calculateInitialSize() {
-        if(this.width <= 0) {
-            this.width = 1;
-        }
-        if(this.height <= 0){
-            this.height = 1;
-        }
     }
 
     private void calculateInitialLocation() {
@@ -209,7 +222,7 @@ public class Visual {
         this.children.add(child);
         child.setParent(this);
         child.calculateInitialLocation();
-        child.calculateInitialSize();
+        child.setSize();
 
         if(this.active) {
             child.activate();
@@ -219,8 +232,6 @@ public class Visual {
     public void removeVisual(Visual child) {
         this.children.remove(child);
         child.setParent(null);
-        child.setSize(0, 0);
-        child.setLocation(0, 0);
         child.imageBuffer = null;
         child.deactivate();
         this.dirty = true;

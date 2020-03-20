@@ -5,9 +5,11 @@ import java.awt.event.MouseEvent;
 
 public class MouseEventGetter implements MouseInputListener {
     private Window callingWindow;
+    private int delta;
 
-    public MouseEventGetter(Window callingWindow) {
+    public MouseEventGetter(Window callingWindow, int delta) {
         this.callingWindow = callingWindow;
+        this.delta = delta;
     }
 
     @Override

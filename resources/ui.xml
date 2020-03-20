@@ -2,11 +2,11 @@
 <Window Name="window" Visible="true" Size="640, 480">
 <!--    <Panel Name="MainPanel" BackgroundColor="#FFFFFF" Size="1.0, 1.0" Overlapping="false">-->
         <Button Name="button1" BackgroundColor="#990000" Size="0.5, 0.5" Label="button1">
-            <Button Name="button4" BackgroundColor="#009999" Size="100, 100" Icon="square_white">
+            <Button Name="button4" BackgroundColor="#009999" Size="0.3, 0.3" Icon="square_white">
                 <Button Name="button2" BackgroundColor="#000099" Size="50, 50" Label="button2"/>
             </Button>
         </Button>
-        <Button Name="button6" BackgroundColor="#555555" Location="350, 350" Size="100, 100"/>
+        <Button Name="button6" BackgroundColor="#555555" Location="320, 0" Size="0.5, 0.5"/>
         <Button Name="button3" BackgroundColor="#009900" Size="100, 100" Location="300, 300" Icon="close_black"/>
 <!--    </Panel>-->
 </Window>

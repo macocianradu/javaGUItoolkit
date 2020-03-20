@@ -10,6 +10,7 @@ public class Panel extends Visual {
     private Boolean overlapping;
 
     public Panel() {
+        super();
         overlapping = false;
         visuals = new ArrayList<>();
     }
