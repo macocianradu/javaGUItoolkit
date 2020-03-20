@@ -20,6 +20,7 @@ public class Window extends Visual {
     public CustomFrame frame;
     private TitleBar titleBar;
     private Panel mainPanel;
+    private Panel contentPanel;
     private ResizeListener windowResizeListener;
     private Point2d oldSize;
     private Point2d oldLocation;
@@ -52,7 +53,7 @@ public class Window extends Visual {
         });
         this.mainPanel = new Panel();
 
-        super.addVisual(mainPanel);
+        this.setMainPanel(mainPanel);
 
         BufferedImage icon = null;
         try {
@@ -69,8 +70,12 @@ public class Window extends Visual {
     public void setSize(Integer width, Integer height) {
         this.frame.setSize(width, height);
         super.setSize(width, height);
-        if(this.titleBar != null) {
-            this.titleBar.setSize(this.getWidth(), titleBar.getHeight());
+        if(titleBar != null) {
+            titleBar.setSize(this.getWidth(), titleBar.getHeight());
+            contentPanel.setSize(width, height - titleBar.getHeight());
+        }
+        else {
+            contentPanel.setSize(width, height);
         }
         windowResizeListener.setSize(width, height);
         mainPanel.setSize(width, height);
@@ -122,6 +127,9 @@ public class Window extends Visual {
         }
 
         this.titleBar = titleBar;
+        titleBar.setLocation(0, 0);
+        contentPanel.setLocation(0, titleBar.getHeight());
+        contentPanel.setSize(mainPanel.getWidth(), mainPanel.getHeight() - titleBar.getHeight());
         mainPanel.addVisual(titleBar);
         this.titleBar.addMouseListener(new MouseAdapter() {
             private int startX;
@@ -168,7 +176,20 @@ public class Window extends Visual {
 
     public void setMainPanel(Panel panel) {
         this.removeVisual(mainPanel);
-        this.addVisual(panel);
+        contentPanel = new Panel();
+        contentPanel.setName("ContentPanel");
+        if(titleBar != null) {
+            panel.addVisual(titleBar);
+            contentPanel.setLocation(0, titleBar.getHeight());
+            contentPanel.setSize(panel.getWidth(), panel.getHeight() - titleBar.getHeight());
+        }
+        else {
+            contentPanel.setLocation(0, 0);
+            contentPanel.setSize(panel.getWidth(), panel.getHeight());
+        }
+        panel.setName("MainPanel");
+        panel.addVisual(contentPanel);
+        super.addVisual(panel);
         this.mainPanel = panel;
     }
 
@@ -208,6 +229,6 @@ public class Window extends Visual {
 
     @Override
     public void addVisual(Visual v) {
-        mainPanel.addVisual(v);
+        contentPanel.addVisual(v);
     }
 }

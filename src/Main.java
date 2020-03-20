@@ -29,6 +29,7 @@ public class Main {
             });
 
             window.revalidate();
+            System.out.println(Float.parseFloat("3"));
             long now;
             long prev = 0;
 //            while(true) {

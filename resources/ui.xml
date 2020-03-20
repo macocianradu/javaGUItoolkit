@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Window Name="window" Visible="true" Size="640, 480">
 <!--    <Panel Name="MainPanel" BackgroundColor="#FFFFFF" Size="1.0, 1.0" Overlapping="false">-->
-        <Button Name="button1" BackgroundColor="#990000" Size="200, 200" Label="button1">
+        <Button Name="button1" BackgroundColor="#990000" Size="0.5, 0.5" Label="button1">
             <Button Name="button4" BackgroundColor="#009999" Size="100, 100" Icon="square_white">
                 <Button Name="button2" BackgroundColor="#000099" Size="50, 50" Label="button2"/>
             </Button>

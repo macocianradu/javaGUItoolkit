@@ -86,11 +86,11 @@ public class Panel extends Visual {
         int l2y = v2.getLocationY();
         int r2y = v2.getLocationY() + v2.getHeight();
 
-        if(l1x > r2x || l2x > r1x) {
+        if(l1x >= r2x || l2x >= r1x) {
             return  false;
         }
 
-        return l1y <= r2y && l2y <= r1y;
+        return l1y < r2y && l2y < r1y;
     }
 
     @Override

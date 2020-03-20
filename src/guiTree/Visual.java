@@ -331,7 +331,6 @@ public class Visual {
         if(entered != null && entered.pressed){
             return;
         }
-        boolean front = true;
         int mouseX = mouseEvent.getX() - offsetX;
         int mouseY = mouseEvent.getY() - offsetY;
         for(Visual v: children) {
@@ -339,17 +338,15 @@ public class Visual {
                     mouseY > v.getLocationY() &&
                     mouseX < v.getWidth() + v.getLocationX() &&
                     mouseY < v.getHeight() + v.getLocationY()){
-                front = false;
                 v.mouseEntered(mouseEvent, offsetX + v.locationX, offsetY + v.locationY);
+                return;
             }
         }
-        if(front) {
-            entered = this;
-            for(MouseListener mouseListener: mouseListeners) {
-                mouseListener.mouseEntered(mouseEvent);
-            }
-            dirty = true;
+        entered = this;
+        for(MouseListener mouseListener: mouseListeners) {
+            mouseListener.mouseEntered(mouseEvent);
         }
+        dirty = true;
     }
 
     void mouseExited(MouseEvent mouseEvent) {
@@ -377,7 +374,6 @@ public class Visual {
         if(entered != null && entered.pressed){
             return;
         }
-        boolean front = true;
         int mouseX = mouseEvent.getX() - offsetX;
         int mouseY = mouseEvent.getY() - offsetY;
         if(entered != null) {
@@ -390,29 +386,25 @@ public class Visual {
         }
         for(Visual v: children) {
             if(v.isInside(mouseX, mouseY)) {
-                front = false;
                 v.mouseMoved(mouseEvent, offsetX + v.locationX, offsetY + v.locationY);
+                return;
             }
         }
-        if(front) {
-            if(this.isInside(mouseEvent.getX(), mouseEvent.getY())) {
-                if (this != entered && entered != null) {
-                    for (MouseListener mouseListener : entered.mouseListeners) {
-                        mouseListener.mouseExited(mouseEvent);
-                    }
-                    entered = this;
-                    for (MouseListener mouseListener : mouseListeners) {
-                        mouseListener.mouseEntered(mouseEvent);
-                    }
-                }
-                else {
-                    for (MouseListener mouseListener : mouseListeners) {
-                        mouseListener.mouseMoved(mouseEvent);
-                    }
-                }
+        if (this != entered && entered != null) {
+            for (MouseListener mouseListener : entered.mouseListeners) {
+                mouseListener.mouseExited(mouseEvent);
             }
-            dirty = true;
+            entered = this;
+            for (MouseListener mouseListener : mouseListeners) {
+                mouseListener.mouseEntered(mouseEvent);
+            }
         }
+        else {
+            for (MouseListener mouseListener : mouseListeners) {
+                mouseListener.mouseMoved(mouseEvent);
+            }
+        }
+        dirty = true;
     }
 
     void mouseWheelMoved(MouseWheelEvent mouseWheelEvent, int offsetX, int offsetY) {
@@ -427,7 +419,7 @@ public class Visual {
                             Helper Methods
     ---------------------------------------------------------------------*/
     private void initializeImageBuffer(){
-        if(this.width == 0 || this.height == 0) {
+        if(this.width <= 0 || this.height <= 0) {
             return;
         }
         this.imageBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -435,6 +427,9 @@ public class Visual {
     }
 
     private void clearImageBuffer() {
+        if(imageBuffer == null) {
+            return;
+        }
         Graphics g = this.imageBuffer.getGraphics();
         g.setColor(backgroundColor);
         g.fillRect(0, 0, width, height);

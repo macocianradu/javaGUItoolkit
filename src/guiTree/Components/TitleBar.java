@@ -56,7 +56,7 @@ public class TitleBar extends Visual {
         maximize.setForegroundColor(Color.LIGHT_GRAY);
         minimize.setForegroundColor(Color.LIGHT_GRAY);
 
-        this.setSize(1, 30);
+        this.setSize(0, 30);
         this.setLocation(0, 0);
 
         setButtonLocation();
@@ -96,7 +96,6 @@ public class TitleBar extends Visual {
             }
         });
     }
-
 
     /*--------------------------------------------------------------------
                             Getters
