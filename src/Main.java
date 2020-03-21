@@ -12,7 +12,7 @@ public class Main {
         try{
             Window window = XAMLParser.parse("ui.xml");
             assert window != null;
-            window.revalidate();
+            window.repaint();
             Button button = (Button)window.findByName("button3");
             button.addMouseListener(new MouseAdapter() {
                 @Override
@@ -24,11 +24,11 @@ public class Main {
                     else {
                         panel.setOverlapping(true);
                     }
-                    window.revalidate();
+                    window.repaint();
                 }
             });
 
-            window.revalidate();
+            window.repaint();
             System.out.println(Float.parseFloat("3"));
             long now;
             long prev = 0;

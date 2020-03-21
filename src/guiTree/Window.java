@@ -21,7 +21,6 @@ public class Window extends Visual {
     private TitleBar titleBar;
     private Panel mainPanel;
     private Panel contentPanel;
-    private ResizeListener windowResizeListener;
     private Point2d oldSize;
     private Point2d oldLocation;
 
@@ -31,25 +30,7 @@ public class Window extends Visual {
         this.setUndecorated(true);
         this.addWindowStateListener(e -> {
             this.setSize(getWidth(), getHeight());
-            revalidate();
-        });
-        Direction[] directions = {Direction.SOUTH, Direction.EAST, Direction.WEST};
-        windowResizeListener = new ResizeListener(directions, new Point2d(getWidth(), getHeight()), new Point2d(getLocationX(), getLocationY()));
-        this.addMouseListener(windowResizeListener);
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent mouseEvent) {
-                setSize(windowResizeListener.size.x, windowResizeListener.size.y);
-                setLocation(windowResizeListener.location.x, windowResizeListener.location.y);
-            }
-            @Override
-            public void mouseMoved(MouseEvent mouseEvent) {
-                frame.setCursor(windowResizeListener.cursor);
-            }
-            @Override
-            public void mouseExited(MouseEvent mouseEvent) {
-                frame.setCursor(windowResizeListener.cursor);
-            }
+            repaint();
         });
         this.mainPanel = new Panel();
 
@@ -77,9 +58,8 @@ public class Window extends Visual {
         else {
             contentPanel.setSize(width, height);
         }
-        windowResizeListener.setSize(width, height);
         mainPanel.setSize(width, height);
-        revalidate();
+        repaint();
     }
 
     public void setFrameImageBuffer(BufferedImage imageBuffer){
@@ -87,7 +67,7 @@ public class Window extends Visual {
         this.frame.repaint();
     }
 
-    public void repaint() {
+    public void revalidate() {
         this.frame.repaint();
     }
 
@@ -171,7 +151,6 @@ public class Window extends Visual {
 
     public void setLocation(int x, int y) {
         this.frame.setLocation(x, y);
-        windowResizeListener.setLocation(x, y);
     }
 
     public void setMainPanel(Panel panel) {

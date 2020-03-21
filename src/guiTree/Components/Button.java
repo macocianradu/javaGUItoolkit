@@ -38,30 +38,30 @@ public class Button extends Visual {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
                 pressed = true;
-                revalidate();
+                repaint();
             }
             @Override
             public void mouseReleased(MouseEvent mouseEvent) {
                 pressed = false;
-                revalidate();
+                repaint();
             }
             @Override
             public void mouseEntered(MouseEvent mouseEvent) {
                 hovered = true;
-                revalidate();
+                repaint();
             }
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
                 hovered = false;
-                revalidate();
+                repaint();
             }
             @Override
             public void mouseDragged(MouseEvent mouseEvent) {
-                revalidate();
+                repaint();
             }
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
-                revalidate();
+                repaint();
             }
         });
     }

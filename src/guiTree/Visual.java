@@ -40,6 +40,8 @@ public class Visual {
     private Float relativeHeight;
     private Integer locationX;
     private Integer locationY;
+    private Float relativeX;
+    private Float relativeY;
     private Color backgroundColor;
     private Color foregroundColor;
     private Color fontColor;
@@ -78,6 +80,8 @@ public class Visual {
         this.height = height;
         this.relativeWidth = -1.0f;
         this.relativeHeight = -1.0f;
+        this.relativeX = -1.0f;
+        this.relativeY = -1.0f;
 
         this.locationX = 0;
         this.locationY = 0;
@@ -107,6 +111,9 @@ public class Visual {
             if(v.relativeHeight > 0.0 || v.relativeWidth > 0.0) {
                 v.setSize();
             }
+            if(v.relativeX >= 0.0 || v.relativeY >= 0.0) {
+                v.setLocation();
+            }
         }
         this.dirty = true;
         this.notifyParent(SIZE_CHANGED);
@@ -124,11 +131,30 @@ public class Visual {
         setSize();
     }
 
+    public void setLocation() {
+        if(parent != null) {
+            if(relativeX >= 0.0) {
+                locationX = Math.round(relativeX * parent.width);
+            }
+            if(relativeY >= 0.0) {
+                locationY = Math.round(relativeY * parent.height);
+            }
+        }
+
+        this.dirty = true;
+        notifyParent(LOCATION_CHANGED);
+    }
+
+    public void setLocation(Float x, Float y) {
+        relativeX = x;
+        relativeY = y;
+        setLocation();
+    }
+
     public void setLocation(Integer x, Integer y) {
         this.locationX = x;
         this.locationY = y;
-        this.dirty = true;
-        notifyParent(LOCATION_CHANGED);
+        setLocation();
     }
 
     public void setLocationX(Integer x) {
@@ -251,22 +277,20 @@ public class Visual {
         }
     }
 
-    private void repaint() {
-        this.paint(imageBuffer);
+    public void repaint() {
+        if(!this.active){
+            return;
+        }
         if(this.dirty) {
             this.revalidate();
             return;
         }
         for(Visual v: children) {
             v.repaint();
-            imageBuffer.getGraphics().drawImage(v.imageBuffer, v.locationX, v.locationY, null);
         }
     }
 
-    public void revalidate() {
-        if(!this.active){
-            return;
-        }
+    private void revalidate() {
         clearImageBuffer();
         this.paint(imageBuffer);
         for (Visual v : children) {
@@ -280,7 +304,7 @@ public class Visual {
         }
         Window window = (Window)this;
         window.setFrameImageBuffer(imageBuffer);
-        window.repaint();
+        window.revalidate();
     }
 
     public void paint(BufferedImage imageBuffer) {
@@ -449,7 +473,6 @@ public class Visual {
 
     private void activate() {
         this.active = true;
-        this.imageBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for(Visual child: children) {
             child.activate();
         }
