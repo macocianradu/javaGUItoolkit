@@ -41,26 +41,6 @@ public class XAMLParser {
         }
     }
 
-    private static Method getMethod(Object object, String methodName, List<Object> parameterList){
-        Method method;
-        Class<?>[] args = new Class[parameterList.size()];
-        for(Object o: parameterList){
-            try {
-                args[parameterList.indexOf(o)] = o.getClass();
-            } catch (NullPointerException e) {
-                System.err.println("Null Pointer Exception: " + methodName + " with parameters + " + parameterList.toString());
-            }
-        }
-        try {
-            method = object.getClass().getMethod(methodName, args);
-            return method;
-        } catch (NoSuchMethodException e) {
-            System.err.println("Method does not exist: " + methodName + " with parameters + " + parameterList.toString());
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     private static List<Method> getMethodsFromName(Object object, String methodName){
        Method[] methods = object.getClass().getMethods();
        List<Method> returnMethods = new ArrayList<>();
@@ -86,6 +66,7 @@ public class XAMLParser {
         rootObject = parseNode(rootNode);
 
         if(rootObject instanceof Window) {
+            ((Window) rootObject).repaint();
             return (Window) rootObject;
         }
         return null;
@@ -112,7 +93,7 @@ public class XAMLParser {
                     break;
                 }
             }
-            if(primitiveAttributes.size() == types.length){
+            if(primitiveAttributes.size() == types.length && types.length == values.size()){
                 return primitiveAttributes;
             }
         }

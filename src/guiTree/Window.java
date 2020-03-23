@@ -1,9 +1,9 @@
 package guiTree;
 
 import guiTree.Components.TitleBar;
+import guiTree.Helper.Debugger;
 import guiTree.Helper.Point2d;
-import guiTree.Listeners.Direction;
-import guiTree.Listeners.ResizeListener;
+import guiTree.Helper.Tag;
 import guiTree.events.MouseAdapter;
 import guiTree.Components.Panel;
 
@@ -25,6 +25,10 @@ public class Window extends Visual {
     private Point2d oldLocation;
 
     public Window() {
+        this("");
+    }
+
+    public Window(String title) {
         super();
         this.frame = new CustomFrame(this);
         this.setUndecorated(true);
@@ -42,7 +46,8 @@ public class Window extends Visual {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        TitleBar bar = new TitleBar("Working Title", icon);
+        TitleBar bar = new TitleBar(title, icon);
+        bar.setName("TitleBar");
         bar.setBackgroundColor(Color.GRAY);
         this.setTitleBar(bar);
     }
@@ -51,6 +56,7 @@ public class Window extends Visual {
     public void setSize(Integer width, Integer height) {
         this.frame.setSize(width, height);
         super.setSize(width, height);
+        mainPanel.setSize(width, height);
         if(titleBar != null) {
             titleBar.setSize(this.getWidth(), titleBar.getHeight());
             contentPanel.setSize(width, height - titleBar.getHeight());
@@ -58,7 +64,7 @@ public class Window extends Visual {
         else {
             contentPanel.setSize(width, height);
         }
-        mainPanel.setSize(width, height);
+        Debugger.log("Calling repaint from window set size: ", Tag.PAINTING);
         repaint();
     }
 
@@ -68,6 +74,7 @@ public class Window extends Visual {
     }
 
     public void revalidate() {
+        Debugger.log("Finished painting", Tag.PAINTING);
         this.frame.repaint();
     }
 
@@ -125,6 +132,10 @@ public class Window extends Visual {
                 setLocation(mouseEvent.getXOnScreen() - startX, mouseEvent.getYOnScreen() - startY);
             }
         });
+    }
+
+    public void setTitle(String title) {
+        titleBar.setTitle(title);
     }
 
     public TitleBar getTitleBar() {
@@ -197,7 +208,6 @@ public class Window extends Visual {
                 break;
             }
             case TitleBar.NORMALIZE: {
-                Rectangle screenBounds = frame.getGraphicsConfiguration().getBounds();
                 this.setSize(oldSize.x, oldSize.y);
                 this.setLocation(oldLocation.x, oldLocation.y);
                 setState(Frame.NORMAL);

@@ -1,5 +1,7 @@
 package guiTree;
 
+import guiTree.Helper.Debugger;
+import guiTree.Helper.Tag;
 import guiTree.events.KeyEventGetter;
 import guiTree.events.MouseWheelGetter;
 
@@ -37,8 +39,7 @@ public class CustomFrame extends JFrame {
     }
 
     @Override
-    public void paint(Graphics g)
-    {
+    public void paint(Graphics g) {
         g.drawImage(imageBuffer, 0, 0, this.getWidth(), this.getHeight(), null);
     }
 

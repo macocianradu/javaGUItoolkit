@@ -1,13 +1,38 @@
 <?xml version="1.0"?>
-<Window Name="window" Visible="true" Size="640, 480">
-    <Panel Name="MainPanel" BackgroundColor="#999999" Size="1.0, 1.0" Overlapping="true">
-    <Button Name="button1" BackgroundColor="#990000" Size="0.5, 0.5" Location="0.0, 0.0" Label="button1">
-        <Button Name="button4" BackgroundColor="#009999" Size="0.3, 0.3" Icon="square_white">
-            <Button Name="button2" BackgroundColor="#000099" Size="50, 50" Label="button2"/>
+<Window
+        Name="window"
+        Visible="true"
+        Size="640, 480"
+        Title="FANTASTICEST UI THINGY">
+        <Button
+                Name="button1"
+                BackgroundColor="#999999"
+                AccentColor="#666666"
+                ForegroundColor="#333333"
+                Size="0.5, 0.5"
+                Location="0.0, 0.0"
+                HasBorder="true"
+                Label="button1">
+            <Button
+                    Name="button4"
+                    BackgroundColor="#009999"
+                    AccentColor="#006666"
+                    ForegroundColor="#003333"
+                    Size="0.5, 0.5"
+                    Location="0.25, 0.25"
+                    Icon="square_white"
+                    HasBorder="true">
+                <Button
+                        Name="button2"
+                        BackgroundColor="#000099"
+                        AccentColor="#000066"
+                        ForegroundColor="#000033"
+                        Size="0.5, 0.5"
+                        Location="0.25, 0.25"
+                        Label="button2"/>
+            </Button>
         </Button>
-    </Button>
     <Button Name="button6" BackgroundColor="#555555" Location="0.5, 0.5" Size="0.5, 0.5"/>
-    <Button Name="button3" BackgroundColor="#009900" Size="0.5, 0.5" Location="0.5, 0.0" Icon="close_black"/>
-<!--    <Button Name="button3" BackgroundColor="#123456" Size="0.5, 0.5" Location="0.5, 0.0" Icon="minimize_white"/>-->
-    </Panel>
+    <Button Name="button3" BackgroundColor="#009900" Size="0.5, 0.5" Location="0.0, 0.5" Icon="close_black"/>
+    <Button Name="button3" BackgroundColor="#123456" Size="0.5, 0.5" Location="0.5, 0.0" Icon="minimize_white"/>
 </Window>

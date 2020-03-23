@@ -72,8 +72,8 @@ public class Panel extends Visual {
 
     @Override
     public void addVisual(Visual v) {
-        calculatePosition(v);
         super.addVisual(v);
+        calculatePosition(v);
         visuals.add(v);
     }
 

@@ -52,9 +52,13 @@ public class TitleBar extends Visual {
         close.setBackgroundColor(Color.GRAY);
         maximize.setBackgroundColor(Color.GRAY);
         minimize.setBackgroundColor(Color.GRAY);
+        close.setAccentColor(Color.RED);
+        maximize.setAccentColor(Color.LIGHT_GRAY);
+        minimize.setAccentColor(Color.LIGHT_GRAY);
         close.setForegroundColor(Color.RED);
-        maximize.setForegroundColor(Color.LIGHT_GRAY);
-        minimize.setForegroundColor(Color.LIGHT_GRAY);
+        maximize.setForegroundColor(Color.DARK_GRAY);
+        minimize.setForegroundColor(Color.DARK_GRAY);
+
 
         this.setSize(0, 30);
         this.setLocation(0, 0);

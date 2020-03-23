@@ -1,5 +1,8 @@
 package guiTree.Components;
 
+import guiTree.Helper.Debugger;
+import guiTree.Helper.Tag;
+import guiTree.Helper.Timer;
 import guiTree.Visual;
 import guiTree.events.MouseAdapter;
 
@@ -36,31 +39,40 @@ public class Button extends Visual {
         hovered = false;
         this.addMouseListener(new MouseAdapter() {
             @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+                pressed = false;
+            }
+            @Override
             public void mousePressed(MouseEvent mouseEvent) {
                 pressed = true;
+                Debugger.log("Pressed: " + getName(), Tag.LISTENER);
+                Debugger.log("Calling repaint from pressed: " + getName(), Tag.PAINTING);
                 repaint();
             }
             @Override
             public void mouseReleased(MouseEvent mouseEvent) {
                 pressed = false;
+                Debugger.log("Calling repaint from released: " + getName(), Tag.PAINTING);
                 repaint();
             }
             @Override
             public void mouseEntered(MouseEvent mouseEvent) {
                 hovered = true;
+                Debugger.log("Calling repaint from entered: " + getName(), Tag.PAINTING);
                 repaint();
             }
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
                 hovered = false;
+                Debugger.log("Calling repaint from exited: " + getName(), Tag.PAINTING);
                 repaint();
             }
             @Override
             public void mouseDragged(MouseEvent mouseEvent) {
-                repaint();
             }
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
+                Debugger.log("Calling repaint from moved: " + getName(), Tag.PAINTING);
                 repaint();
             }
         });
@@ -78,18 +90,28 @@ public class Button extends Visual {
         g.setComposite(AlphaComposite.Src);
 
         //Choose background
-        if(hovered || pressed) {
-            g.setColor(this.getForegroundColor());
+        if(hovered) {
+            g.setColor(this.getAccentColor());
         }
         else {
             g.setColor(this.getBackgroundColor());
         }
+        if(pressed) {
+            g.setColor(this.getForegroundColor());
+        }
 
         //Draw Button
-        g.fillRect(0, 0, this.getWidth(), this.getHeight());
-        g.setColor(this.getFontColor());
+        if(getHasBorder()) {
+            g.fillRect(1, 1, this.getWidth() - 2, this.getHeight() - 2);
+            g.setColor(getBorderColor());
+            g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+        }
+        else {
+            g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
+        }
 
         //Draw Label
+        g.setColor(this.getFontColor());
         int textWidth = 0;
         int textHeight = 0;
         if(!label.equals("")) {

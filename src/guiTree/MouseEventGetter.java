@@ -19,7 +19,7 @@ public class MouseEventGetter implements MouseInputListener {
 
     @Override
     public void mouseMoved(MouseEvent mouseEvent) {
-        callingWindow.mouseMoved(mouseEvent, 0, 0);
+        callingWindow.mouseMoved(mouseEvent);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class MouseEventGetter implements MouseInputListener {
 
     @Override
     public void mouseEntered(MouseEvent mouseEvent) {
-        callingWindow.mouseEntered(mouseEvent, 0, 0);
+        callingWindow.mouseEntered(mouseEvent);
     }
 
     @Override
