@@ -12,25 +12,25 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Button extends Visual {
+public class ToggleButton extends Visual {
     private String label;
     private Boolean pressed;
     private Boolean hovered;
     private BufferedImage icon;
 
-    public Button() {
+    public ToggleButton() {
         this("", null);
     }
 
-    public Button(String label) {
+    public ToggleButton(String label) {
         this(label, null);
     }
 
-    public Button(BufferedImage icon) {
+    public ToggleButton(BufferedImage icon) {
         this(null, icon);
     }
 
-    public Button(String label, BufferedImage icon) {
+    public ToggleButton(String label, BufferedImage icon) {
         super();
         this.label = label;
         this.icon = icon;
@@ -38,20 +38,10 @@ public class Button extends Visual {
         hovered = false;
         this.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                pressed = false;
-            }
-            @Override
             public void mousePressed(MouseEvent mouseEvent) {
-                pressed = true;
+                pressed = !pressed;
                 Debugger.log("Pressed: " + getName(), Tag.LISTENER);
                 Debugger.log("Calling repaint from pressed: " + getName(), Tag.PAINTING);
-                repaint();
-            }
-            @Override
-            public void mouseReleased(MouseEvent mouseEvent) {
-                pressed = false;
-                Debugger.log("Calling repaint from released: " + getName(), Tag.PAINTING);
                 repaint();
             }
             @Override
@@ -65,9 +55,6 @@ public class Button extends Visual {
                 hovered = false;
                 Debugger.log("Calling repaint from exited: " + getName(), Tag.PAINTING);
                 repaint();
-            }
-            @Override
-            public void mouseDragged(MouseEvent mouseEvent) {
             }
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
@@ -160,5 +147,13 @@ public class Button extends Visual {
 
     public BufferedImage getIcon() {
         return icon;
+    }
+
+    public void setPressed(Boolean pressed) {
+        this.pressed = pressed;
+    }
+
+    public Boolean getPressed() {
+        return pressed;
     }
 }

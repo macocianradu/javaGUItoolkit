@@ -1,7 +1,7 @@
 package guiTree.Helper;
 
 public enum Tag {
-    LISTENER(false),
+    LISTENER(true),
     PAINTING(false);
 
     public boolean value;

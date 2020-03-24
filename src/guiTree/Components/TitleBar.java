@@ -124,6 +124,7 @@ public class TitleBar extends Visual {
 
     public void setTitle(String title) {
         this.title = title;
+        update();
     }
 
     @Override
@@ -142,6 +143,9 @@ public class TitleBar extends Visual {
         iconGraphics.drawImage(icon, 5, (getHeight() - icon.getHeight())/2, null);
         iconGraphics.dispose();
 
+        if(getFont() != null) {
+            g.setFont(getFont());
+        }
         int stringOffset = icon.getWidth() + 10;
         int textHeight = 0;
         if(!title.equals("")) {

@@ -76,7 +76,7 @@ public class XAMLParser {
         List<Object> primitiveAttributes = new ArrayList<>();
         List<String> values = new ArrayList<>();
 
-        value = value.replaceAll(" ", "");
+//        value = value.replaceAll(" ", "");
         while (value.contains(",")) {
             values.add(value.substring(0, value.indexOf(',')));
             value = value.substring(value.indexOf(',') + 1);

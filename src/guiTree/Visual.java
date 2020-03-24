@@ -48,6 +48,8 @@ public class Visual {
     private Integer absoluteY;
     private Float relativeX;
     private Float relativeY;
+    private Boolean hasBorder;
+    private Font font;
     private Color backgroundColor;
     private Color foregroundColor;
     private Color accentColor;
@@ -57,7 +59,6 @@ public class Visual {
     public Boolean dirty;
     private static Visual entered;
     private Boolean focused;
-    private Boolean hasBorder;
     private Boolean pressed;
 
 
@@ -109,7 +110,7 @@ public class Visual {
         this.name = name;
     }
 
-    private void setSize() {
+    public void setSize() {
         if(parent != null) {
             if(relativeWidth > 0.0) {
                 width = Math.round(relativeWidth * parent.width);
@@ -180,6 +181,10 @@ public class Visual {
         this.locationY = y;
     }
 
+    public void setFont(Font font) {
+        this.font = font;
+    }
+
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
         propagateDirt();
@@ -228,6 +233,10 @@ public class Visual {
 
     public int getLocationY() {
         return this.locationY;
+    }
+
+    public Font getFont() {
+        return font;
     }
 
     public Color getBackgroundColor() {
@@ -339,8 +348,11 @@ public class Visual {
         window.revalidate();
     }
 
-    public void paint(BufferedImage imageBuffer) {
+    public void update() {
+        propagateDirt();
+    }
 
+    public void paint(BufferedImage imageBuffer) {
     }
 
     /*--------------------------------------------------------------------
@@ -508,8 +520,12 @@ public class Visual {
         if(imageBuffer == null) {
             return;
         }
-        Graphics g = this.imageBuffer.getGraphics();
-        g.setColor(backgroundColor);
+        Graphics2D g = this.imageBuffer.createGraphics();
+
+        g.setComposite(AlphaComposite.Clear);
+        g.fillRect(0, 0, getWidth(), getHeight());
+        g.setComposite(AlphaComposite.Src);
+
         g.fillRect(0, 0, width, height);
         g.dispose();
     }
