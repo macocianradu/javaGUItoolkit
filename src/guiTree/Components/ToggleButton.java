@@ -1,7 +1,6 @@
 package guiTree.Components;
 
 import guiTree.Helper.Debugger;
-import guiTree.Helper.Tag;
 import guiTree.Visual;
 import guiTree.events.MouseAdapter;
 
@@ -40,26 +39,25 @@ public class ToggleButton extends Visual {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
                 pressed = !pressed;
-                Debugger.log("Pressed: " + getName(), Tag.LISTENER);
-                Debugger.log("Calling repaint from pressed: " + getName(), Tag.PAINTING);
-                repaint();
+                Debugger.log("Pressed: " + getName(), Debugger.Tag.LISTENER);
+                Debugger.log("Calling repaint from pressed: " + getName(), Debugger.Tag.PAINTING);
+                update();
             }
             @Override
             public void mouseEntered(MouseEvent mouseEvent) {
                 hovered = true;
-                Debugger.log("Calling repaint from entered: " + getName(), Tag.PAINTING);
-                repaint();
+                Debugger.log("Calling repaint from entered: " + getName(), Debugger.Tag.PAINTING);
+                update();
             }
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
                 hovered = false;
-                Debugger.log("Calling repaint from exited: " + getName(), Tag.PAINTING);
-                repaint();
+                Debugger.log("Calling repaint from exited: " + getName(), Debugger.Tag.PAINTING);
+                update();
             }
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
-                Debugger.log("Calling repaint from moved: " + getName(), Tag.PAINTING);
-                repaint();
+                Debugger.log("Calling repaint from moved: " + getName(), Debugger.Tag.PAINTING);
             }
         });
     }

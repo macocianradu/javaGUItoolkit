@@ -2,6 +2,8 @@ package guiTree.Components;
 
 import guiTree.Visual;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,5 +106,15 @@ public class Panel extends Visual {
 //        if(notify == SIZE_CHANGED || notify == LOCATION_CHANGED) {
 //            reposition();
 //        }
+    }
+
+    @Override
+    public void paint(BufferedImage imageBuffer) {
+        Graphics2D g = imageBuffer.createGraphics();
+
+        g.setColor(getBackgroundColor());
+        g.fillRect(0, 0, getWidth(), getHeight());
+
+        g.dispose();
     }
 }

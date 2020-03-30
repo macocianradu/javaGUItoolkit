@@ -2,10 +2,13 @@ package guiTree;
 
 import guiTree.Components.TitleBar;
 import guiTree.Helper.Debugger;
-import guiTree.Helper.Point2d;
-import guiTree.Helper.Tag;
+import guiTree.Helper.Point2;
+import guiTree.Helper.Timer;
+import guiTree.events.KeyListener;
 import guiTree.events.MouseAdapter;
 import guiTree.Components.Panel;
+import guiTree.events.MouseListener;
+import guiTree.events.MouseWheelListener;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -16,13 +19,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Window extends Visual {
+public class Window extends Visual implements Runnable{
     public CustomFrame frame;
     private TitleBar titleBar;
     private Panel mainPanel;
     private Panel contentPanel;
-    private Point2d oldSize;
-    private Point2d oldLocation;
+    private Point2<Integer> oldSize;
+    private Boolean close;
+    private Point2<Integer> oldLocation;
 
     public Window() {
         this("");
@@ -50,6 +54,7 @@ public class Window extends Visual {
         bar.setName("TitleBar");
         bar.setBackgroundColor(Color.GRAY);
         this.setTitleBar(bar);
+        close = false;
     }
 
     @Override
@@ -64,7 +69,7 @@ public class Window extends Visual {
         else {
             contentPanel.setSize(width, height);
         }
-        Debugger.log("Calling repaint from window set size: ", Tag.PAINTING);
+        Debugger.log("Calling repaint from window set size: ", Debugger.Tag.PAINTING);
         repaint();
     }
 
@@ -74,7 +79,7 @@ public class Window extends Visual {
     }
 
     public void revalidate() {
-        Debugger.log("Finished painting", Tag.PAINTING);
+        Debugger.log("Finished painting", Debugger.Tag.PAINTING);
         this.frame.repaint();
     }
 
@@ -192,6 +197,7 @@ public class Window extends Visual {
         switch(notify) {
             case TitleBar.CLOSE: {
                 dispose();
+                close = true;
                 break;
             }
             case TitleBar.MINIMIZE: {
@@ -200,8 +206,8 @@ public class Window extends Visual {
             }
             case TitleBar.MAXIMIZE: {
                 Rectangle screenBounds = frame.getGraphicsConfiguration().getBounds();
-                oldSize = new Point2d(getWidth(), getHeight());
-                oldLocation = new Point2d(frame.getX(), frame.getY());
+                oldSize = new Point2<>(getWidth(), getHeight());
+                oldLocation = new Point2<>(frame.getX(), frame.getY());
                 this.setSize(screenBounds.width, screenBounds.height);
                 this.setLocation(screenBounds.x, screenBounds.y);
                 setState(Frame.MAXIMIZED_BOTH);
@@ -217,7 +223,43 @@ public class Window extends Visual {
     }
 
     @Override
+    public void addMouseListener(MouseListener mouseListener) {
+        contentPanel.addMouseListener(mouseListener);
+    }
+
+    @Override
+    public void addKeyListener(KeyListener keyListener) {
+        contentPanel.addKeyListener(keyListener);
+    }
+
+    @Override
+    public void addMouseWheelListener(MouseWheelListener mouseWheelListener) {
+        contentPanel.addMouseWheelListener(mouseWheelListener);
+    }
+
+    @Override
     public void addVisual(Visual v) {
         contentPanel.addVisual(v);
+    }
+
+    @Override
+    public void run() {
+        Timer frameTimer = new Timer();
+        Timer secondTimer = new Timer();
+        int frames = 0;
+        frameTimer.startTiming();
+        secondTimer.startTiming();
+        while(!close) {
+            if(frameTimer.getTime() >= 1000/60) {
+                repaint();
+                frameTimer.startTiming();
+                frames ++;
+            }
+            if(secondTimer.getTime() >= 1000) {
+                Debugger.log("Frames per second: " + frames, Debugger.Tag.FPS);
+                frames = 0;
+                secondTimer.startTiming();
+            }
+        }
     }
 }

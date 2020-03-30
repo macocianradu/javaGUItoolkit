@@ -1,6 +1,6 @@
 package guiTree.Components;
 
-import guiTree.Helper.Point2d;
+import guiTree.Helper.Point2;
 import guiTree.Visual;
 
 import javax.imageio.ImageIO;
@@ -15,7 +15,7 @@ public class CheckBoxList extends Visual {
     private List<CheckBox> checkBoxList;
     int spacing;
     private BufferedImage icon;
-    private Point2d checkBoxSize;
+    private Point2<Integer> checkBoxSize;
 
     public CheckBoxList() {
         this(20);
@@ -84,7 +84,7 @@ public class CheckBoxList extends Visual {
         for(CheckBox cb: checkBoxList) {
             cb.setSize(width, height);
         }
-        checkBoxSize = new Point2d(width, height);
+        checkBoxSize = new Point2<>(width, height);
     }
 
     @Override

@@ -12,4 +12,8 @@ public class Timer {
         now = System.currentTimeMillis();
         return now - prev;
     }
+
+    public long getTime() {
+        return System.currentTimeMillis() - prev;
+    }
 }

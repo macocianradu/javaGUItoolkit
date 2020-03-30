@@ -1,6 +1,7 @@
 package converters;
 
 import com.sun.jdi.InvalidTypeException;
+import guiTree.Components.Slider;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public class Converter {
         this.converterTable.put(Double.TYPE, new DoubleConverter());
         this.converterTable.put(Boolean.TYPE, new BooleanConverter());
         this.converterTable.put(Color.class, new ColorConverter());
+        this.converterTable.put(Slider.Direction.class, new DirectionConverter());
     }
 
     public Object objectCreatorFactory (Class<?> type, String content) throws InvalidTypeException {

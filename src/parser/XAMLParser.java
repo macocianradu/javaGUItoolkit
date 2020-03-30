@@ -2,6 +2,7 @@ package parser;
 
 import com.sun.jdi.InvalidTypeException;
 import converters.Converter;
+import guiTree.Helper.Debugger;
 import guiTree.Visual;
 import guiTree.Window;
 import org.w3c.dom.*;
@@ -24,6 +25,7 @@ public class XAMLParser {
             String methodName = "set";
             methodName = methodName.concat(attribute.getNodeName());
             List<Object> parameterList = convertStringToPrimitives(object, attribute.getNodeValue(), methodName);
+            Debugger.log("Calling " + methodName + " " + attribute.getNodeValue(), Debugger.Tag.PARSING);
             if(parameterList == null) {
                 break;
             }
@@ -54,6 +56,7 @@ public class XAMLParser {
 
     public static Window parse(String filepath) throws Exception {
         Object rootObject;
+        Debugger.log("Started", Debugger.Tag.PARSING);
         FileInputStream fileIS = new FileInputStream(new File("resources/" + filepath));
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = builderFactory.newDocumentBuilder();
@@ -62,11 +65,15 @@ public class XAMLParser {
         xmlDocument.normalize();
 
         Element rootNode = xmlDocument.getDocumentElement();
+        Debugger.log("Root element:" + rootNode.toString(), Debugger.Tag.PARSING);
 
         rootObject = parseNode(rootNode);
 
         if(rootObject instanceof Window) {
             ((Window) rootObject).repaint();
+            Thread windowThread = new Thread((Window) rootObject);
+            windowThread.setName("Painting Thread");
+            windowThread.start();
             return (Window) rootObject;
         }
         return null;
@@ -76,13 +83,15 @@ public class XAMLParser {
         List<Object> primitiveAttributes = new ArrayList<>();
         List<String> values = new ArrayList<>();
 
-//        value = value.replaceAll(" ", "");
         while (value.contains(",")) {
             values.add(value.substring(0, value.indexOf(',')));
             value = value.substring(value.indexOf(',') + 1);
         }
         values.add(value);
         List<Method> methods = getMethodsFromName(object, methodName);
+        if(methods.size() == 0) {
+            System.out.println("Could not find method " + methodName);
+        }
         for(Method method: methods){
             Class<?>[] types = method.getParameterTypes();
             for(int i = 0; i < types.length; i++){
@@ -97,6 +106,7 @@ public class XAMLParser {
                 return primitiveAttributes;
             }
         }
+        System.err.println("Could not find method " + methodName + " with parameters " + values);
         return null;
     }
 
@@ -108,7 +118,9 @@ public class XAMLParser {
         catch (ClassNotFoundException e) {
             parentClass = Class.forName(packageGuiTree.concat(parentNode.getNodeName()));
         }
+        Debugger.log("Parsing " + parentClass, Debugger.Tag.PARSING);
         Object parentObject = parentClass.getDeclaredConstructor().newInstance();
+        Debugger.log("Constructor called succesfuly for " + parentObject, Debugger.Tag.PARSING);
 
         setAttributes(parentObject, parentNode.getAttributes());
 
@@ -122,6 +134,7 @@ public class XAMLParser {
                 Object childObject = parseNode(childNode);
 
                 if(parentObject instanceof Visual && childObject instanceof Visual) {
+                    Debugger.log("Adding " + childObject + " to " + parentObject, Debugger.Tag.PARSING);
                     addVisual((Visual) parentObject, (Visual) childObject);
                 }
             }

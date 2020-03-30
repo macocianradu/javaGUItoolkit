@@ -1,7 +1,8 @@
 package guiTree;
 
+import guiTree.Animations.AnimationInterface;
 import guiTree.Helper.Debugger;
-import guiTree.Helper.Tag;
+import guiTree.Helper.Point2;
 import guiTree.Helper.Timer;
 import guiTree.events.KeyListener;
 import guiTree.events.MouseListener;
@@ -21,6 +22,7 @@ public class Visual {
 
     public static final int SIZE_CHANGED = 1;
     public static final int LOCATION_CHANGED = 2;
+    private static List<AnimationInterface> animations = new ArrayList<>();
 
     /*--------------------------------------------------------------------
                             Tree Elements
@@ -56,11 +58,10 @@ public class Visual {
     private Color fontColor;
     private Color borderColor;
     private Boolean active;
-    public Boolean dirty;
+    private Boolean dirty;
     private static Visual entered;
     private Boolean focused;
     private Boolean pressed;
-
 
     /*--------------------------------------------------------------------
                         Constructors
@@ -174,11 +175,11 @@ public class Visual {
     }
 
     public void setLocationX(Integer x) {
-        this.locationX = x;
+        setLocation(x, getLocationY());
     }
 
     public void setLocationY(Integer y) {
-        this.locationY = y;
+        setLocation(getLocationX(), y);
     }
 
     public void setFont(Font font) {
@@ -209,6 +210,7 @@ public class Visual {
 
     public void setHasBorder(Boolean hasBorder) {
         this.hasBorder = hasBorder;
+        propagateDirt();
     }
 
     /*--------------------------------------------------------------------
@@ -233,6 +235,10 @@ public class Visual {
 
     public int getLocationY() {
         return this.locationY;
+    }
+
+    public Point2<Integer> getLocation() {
+        return new Point2<>(locationX, locationY);
     }
 
     public Font getFont() {
@@ -316,35 +322,52 @@ public class Visual {
         }
     }
 
+    public void addAnimation(AnimationInterface animation) {
+        animations.add(animation);
+    }
+
+    public void removeAnimation(AnimationInterface animation) {
+        animations.remove(animation);
+    }
+
     public void repaint() {
+        Debugger.log("Called repaint from " + name, Debugger.Tag.PAINTING);
+        for(int i = 0; i < animations.size(); i++) {
+            if(animations.get(i).step()) {
+                animations.remove(animations.get(i));
+                i--;
+            }
+        }
         if(dirty && active) {
-            this.revalidate();
+            revalidate();
         }
     }
 
     private void revalidate() {
         Timer timer = new Timer();
-        Debugger.log("Revalidating " + name, Tag.PAINTING);
+        Debugger.log("Revalidating " + name, Debugger.Tag.PAINTING);
         timer.startTiming();
 
         clearImageBuffer();
         this.paint(imageBuffer);
         for (Visual v : children) {
-            v.repaint();
-            this.imageBuffer.getGraphics().drawImage(v.imageBuffer, v.locationX, v.locationY, null);
+            if(v.dirty && v.active) {
+                v.revalidate();
+            }
+            imageBuffer.getGraphics().drawImage(v.imageBuffer, v.locationX, v.locationY, null);
         }
-        this.dirty = false;
+        dirty = false;
         if(!(this instanceof Window)){
-            this.parent.revalidate();
             long time = timer.stopTiming();
-            Debugger.log("Finished Revalidating " + name + ": " + time, Tag.PAINTING);
+            Debugger.log("Finished Revalidating " + name + ": " + time, Debugger.Tag.PAINTING);
+            parent.revalidate();
             return;
         }
         Window window = (Window)this;
         window.setFrameImageBuffer(imageBuffer);
 
         long time = timer.stopTiming();
-        Debugger.log("Finished Revalidating " + name + ": " + time, Tag.PAINTING);
+        Debugger.log("Finished Revalidating " + name + ": " + time, Debugger.Tag.PAINTING);
         window.revalidate();
     }
 
@@ -387,17 +410,15 @@ public class Visual {
         for(MouseListener mouseListener: entered.mouseListeners) {
             mouseListener.mouseClicked(mouseEvent);
         }
-        entered.propagateDirt();
         entered.focused = true;
-        Debugger.log("Clicked " + entered.name, Tag.LISTENER);
+        Debugger.log("Clicked " + entered.name, Debugger.Tag.LISTENER);
     }
 
     void mouseReleased(MouseEvent mouseEvent) {
         for(MouseListener mouseListener: entered.mouseListeners) {
             mouseListener.mouseReleased(mouseEvent);
         }
-        Debugger.log("Released " + entered.name, Tag.LISTENER);
-        propagateDirt();
+        Debugger.log("Released " + entered.name, Debugger.Tag.LISTENER);
         entered.pressed = false;
     }
 
@@ -405,9 +426,8 @@ public class Visual {
         for(MouseListener mouseListener: entered.mouseListeners) {
             mouseListener.mousePressed(mouseEvent);
         }
-        entered.propagateDirt();
         entered.pressed = true;
-        Debugger.log("Pressed " + entered.name, Tag.LISTENER);
+        Debugger.log("Pressed " + entered.name, Debugger.Tag.LISTENER);
     }
 
     void mouseEntered(MouseEvent mouseEvent) {
@@ -429,8 +449,7 @@ public class Visual {
         for(MouseListener mouseListener: mouseListeners) {
             mouseListener.mouseEntered(mouseEvent);
         }
-        Debugger.log("Entered " + entered.name, Tag.LISTENER);
-        propagateDirt();
+        Debugger.log("Entered " + entered.name, Debugger.Tag.LISTENER);
     }
 
     void mouseExited(MouseEvent mouseEvent) {
@@ -443,8 +462,7 @@ public class Visual {
         for (MouseListener mouseListener : entered.mouseListeners) {
             mouseListener.mouseExited(mouseEvent);
         }
-        Debugger.log("Exited " + entered.name, Tag.LISTENER);
-        entered.propagateDirt();
+        Debugger.log("Exited " + entered.name, Debugger.Tag.LISTENER);
         entered = null;
     }
 
@@ -452,8 +470,7 @@ public class Visual {
         for (MouseListener mouseListener : entered.mouseListeners) {
             mouseListener.mouseDragged(mouseEvent);
         }
-        entered.propagateDirt();
-        Debugger.log("Dragged " + entered.name, Tag.LISTENER);
+        Debugger.log("Dragged " + entered.name, Debugger.Tag.LISTENER);
     }
 
     void mouseMoved(MouseEvent mouseEvent) {
@@ -467,7 +484,7 @@ public class Visual {
                 for (MouseListener mouseListener : entered.mouseListeners) {
                     mouseListener.mouseExited(mouseEvent);
                 }
-                Debugger.log("Exited " + entered.name, Tag.LISTENER);
+                Debugger.log("Exited " + entered.name, Debugger.Tag.LISTENER);
                 entered = this;
             }
         }
@@ -491,8 +508,7 @@ public class Visual {
                 mouseListener.mouseMoved(mouseEvent);
             }
         }
-        Debugger.log("Moved " + this.name, Tag.LISTENER);
-        propagateDirt();
+        Debugger.log("Moved " + this.name, Debugger.Tag.LISTENER);
     }
 
     void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
@@ -501,7 +517,7 @@ public class Visual {
                 mouseWheelListener.mouseWheelMoved(mouseWheelEvent);
             }
         }
-        Debugger.log("Wheel Moved " + this.name, Tag.LISTENER);
+        Debugger.log("Wheel Moved " + this.name, Debugger.Tag.LISTENER);
     }
 
     /*--------------------------------------------------------------------
@@ -524,9 +540,7 @@ public class Visual {
 
         g.setComposite(AlphaComposite.Clear);
         g.fillRect(0, 0, getWidth(), getHeight());
-        g.setComposite(AlphaComposite.Src);
 
-        g.fillRect(0, 0, width, height);
         g.dispose();
     }
 

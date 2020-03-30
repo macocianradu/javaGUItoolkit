@@ -1,7 +1,6 @@
 package guiTree.Components;
 
 import guiTree.Helper.Debugger;
-import guiTree.Helper.Tag;
 import guiTree.Visual;
 import guiTree.events.MouseAdapter;
 
@@ -17,6 +16,7 @@ public class Button extends Visual {
     private Boolean pressed;
     private Boolean hovered;
     private BufferedImage icon;
+    private int round = -1;
 
     public Button() {
         this("", null);
@@ -40,39 +40,39 @@ public class Button extends Visual {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 pressed = false;
+                update();
             }
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
                 pressed = true;
-                Debugger.log("Pressed: " + getName(), Tag.LISTENER);
-                Debugger.log("Calling repaint from pressed: " + getName(), Tag.PAINTING);
-                repaint();
+                update();
+                Debugger.log("Pressed: " + getName(), Debugger.Tag.LISTENER);
+                Debugger.log("Calling repaint from pressed: " + getName(), Debugger.Tag.PAINTING);
             }
             @Override
             public void mouseReleased(MouseEvent mouseEvent) {
                 pressed = false;
-                Debugger.log("Calling repaint from released: " + getName(), Tag.PAINTING);
-                repaint();
+                update();
+                Debugger.log("Calling repaint from released: " + getName(), Debugger.Tag.PAINTING);
             }
             @Override
             public void mouseEntered(MouseEvent mouseEvent) {
                 hovered = true;
-                Debugger.log("Calling repaint from entered: " + getName(), Tag.PAINTING);
-                repaint();
+                update();
+                Debugger.log("Calling repaint from entered: " + getName(), Debugger.Tag.PAINTING);
             }
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
                 hovered = false;
-                Debugger.log("Calling repaint from exited: " + getName(), Tag.PAINTING);
-                repaint();
+                update();
+                Debugger.log("Calling repaint from exited: " + getName(), Debugger.Tag.PAINTING);
             }
             @Override
             public void mouseDragged(MouseEvent mouseEvent) {
             }
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
-                Debugger.log("Calling repaint from moved: " + getName(), Tag.PAINTING);
-                repaint();
+                Debugger.log("Calling repaint from moved: " + getName(), Debugger.Tag.PAINTING);
             }
         });
     }
@@ -82,11 +82,7 @@ public class Button extends Visual {
     {
         //Get Graphics
         Graphics2D g = imageBuffer.createGraphics();
-
-        //Set Transparency
-        g.setComposite(AlphaComposite.Clear);
-        g.fillRect(0, 0, getWidth(), getHeight());
-        g.setComposite(AlphaComposite.Src);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         //Choose background
         if(hovered) {
@@ -101,12 +97,12 @@ public class Button extends Visual {
 
         //Draw Button
         if(getHasBorder()) {
-            g.fillRect(1, 1, this.getWidth() - 2, this.getHeight() - 2);
+            g.fillRoundRect(1, 1, getWidth() - 1, getHeight() - 1, round, round);
             g.setColor(getBorderColor());
-            g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+            g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, round, round);
         }
         else {
-            g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
+            g.fillRoundRect(0, 0, getWidth(), getHeight(), round, round);
         }
 
         //Draw Label
@@ -136,6 +132,10 @@ public class Button extends Visual {
         }
 
         g.dispose();
+    }
+
+    public void setRound(int round) {
+        this.round = round;
     }
 
     public void setLabel(String label) {

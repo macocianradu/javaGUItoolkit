@@ -1,12 +1,11 @@
 package guiTree;
 
 import guiTree.Helper.Debugger;
-import guiTree.Helper.Tag;
+import guiTree.Helper.Timer;
 import guiTree.events.KeyEventGetter;
 import guiTree.events.MouseWheelGetter;
 
 import javax.swing.*;
-import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -40,7 +39,10 @@ public class CustomFrame extends JFrame {
 
     @Override
     public void paint(Graphics g) {
+        Timer timer = new Timer();
+        timer.startTiming();
         g.drawImage(imageBuffer, 0, 0, this.getWidth(), this.getHeight(), null);
+        Debugger.log("AWT time: " + timer.stopTiming(), Debugger.Tag.PAINTING);
     }
 
     private class MouseResizeListener implements MouseMotionListener, MouseListener {
