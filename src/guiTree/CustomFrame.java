@@ -3,7 +3,6 @@ package guiTree;
 import guiTree.Helper.Debugger;
 import guiTree.Helper.Timer;
 import guiTree.events.KeyEventGetter;
-import guiTree.events.MouseWheelGetter;
 
 import javax.swing.*;
 import java.awt.*;

@@ -12,4 +12,9 @@ public class Point2<T> {
     public boolean equals(Point2<T> point2) {
         return x == point2.y && y == point2.y;
     }
+
+    @Override
+    public String toString() {
+        return "Point2 x:" + x + " y: " + y;
+    }
 }

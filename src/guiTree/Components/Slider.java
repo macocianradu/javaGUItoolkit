@@ -8,6 +8,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 public class Slider extends Visual {
+    public static final int SLIDER_MOVED = 3;
+
     public enum Direction {
         Vertical,
         Horizontal
@@ -84,19 +86,33 @@ public class Slider extends Visual {
     }
 
     public float getSliderLocation() {
+        int availableSpace;
         if(direction == Direction.Vertical) {
-            return (float)slider.getLocationY() / getHeight();
+            availableSpace = getHeight() - button1.getHeight() - slider.getHeight() - button2.getHeight();
+            int sliderY = slider.getLocationY() - button1.getHeight();
+            return (float)sliderY / availableSpace;
         }
-        else {
-            return (float)slider.getLocationX() / getWidth();
-        }
+        availableSpace = getWidth() - button1.getWidth() - slider.getWidth() - button2.getWidth();
+        int sliderX = slider.getLocationX() - button1.getWidth();
+        return (float)sliderX / availableSpace;
     }
 
-    public void setSliderSize(int width, int height) {
-        slider.setSize(width, height);
+    public float getSliderSize() {
+        if(direction == Direction.Vertical) {
+            return (float)slider.getHeight() / getHeight();
+        }
+        return (float)slider.getWidth() / getWidth();
     }
 
-    private void moveSlider(int offset) {
+    public void setSliderSize(Float size) {
+        if(direction == Direction.Vertical) {
+            slider.setHeight(Math.round(size * getHeight()));
+            return;
+        }
+        slider.setWidth(Math.round(size * getWidth()));
+    }
+
+    public void moveSlider(Integer offset) {
         if(direction == Direction.Vertical) {
             if(slider.getLocationY() + slider.getHeight() + offset > getHeight() - button2.getHeight()) {
                 slider.setLocationY(getHeight() - slider.getHeight() - button2.getHeight());
@@ -119,6 +135,7 @@ public class Slider extends Visual {
                 slider.setLocationX(Math.round(slider.getLocationX() + offset));
             }
         }
+        notifyParent(SLIDER_MOVED);
     }
 
     public void setDirection(Direction direction) {
@@ -143,7 +160,7 @@ public class Slider extends Visual {
         }
     }
 
-    private void moveSlider(float offset) {
+    public void moveSlider(Float offset) {
         if(direction == Direction.Vertical) {
             moveSlider(Math.round(offset * getHeight()));
             return;
@@ -198,13 +215,13 @@ public class Slider extends Visual {
             button1.setSize(Math.round(0.7f * getWidth()), Math.round(0.7f * getWidth()));
             button2.setSize(button1.getWidth(), button1.getHeight());
             button2.setLocation(0, getHeight() - button2.getHeight());
-            slider.setSize(getWidth() / 2, 40);
+            slider.setWidth(getWidth() / 2);
         }
         else {
             button1.setSize(Math.round(0.7f * getHeight()), Math.round(0.7f * getHeight()));
             button2.setSize(button1.getWidth(), button1.getHeight());
             button2.setLocation(getWidth() - button2.getWidth(), 0);
-            slider.setSize(40, getHeight() / 2);
+            slider.setHeight(getHeight() / 2);
         }
     }
 
@@ -218,6 +235,7 @@ public class Slider extends Visual {
             g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
         }
         g.setColor(getBackgroundColor());
+
         if(direction == Direction.Vertical) {
             int x1 = Math.round(0.15f * getWidth());
             int y1 = button1.getHeight();

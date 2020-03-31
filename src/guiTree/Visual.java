@@ -57,6 +57,7 @@ public class Visual {
     private Color accentColor;
     private Color fontColor;
     private Color borderColor;
+    private Color paintColor;
     private Boolean active;
     private Boolean dirty;
     private static Visual entered;
@@ -135,6 +136,22 @@ public class Visual {
         notifyParent(SIZE_CHANGED);
     }
 
+    public void setHeight(Integer height) {
+        setSize(getWidth(), height);
+    }
+
+    public void setWidth(Integer width) {
+        setSize(width, getHeight());
+    }
+
+    public void setHeight(Float height) {
+        setSize(relativeWidth, height);
+    }
+
+    public void setWidth(Float width) {
+        setSize(width, relativeHeight);
+    }
+
     public void setSize(Integer width, Integer height) {
         this.width = width;
         this.height = height;
@@ -188,6 +205,7 @@ public class Visual {
 
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
+        this.paintColor = backgroundColor;
         propagateDirt();
     }
 
@@ -198,14 +216,22 @@ public class Visual {
 
     public void setFontColor(Color fontColor) {
         this.fontColor = fontColor;
+        propagateDirt();
     }
 
     public void setAccentColor(Color accentColor) {
         this.accentColor = accentColor;
+        propagateDirt();
     }
 
     public void setBorderColor(Color borderColor) {
         this.borderColor = borderColor;
+        propagateDirt();
+    }
+
+    public void setPaintColor(Color paintColor) {
+        this.paintColor = paintColor;
+        propagateDirt();
     }
 
     public void setHasBorder(Boolean hasBorder) {
@@ -263,6 +289,10 @@ public class Visual {
 
     public Color getBorderColor() {
         return borderColor;
+    }
+
+    public Color getPaintColor() {
+        return paintColor;
     }
 
     public Boolean getHasBorder() {
@@ -360,7 +390,6 @@ public class Visual {
         if(!(this instanceof Window)){
             long time = timer.stopTiming();
             Debugger.log("Finished Revalidating " + name + ": " + time, Debugger.Tag.PAINTING);
-            parent.revalidate();
             return;
         }
         Window window = (Window)this;
@@ -512,8 +541,8 @@ public class Visual {
     }
 
     void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
-        if(focused) {
-            for(MouseWheelListener mouseWheelListener: mouseWheelListeners) {
+        if(entered.focused) {
+            for(MouseWheelListener mouseWheelListener: entered.mouseWheelListeners) {
                 mouseWheelListener.mouseWheelMoved(mouseWheelEvent);
             }
         }

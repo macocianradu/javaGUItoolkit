@@ -1,5 +1,6 @@
 package guiTree.Components;
 
+import guiTree.Animations.ColorAnimation;
 import guiTree.Helper.Debugger;
 import guiTree.Visual;
 import guiTree.events.MouseAdapter;
@@ -38,20 +39,31 @@ public class ToggleButton extends Visual {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
+                if(pressed) {
+                    addAnimation(new ColorAnimation(ToggleButton.this, getForegroundColor(), getAccentColor(), 100));
+                }
+                else {
+                    addAnimation(new ColorAnimation(ToggleButton.this, getAccentColor(), getForegroundColor(), 100));
+                }
                 pressed = !pressed;
+
                 Debugger.log("Pressed: " + getName(), Debugger.Tag.LISTENER);
                 Debugger.log("Calling repaint from pressed: " + getName(), Debugger.Tag.PAINTING);
                 update();
             }
             @Override
             public void mouseEntered(MouseEvent mouseEvent) {
-                hovered = true;
+                if(!pressed) {
+                    addAnimation(new ColorAnimation(ToggleButton.this, getBackgroundColor(), getAccentColor(), 100));
+                }
                 Debugger.log("Calling repaint from entered: " + getName(), Debugger.Tag.PAINTING);
                 update();
             }
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
-                hovered = false;
+                if(!pressed) {
+                    addAnimation(new ColorAnimation(ToggleButton.this, getAccentColor(), getBackgroundColor(), 100));
+                }
                 Debugger.log("Calling repaint from exited: " + getName(), Debugger.Tag.PAINTING);
                 update();
             }
@@ -67,22 +79,7 @@ public class ToggleButton extends Visual {
     {
         //Get Graphics
         Graphics2D g = imageBuffer.createGraphics();
-
-        //Set Transparency
-        g.setComposite(AlphaComposite.Clear);
-        g.fillRect(0, 0, getWidth(), getHeight());
-        g.setComposite(AlphaComposite.Src);
-
-        //Choose background
-        if(hovered) {
-            g.setColor(this.getAccentColor());
-        }
-        else {
-            g.setColor(this.getBackgroundColor());
-        }
-        if(pressed) {
-            g.setColor(this.getForegroundColor());
-        }
+        g.setColor(getPaintColor());
 
         //Draw Button
         if(getHasBorder()) {

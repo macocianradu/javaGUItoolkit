@@ -1,6 +1,4 @@
-package guiTree.events;
-
-import guiTree.Window;
+package guiTree;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -14,6 +12,6 @@ public class MouseWheelGetter implements MouseWheelListener {
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
-
+        callingWindow.mouseWheelMoved(mouseWheelEvent);
     }
 }

@@ -8,7 +8,7 @@ public class FloatConverter implements ConverterInterface<Float> {
     public Float convert(String content) throws InvalidTypeException {
         content = content.replaceAll(" ", "");
         float number = Float.parseFloat(content);
-        if(number > 1 || number < 0) {
+        if(number > 1 || number < 0 || !content.contains(".")) {
             throw new InvalidTypeException();
         }
         return Float.parseFloat(content);

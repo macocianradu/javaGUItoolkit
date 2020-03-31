@@ -94,16 +94,18 @@ public class XAMLParser {
         }
         for(Method method: methods){
             Class<?>[] types = method.getParameterTypes();
-            for(int i = 0; i < types.length; i++){
-                try{
-                    primitiveAttributes.add(valueConverter.objectCreatorFactory(types[i], values.get(i)));
-                } catch (InvalidTypeException | NumberFormatException e){
-                    primitiveAttributes.clear();
-                    break;
+            if(types.length == values.size()) {
+                for (int i = 0; i < types.length; i++) {
+                    try {
+                        primitiveAttributes.add(valueConverter.objectCreatorFactory(types[i], values.get(i)));
+                    } catch (InvalidTypeException | NumberFormatException e) {
+                        primitiveAttributes.clear();
+                        break;
+                    }
                 }
-            }
-            if(primitiveAttributes.size() == types.length && types.length == values.size()){
-                return primitiveAttributes;
+                if (primitiveAttributes.size() == types.length && types.length == values.size()) {
+                    return primitiveAttributes;
+                }
             }
         }
         System.err.println("Could not find method " + methodName + " with parameters " + values);

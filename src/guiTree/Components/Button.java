@@ -1,5 +1,6 @@
 package guiTree.Components;
 
+import guiTree.Animations.ColorAnimation;
 import guiTree.Helper.Debugger;
 import guiTree.Visual;
 import guiTree.events.MouseAdapter;
@@ -13,8 +14,6 @@ import java.io.IOException;
 
 public class Button extends Visual {
     private String label;
-    private Boolean pressed;
-    private Boolean hovered;
     private BufferedImage icon;
     private int round = -1;
 
@@ -34,36 +33,33 @@ public class Button extends Visual {
         super();
         this.label = label;
         this.icon = icon;
-        pressed = false;
-        hovered = false;
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
-                pressed = false;
                 update();
             }
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
-                pressed = true;
+                addAnimation(new ColorAnimation(Button.this, getAccentColor(), getForegroundColor(), 100));
                 update();
                 Debugger.log("Pressed: " + getName(), Debugger.Tag.LISTENER);
                 Debugger.log("Calling repaint from pressed: " + getName(), Debugger.Tag.PAINTING);
             }
             @Override
             public void mouseReleased(MouseEvent mouseEvent) {
-                pressed = false;
+                addAnimation(new ColorAnimation(Button.this, getForegroundColor(), getAccentColor(), 100));
                 update();
                 Debugger.log("Calling repaint from released: " + getName(), Debugger.Tag.PAINTING);
             }
             @Override
             public void mouseEntered(MouseEvent mouseEvent) {
-                hovered = true;
+                addAnimation(new ColorAnimation(Button.this, getBackgroundColor(), getAccentColor(), 100));
                 update();
                 Debugger.log("Calling repaint from entered: " + getName(), Debugger.Tag.PAINTING);
             }
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
-                hovered = false;
+                addAnimation(new ColorAnimation(Button.this, getAccentColor(), getBackgroundColor(), 100));
                 update();
                 Debugger.log("Calling repaint from exited: " + getName(), Debugger.Tag.PAINTING);
             }
@@ -83,17 +79,7 @@ public class Button extends Visual {
         //Get Graphics
         Graphics2D g = imageBuffer.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        //Choose background
-        if(hovered) {
-            g.setColor(this.getAccentColor());
-        }
-        else {
-            g.setColor(this.getBackgroundColor());
-        }
-        if(pressed) {
-            g.setColor(this.getForegroundColor());
-        }
+        g.setColor(getPaintColor());
 
         //Draw Button
         if(getHasBorder()) {

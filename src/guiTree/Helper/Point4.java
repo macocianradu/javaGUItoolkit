@@ -16,4 +16,9 @@ public class Point4<T> {
     public boolean equals(Point4<T> point4) {
         return a == point4.a && b == point4.b && c == point4.c && d == point4.d;
     }
+
+    @Override
+    public String toString() {
+        return "Point2 a:" + a + " b: " + b + " c: " + c + " d: " + d;
+    }
 }

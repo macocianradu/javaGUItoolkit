@@ -36,7 +36,7 @@ public class ColorAnimation implements AnimationInterface {
                 from.b > to.b - 1 && from.b < to.b + 1 &&
                 from.c > to.c - 1 && from.c < to.c + 1 &&
                 from.d > to.d - 1 && from.d < to.d + 1) {
-            element.setBackgroundColor(new Color(to.a, to.b, to.c, to.d));
+            element.setPaintColor(new Color(to.a, to.b, to.c, to.d));
             Debugger.log("Animation for " + element.getName() + " finished", Debugger.Tag.ANIMATIONS);
             return true;
         }
@@ -44,7 +44,7 @@ public class ColorAnimation implements AnimationInterface {
         from.b += offset.b;
         from.c += offset.c;
         from.d += offset.d;
-        element.setBackgroundColor(new Color(Math.round(from.a), Math.round(from.b), Math.round(from.c), Math.round(from.d)));
+        element.setPaintColor(new Color(Math.round(from.a), Math.round(from.b), Math.round(from.c), Math.round(from.d)));
         element.update();
         return false;
     }

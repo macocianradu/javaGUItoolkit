@@ -4,8 +4,8 @@ public class Debugger {
     public enum Tag {
         LISTENER(false),
         PAINTING(false),
-        FPS(false),
-        ANIMATIONS(true),
+        FPS(true),
+        ANIMATIONS(false),
         PARSING(false);
 
         public boolean value;

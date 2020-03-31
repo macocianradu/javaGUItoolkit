@@ -1,5 +1,6 @@
 package guiTree.Components;
 
+import guiTree.Animations.ColorAnimation;
 import guiTree.Helper.Debugger;
 import guiTree.Visual;
 import guiTree.events.MouseAdapter;
@@ -37,19 +38,29 @@ public class CheckBox extends Visual {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
+                if(!marked) {
+                    addAnimation(new ColorAnimation(CheckBox.this, getAccentColor(), getForegroundColor(), 100));
+                }
+                else {
+                    addAnimation(new ColorAnimation(CheckBox.this, getForegroundColor(), getAccentColor(), 100));
+                }
                 marked = !marked;
                 Debugger.log("Calling repaint from pressed: " + getName(), Debugger.Tag.PAINTING);
                 update();
             }
             @Override
             public void mouseEntered(MouseEvent mouseEvent) {
-                hovered = true;
+                if(!marked) {
+                    addAnimation(new ColorAnimation(CheckBox.this, getBackgroundColor(), getAccentColor(), 100));
+                }
                 Debugger.log("Calling repaint from entered: " + getName(), Debugger.Tag.PAINTING);
                 update();
             }
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
-                hovered = false;
+                if(!marked) {
+                    addAnimation(new ColorAnimation(CheckBox.this, getAccentColor(), getBackgroundColor(), 100));
+                }
                 Debugger.log("Calling repaint from exited: " + getName(), Debugger.Tag.PAINTING);
                 update();
             }
@@ -92,19 +103,11 @@ public class CheckBox extends Visual {
     public void paint(BufferedImage imageBuffer) {
         Graphics2D g = imageBuffer.createGraphics();
 
-        //Set Transparency
-        g.setComposite(AlphaComposite.Clear);
-        g.fillRect(0, 0, getWidth(), getHeight());
-        g.setComposite(AlphaComposite.Src);
+        g.setColor(getPaintColor());
 
-        if(hovered && !marked) {
-            g.setColor(getAccentColor());
-            g.fillRect(0, 0, getHeight() - 1, getHeight() - 1);
-        }
+        g.fillRect(1, 1, getHeight() - 1, getHeight() - 1);
 
         if(marked) {
-            g.setColor(getForegroundColor());
-            g.fillRect(1, 1, getHeight() - 2, getHeight() - 2);
 
             if(icon != null) {
                 int iconWidth = icon.getWidth();

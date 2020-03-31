@@ -4,63 +4,11 @@
         Visible="true"
         Size="640, 480"
         Title="FANTASTICEST UI THINGY">
-<!--    <Panel-->
-<!--        Name="ProgramPanel"-->
-<!--        Size="1.0, 1.0"-->
-<!--        Location="0.0, 0.0"-->
-<!--        BackgroundColor="#333333">-->
-        <Button
-                Name="button1"
-                BackgroundColor="#999999"
-                AccentColor="#666666"
-                ForegroundColor="#333333"
-                Size="320, 240"
-                Location="0.0, 0.5"
-                HasBorder="true"
-                Label="button1">
-            <Button
-                    Name="button4"
-                    BackgroundColor="#009999"
-                    AccentColor="#006666"
-                    ForegroundColor="#003333"
-                    Size="0.5, 0.5"
-                    Location="0.25, 0.25"
-                    Icon="square_white"
-                    HasBorder="true">
-                <ToggleButton
-                        Name="button2"
-                        BackgroundColor="#000099"
-                        AccentColor="#000066"
-                        ForegroundColor="#000033"
-                        Size="0.5, 0.5"
-                        Location="0.25, 0.25"
-                        Label="button2"/>
-            </Button>
-        </Button>
-<!--    <Button Name="button6" BackgroundColor="#555555" Location="0.5, 0.5" Size="0.5, 0.5"/>-->
-<!--    <CheckBoxList-->
-<!--        Name="checkboxlist"-->
-<!--        CheckBoxSize="300, 20"-->
-<!--        BackgroundColor="#666666"-->
-<!--        AccentColor="#444444"-->
-<!--        ForegroundColor="#005599"-->
-<!--        Size="0.5, 0.3"-->
-<!--        Icon="check_white"-->
-<!--        Spacing="30"-->
-<!--        Location="0.0, 0.0">-->
-<!--        <CheckBox-->
-<!--                Name="checkbox1"-->
-<!--                Text="HAHA FRAR"/>-->
-<!--        <CheckBox-->
-<!--                Name="checkbox2"-->
-<!--                Text="HAHA FRAR2"/>-->
-<!--        <CheckBox-->
-<!--                Name="checkbox3"-->
-<!--                Text="HAHA FRAR3"/>-->
-<!--    </CheckBoxList>-->
-    <ToggleButton Name="button3" BackgroundColor="#123456" AccentColor="654321" Size="100, 100" Location="0.5, 0.5" Icon="minimize_white"/>
-    <Slider Name="slider" Location="-20, 0" Size="20, 100" HasBorder="false"/>
-    <Slider Name="hslider" Location="400, 0" Size="80, 20" Direction="horizontal"/>
-    <Button Location="350, 20" Size="20, 70"/>
-<!--    </Panel>-->
+    <ScrollPanel Name="ScrollPane" BackgroundColor="#333333" Size="1.0, 1.0" Location="0.0, 0.0">
+        <ToggleButton Name="button3" BackgroundColor="#123456" AccentColor="#654321" Size="100, 100" Location="320, 240" Icon="minimize_white"/>
+        <Slider Name="Slider" Size="100, 20" Location="0, 0" Direction="horizontal" SliderSize="0.3"/>
+        <Slider Name="VSlider" Size="20, 100" Location="101, 0" SliderSize="0.5"/>
+        <Button Name="Button" BackgroundColor="#777777" AccentColor="#654321" Size="100, 100" Location="660, 0"/>
+        <Button Name="Button" BackgroundColor="#777777" AccentColor="#654321" Size="100, 100" Location="660, 660"/>
+    </ScrollPanel>
 </Window>
