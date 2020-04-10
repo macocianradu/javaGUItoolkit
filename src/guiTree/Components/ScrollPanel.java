@@ -45,6 +45,10 @@ public class ScrollPanel extends Visual {
             horizontalScrollBar.setSliderSize((float)getWidth() / getFarthestX());
             horizontalScrollBar.setLocation(0, getHeight());
         }
+        else {
+            removeVisual(horizontalScrollBar);
+            horizontalScrollBar = null;
+        }
 
         if (getFarthestY() > getHeight()) {
             if (verticalScrollBar == null) {
@@ -56,6 +60,10 @@ public class ScrollPanel extends Visual {
             }
             verticalScrollBar.setSliderSize((float)getHeight() / getFarthestY());
             verticalScrollBar.setLocation(getWidth(), 0);
+        }
+        else {
+            removeVisual(verticalScrollBar);
+            verticalScrollBar = null;
         }
     }
 
@@ -123,6 +131,10 @@ public class ScrollPanel extends Visual {
         if(notify == Slider.SLIDER_MOVED) {
             setLocations();
         }
+    }
+
+    @Override
+    public void handleNotification(Visual v, int notify) {
     }
 
     @Override
@@ -203,10 +215,17 @@ public class ScrollPanel extends Visual {
     private static class VisualLocation {
         Visual v;
         Point2<Integer> originalLocation;
+        Point2<Float> originalRelativeLocation;
 
         public VisualLocation(Visual v) {
             this.v = v;
             originalLocation = v.getLocation();
+            originalRelativeLocation = v.getRelativeLocation();
+        }
+
+        public void updateLocation() {
+            originalLocation = v.getLocation();
+            originalRelativeLocation = v.getRelativeLocation();
         }
     }
 }

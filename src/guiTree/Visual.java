@@ -9,10 +9,12 @@ import guiTree.events.MouseListener;
 import guiTree.events.MouseWheelListener;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Visual {
@@ -61,7 +63,7 @@ public class Visual {
     private Boolean active;
     private Boolean dirty;
     private static Visual entered;
-    private Boolean focused;
+    private static Visual focused;
     private Boolean pressed;
 
     /*--------------------------------------------------------------------
@@ -88,7 +90,6 @@ public class Visual {
         this.dirty = true;
         this.hasBorder = false;
         this.active = this instanceof Window;
-        this.focused = false;
         this.pressed = false;
 
         this.width = width;
@@ -133,7 +134,7 @@ public class Visual {
             }
         }
         propagateDirt();
-        notifyParent(SIZE_CHANGED);
+        notifyParent(this, SIZE_CHANGED);
     }
 
     public void setHeight(Integer height) {
@@ -176,7 +177,7 @@ public class Visual {
 
         calculateAbsoluteLocation();
         propagateDirt();
-        notifyParent(LOCATION_CHANGED);
+        notifyParent(this, LOCATION_CHANGED);
     }
 
     public void setLocation(Float x, Float y) {
@@ -267,6 +268,10 @@ public class Visual {
         return new Point2<>(locationX, locationY);
     }
 
+    public Point2<Float> getRelativeLocation() {
+        return new Point2<>(relativeX, relativeY);
+    }
+
     public Font getFont() {
         return font;
     }
@@ -328,9 +333,13 @@ public class Visual {
         if(this.active) {
             child.activate();
         }
+        propagateDirt();
     }
 
     public void removeVisual(Visual child) {
+        if(child == null) {
+            return;
+        }
         this.children.remove(child);
         child.setParent(null);
         child.imageBuffer = null;
@@ -342,14 +351,27 @@ public class Visual {
         this.parent = parent;
     }
 
+    public void handleNotification(Visual v, int notify) {
+
+    }
+
     public void handleNotification(int notify) {
 
     }
 
-    public void notifyParent(int notify) {
+    public void notifyParent(Visual v, int notify) {
         if(parent != null) {
-            parent.handleNotification(notify);
+            if(v == null) {
+                parent.handleNotification(notify);
+            }
+            else {
+                parent.handleNotification(v, notify);
+            }
         }
+    }
+
+    public void notifyParent(int notify) {
+        notifyParent(null, notify);
     }
 
     public void addAnimation(AnimationInterface animation) {
@@ -381,7 +403,7 @@ public class Visual {
         clearImageBuffer();
         this.paint(imageBuffer);
         for (Visual v : children) {
-            if(v.dirty && v.active) {
+            if (v.dirty && v.active) {
                 v.revalidate();
             }
             imageBuffer.getGraphics().drawImage(v.imageBuffer, v.locationX, v.locationY, null);
@@ -439,7 +461,6 @@ public class Visual {
         for(MouseListener mouseListener: entered.mouseListeners) {
             mouseListener.mouseClicked(mouseEvent);
         }
-        entered.focused = true;
         Debugger.log("Clicked " + entered.name, Debugger.Tag.LISTENER);
     }
 
@@ -456,6 +477,7 @@ public class Visual {
             mouseListener.mousePressed(mouseEvent);
         }
         entered.pressed = true;
+        focused = entered;
         Debugger.log("Pressed " + entered.name, Debugger.Tag.LISTENER);
     }
 
@@ -540,13 +562,43 @@ public class Visual {
         Debugger.log("Moved " + this.name, Debugger.Tag.LISTENER);
     }
 
+    void keyPressed(KeyEvent keyEvent) {
+        if(focused == null) {
+            return;
+        }
+        for(KeyListener keyListener: focused.keyListeners) {
+            keyListener.keyPressed(keyEvent);
+        }
+        Debugger.log("Key " + keyEvent.paramString() + " Pressed " + focused.name, Debugger.Tag.LISTENER);
+    }
+
+    void keyReleased(KeyEvent keyEvent) {
+        if(focused == null) {
+            return;
+        }
+        for(KeyListener keyListener: focused.keyListeners) {
+            keyListener.keyReleased(keyEvent);
+        }
+        Debugger.log("Key " + keyEvent.paramString() + " Released " + focused.name, Debugger.Tag.LISTENER);
+    }
+
+    void keyTyped(KeyEvent keyEvent) {
+        if(focused == null) {
+            return;
+        }
+        for(KeyListener keyListener: focused.keyListeners) {
+            keyListener.keyTyped(keyEvent);
+        }
+        Debugger.log("Key " + keyEvent.paramString() + " Typed " + focused.name, Debugger.Tag.LISTENER);
+    }
+
     void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
-        if(entered.focused) {
-            for(MouseWheelListener mouseWheelListener: entered.mouseWheelListeners) {
+        if(focused != null) {
+            for(MouseWheelListener mouseWheelListener: focused.mouseWheelListeners) {
                 mouseWheelListener.mouseWheelMoved(mouseWheelEvent);
             }
+            Debugger.log("Wheel Moved " + focused.name, Debugger.Tag.LISTENER);
         }
-        Debugger.log("Wheel Moved " + this.name, Debugger.Tag.LISTENER);
     }
 
     /*--------------------------------------------------------------------

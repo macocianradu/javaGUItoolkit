@@ -55,6 +55,10 @@ public class Window extends Visual implements Runnable{
         bar.setBackgroundColor(Color.GRAY);
         this.setTitleBar(bar);
         close = false;
+
+        Thread paintThread = new Thread(this);
+        paintThread.setName("Painting Thread");
+        paintThread.start();
     }
 
     @Override
@@ -70,7 +74,6 @@ public class Window extends Visual implements Runnable{
             contentPanel.setSize(width, height);
         }
         Debugger.log("Calling repaint from window set size: ", Debugger.Tag.PAINTING);
-        repaint();
     }
 
     public void setFrameImageBuffer(BufferedImage imageBuffer){

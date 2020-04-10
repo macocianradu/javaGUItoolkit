@@ -70,10 +70,6 @@ public class XAMLParser {
         rootObject = parseNode(rootNode);
 
         if(rootObject instanceof Window) {
-            ((Window) rootObject).repaint();
-            Thread windowThread = new Thread((Window) rootObject);
-            windowThread.setName("Painting Thread");
-            windowThread.start();
             return (Window) rootObject;
         }
         return null;

@@ -1,14 +1,7 @@
 <?xml version="1.0"?>
 <Window
-        Name="window"
-        Visible="true"
-        Size="640, 480"
-        Title="FANTASTICEST UI THINGY">
-    <ScrollPanel Name="ScrollPane" BackgroundColor="#333333" Size="1.0, 1.0" Location="0.0, 0.0">
-        <ToggleButton Name="button3" BackgroundColor="#123456" AccentColor="#654321" Size="100, 100" Location="320, 240" Icon="minimize_white"/>
-        <Slider Name="Slider" Size="100, 20" Location="0, 0" Direction="horizontal" SliderSize="0.3"/>
-        <Slider Name="VSlider" Size="20, 100" Location="101, 0" SliderSize="0.5"/>
-        <Button Name="Button" BackgroundColor="#777777" AccentColor="#654321" Size="100, 100" Location="660, 0"/>
-        <Button Name="Button" BackgroundColor="#777777" AccentColor="#654321" Size="100, 100" Location="660, 660"/>
-    </ScrollPanel>
+        Name="Window"
+        Visible="True"
+        Title="Sudoku 1.0"
+        Size="1024, 576">
 </Window>

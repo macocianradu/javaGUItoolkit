@@ -115,6 +115,11 @@ public class Panel extends Visual {
         g.setColor(getBackgroundColor());
         g.fillRect(0, 0, getWidth(), getHeight());
 
+        if(getHasBorder()) {
+            g.setColor(getBorderColor());
+            g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+        }
+
         g.dispose();
     }
 }

@@ -1,4 +1,4 @@
-package guiTree.events;
+package guiTree;
 
 import guiTree.Window;
 
@@ -14,16 +14,16 @@ public class KeyEventGetter implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent keyEvent) {
-
+        callingWindow.keyTyped(keyEvent);
     }
 
     @Override
     public void keyPressed(KeyEvent keyEvent) {
-
+        callingWindow.keyPressed(keyEvent);
     }
 
     @Override
     public void keyReleased(KeyEvent keyEvent) {
-
+        callingWindow.keyReleased(keyEvent);
     }
 }

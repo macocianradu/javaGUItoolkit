@@ -17,4 +17,9 @@ public class Point2<T> {
     public String toString() {
         return "Point2 x:" + x + " y: " + y;
     }
+
+    @Override
+    public int hashCode() {
+        return (x.toString() + ", " + y.toString()).hashCode();
+    }
 }
