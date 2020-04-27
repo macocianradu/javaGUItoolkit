@@ -1,7 +1,7 @@
 package parser;
 
 import com.sun.jdi.InvalidTypeException;
-import converters.Converter;
+import parser.converters.Converter;
 import guiTree.Helper.Debugger;
 import guiTree.Visual;
 import guiTree.Window;
@@ -24,7 +24,18 @@ public class XAMLParser {
             Node attribute = attributeList.item(i);
             String methodName = "set";
             methodName = methodName.concat(attribute.getNodeName());
-            List<Object> parameterList = convertStringToPrimitives(object, attribute.getNodeValue(), methodName);
+
+            List<Method> methods = getMethodsFromName(object, methodName);
+            String value = attribute.getNodeValue();
+            if(methods.size() == 0) {
+                String firstAttribute = methodName.substring(3).toLowerCase();
+                methodName = "setAttribute";
+                methods = getMethodsFromName(object, methodName);
+
+                value = firstAttribute.concat(",").concat(value);
+            }
+
+            List<Object> parameterList = convertStringToPrimitives(value, methods);
             Debugger.log("Calling " + methodName + " " + attribute.getNodeValue(), Debugger.Tag.PARSING);
             if(parameterList == null) {
                 break;
@@ -75,7 +86,7 @@ public class XAMLParser {
         return null;
     }
 
-    private static List<Object> convertStringToPrimitives(Object object, String value, String methodName){
+    private static List<Object> convertStringToPrimitives(String value, List<Method> methods){
         List<Object> primitiveAttributes = new ArrayList<>();
         List<String> values = new ArrayList<>();
 
@@ -84,10 +95,7 @@ public class XAMLParser {
             value = value.substring(value.indexOf(',') + 1);
         }
         values.add(value);
-        List<Method> methods = getMethodsFromName(object, methodName);
-        if(methods.size() == 0) {
-            System.out.println("Could not find method " + methodName);
-        }
+
         for(Method method: methods){
             Class<?>[] types = method.getParameterTypes();
             if(types.length == values.size()) {
@@ -104,7 +112,7 @@ public class XAMLParser {
                 }
             }
         }
-        System.err.println("Could not find method " + methodName + " with parameters " + values);
+        System.err.println("Could not find method " + methods.get(0).getName() + " with parameters " + values);
         return null;
     }
 

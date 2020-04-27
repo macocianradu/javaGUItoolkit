@@ -141,14 +141,8 @@ public class ScrollPanel extends Visual {
     public void paint(BufferedImage imageBuffer) {
         Graphics2D g = imageBuffer.createGraphics();
         g.setColor(getPaintColor());
-        if(getHasBorder()) {
-            g.fillRect(1, 1, getWidth() - 1, getHeight() - 1);
-            g.setColor(getBorderColor());
-            g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
-        }
-        else {
-            g.fillRect(0, 0, getWidth(), getHeight());
-        }
+
+        g.fillRect(0, 0, getWidth(), getHeight());
 
         g.dispose();
     }

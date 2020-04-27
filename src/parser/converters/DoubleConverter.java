@@ -1,4 +1,4 @@
-package converters;
+package parser.converters;
 
 public class DoubleConverter implements ConverterInterface<Double>{
 

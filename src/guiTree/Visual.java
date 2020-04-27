@@ -14,8 +14,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Visual {
     /*--------------------------------------------------------------------
@@ -42,6 +43,7 @@ public class Visual {
                         Attributes
     ---------------------------------------------------------------------*/
 
+    private Map<String, String> attributeMap;
     private Integer width;
     private Integer height;
     private Float relativeWidth;
@@ -52,19 +54,18 @@ public class Visual {
     private Integer absoluteY;
     private Float relativeX;
     private Float relativeY;
-    private Boolean hasBorder;
     private Font font;
     private Color backgroundColor;
     private Color foregroundColor;
     private Color accentColor;
     private Color fontColor;
-    private Color borderColor;
     private Color paintColor;
     private Boolean active;
     private Boolean dirty;
     private static Visual entered;
     private static Visual focused;
     private Boolean pressed;
+    private Boolean validating;
 
     /*--------------------------------------------------------------------
                         Constructors
@@ -84,13 +85,12 @@ public class Visual {
         this.backgroundColor = Color.WHITE;
         this.foregroundColor = Color.BLUE;
         this.fontColor = Color.BLACK;
-        this.borderColor = Color.BLACK;
         this.accentColor = Color.BLUE;
 
         this.dirty = true;
-        this.hasBorder = false;
         this.active = this instanceof Window;
         this.pressed = false;
+        this.attributeMap = new HashMap<>();
 
         this.width = width;
         this.height = height;
@@ -103,6 +103,8 @@ public class Visual {
         this.locationY = 0;
         this.absoluteX = 0;
         this.absoluteY = 0;
+
+        this.validating = false;
     }
 
     /*--------------------------------------------------------------------
@@ -133,7 +135,7 @@ public class Visual {
                 v.setLocation();
             }
         }
-        propagateDirt();
+        update();
         notifyParent(this, SIZE_CHANGED);
     }
 
@@ -176,7 +178,7 @@ public class Visual {
         }
 
         calculateAbsoluteLocation();
-        propagateDirt();
+        update();
         notifyParent(this, LOCATION_CHANGED);
     }
 
@@ -207,37 +209,31 @@ public class Visual {
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
         this.paintColor = backgroundColor;
-        propagateDirt();
+        update();
     }
 
     public void setForegroundColor(Color foregroundColor) {
         this.foregroundColor = foregroundColor;
-        propagateDirt();
+        update();
     }
 
     public void setFontColor(Color fontColor) {
         this.fontColor = fontColor;
-        propagateDirt();
+        update();
     }
 
     public void setAccentColor(Color accentColor) {
         this.accentColor = accentColor;
-        propagateDirt();
-    }
-
-    public void setBorderColor(Color borderColor) {
-        this.borderColor = borderColor;
-        propagateDirt();
+        update();
     }
 
     public void setPaintColor(Color paintColor) {
         this.paintColor = paintColor;
-        propagateDirt();
+        update();
     }
 
-    public void setHasBorder(Boolean hasBorder) {
-        this.hasBorder = hasBorder;
-        propagateDirt();
+    public void setAttribute(String attribute, String value) {
+        attributeMap.put(attribute, value);
     }
 
     /*--------------------------------------------------------------------
@@ -292,16 +288,12 @@ public class Visual {
         return accentColor;
     }
 
-    public Color getBorderColor() {
-        return borderColor;
-    }
-
     public Color getPaintColor() {
         return paintColor;
     }
 
-    public Boolean getHasBorder() {
-        return hasBorder;
+    public String getAttribute(String attribute) {
+        return attributeMap.get(attribute);
     }
 
     /*--------------------------------------------------------------------
@@ -333,7 +325,7 @@ public class Visual {
         if(this.active) {
             child.activate();
         }
-        propagateDirt();
+        update();
     }
 
     public void removeVisual(Visual child) {
@@ -344,7 +336,7 @@ public class Visual {
         child.setParent(null);
         child.imageBuffer = null;
         child.deactivate();
-        propagateDirt();
+        update();
     }
 
     private void setParent(Visual parent) {
@@ -396,8 +388,10 @@ public class Visual {
     }
 
     private void revalidate() {
-        Timer timer = new Timer();
         Debugger.log("Revalidating " + name, Debugger.Tag.PAINTING);
+        Timer timer = new Timer();
+
+        validating = true;
         timer.startTiming();
 
         clearImageBuffer();
@@ -408,7 +402,10 @@ public class Visual {
             }
             imageBuffer.getGraphics().drawImage(v.imageBuffer, v.locationX, v.locationY, null);
         }
+
         dirty = false;
+        validating = false;
+
         if(!(this instanceof Window)){
             long time = timer.stopTiming();
             Debugger.log("Finished Revalidating " + name + ": " + time, Debugger.Tag.PAINTING);
@@ -422,8 +419,10 @@ public class Visual {
         window.revalidate();
     }
 
-    public void update() {
-        propagateDirt();
+    public void setCursor(Cursor cursor) {
+        if(parent != null) {
+            parent.setCursor(cursor);
+        }
     }
 
     public void paint(BufferedImage imageBuffer) {
@@ -459,14 +458,14 @@ public class Visual {
 
     void mouseClicked(MouseEvent mouseEvent) {
         for(MouseListener mouseListener: entered.mouseListeners) {
-            mouseListener.mouseClicked(mouseEvent);
+            mouseListener.mouseClicked(entered.createMouseEvent(mouseEvent));
         }
         Debugger.log("Clicked " + entered.name, Debugger.Tag.LISTENER);
     }
 
     void mouseReleased(MouseEvent mouseEvent) {
         for(MouseListener mouseListener: entered.mouseListeners) {
-            mouseListener.mouseReleased(mouseEvent);
+            mouseListener.mouseReleased(entered.createMouseEvent(mouseEvent));
         }
         Debugger.log("Released " + entered.name, Debugger.Tag.LISTENER);
         entered.pressed = false;
@@ -474,7 +473,7 @@ public class Visual {
 
     void mousePressed(MouseEvent mouseEvent) {
         for(MouseListener mouseListener: entered.mouseListeners) {
-            mouseListener.mousePressed(mouseEvent);
+            mouseListener.mousePressed(entered.createMouseEvent(mouseEvent));
         }
         entered.pressed = true;
         focused = entered;
@@ -488,17 +487,14 @@ public class Visual {
         int mouseX = mouseEvent.getX();
         int mouseY = mouseEvent.getY();
         for(Visual v: children) {
-            if(mouseX > v.getLocationX() &&
-                    mouseY > v.getLocationY() &&
-                    mouseX < v.getWidth() + v.getLocationX() &&
-                    mouseY < v.getHeight() + v.getLocationY()){
+            if(v.isInside(mouseX, mouseY)){
                 v.mouseEntered(mouseEvent);
                 return;
             }
         }
         entered = this;
         for(MouseListener mouseListener: mouseListeners) {
-            mouseListener.mouseEntered(mouseEvent);
+            mouseListener.mouseEntered(createMouseEvent(mouseEvent));
         }
         Debugger.log("Entered " + entered.name, Debugger.Tag.LISTENER);
     }
@@ -511,7 +507,7 @@ public class Visual {
             return;
         }
         for (MouseListener mouseListener : entered.mouseListeners) {
-            mouseListener.mouseExited(mouseEvent);
+            mouseListener.mouseExited(entered.createMouseEvent(mouseEvent));
         }
         Debugger.log("Exited " + entered.name, Debugger.Tag.LISTENER);
         entered = null;
@@ -519,7 +515,7 @@ public class Visual {
 
     void mouseDragged(MouseEvent mouseEvent) {
         for (MouseListener mouseListener : entered.mouseListeners) {
-            mouseListener.mouseDragged(mouseEvent);
+            mouseListener.mouseDragged(entered.createMouseEvent(mouseEvent));
         }
         Debugger.log("Dragged " + entered.name, Debugger.Tag.LISTENER);
     }
@@ -533,7 +529,7 @@ public class Visual {
         if(entered != null) {
             if (!entered.isInside(mouseX, mouseY)) {
                 for (MouseListener mouseListener : entered.mouseListeners) {
-                    mouseListener.mouseExited(mouseEvent);
+                    mouseListener.mouseExited(entered.createMouseEvent(mouseEvent));
                 }
                 Debugger.log("Exited " + entered.name, Debugger.Tag.LISTENER);
                 entered = this;
@@ -547,16 +543,17 @@ public class Visual {
         }
         if (this != entered && entered != null) {
             for (MouseListener mouseListener : entered.mouseListeners) {
-                mouseListener.mouseExited(mouseEvent);
+                mouseListener.mouseExited(entered.createMouseEvent(mouseEvent));
             }
             entered = this;
             for (MouseListener mouseListener : mouseListeners) {
-                mouseListener.mouseEntered(mouseEvent);
+                mouseListener.mouseEntered(createMouseEvent(mouseEvent));
             }
+            Debugger.log("Entered " + this.name, Debugger.Tag.LISTENER);
         }
         else {
             for (MouseListener mouseListener : mouseListeners) {
-                mouseListener.mouseMoved(mouseEvent);
+                mouseListener.mouseMoved(createMouseEvent(mouseEvent));
             }
         }
         Debugger.log("Moved " + this.name, Debugger.Tag.LISTENER);
@@ -640,6 +637,12 @@ public class Visual {
         }
     }
 
+    private MouseEvent createMouseEvent(MouseEvent mouseEvent) {
+        return new MouseEvent(mouseEvent.getComponent(), mouseEvent.getID(), mouseEvent.getWhen(), mouseEvent.getModifiersEx(),
+                mouseEvent.getX() - absoluteX, mouseEvent.getY() - absoluteY, mouseEvent.getXOnScreen(), mouseEvent.getYOnScreen(),
+                mouseEvent.getClickCount(), mouseEvent.isPopupTrigger(), mouseEvent.getButton());
+    }
+
     private boolean isInside(int x, int y) {
         return x > absoluteX && x < absoluteX +  width && y > absoluteY && y < absoluteY + height;
     }
@@ -658,10 +661,17 @@ public class Visual {
         }
     }
 
-    private void propagateDirt() {
+    public void update() {
         dirty = true;
         if(parent != null) {
-            parent.propagateDirt();
+            while(parent.validating){
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            parent.update();
         }
     }
 }

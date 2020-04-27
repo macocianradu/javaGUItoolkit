@@ -4,4 +4,24 @@
         Visible="True"
         Title="Sudoku 1.0"
         Size="1024, 576">
+    <GridPanel
+        BackgroundColor="#75ff75"
+        Size="1.0f, 1.0f"
+        Name="Main Grid">
+        <Text
+            Text="Ioana"
+            Name="Text"
+            Row="0"
+            Column="0"/>
+        <Panel
+            BackgroundColor="#555555"
+            Name="Panel"
+            Row="0"
+            Column="1">
+            <Border
+                Thickness="10"
+                Color="#ff0000"/>
+        </Panel>
+    </GridPanel>
+
 </Window>

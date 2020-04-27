@@ -1,4 +1,4 @@
-package converters;
+package parser.converters;
 
 import com.sun.jdi.InvalidTypeException;
 

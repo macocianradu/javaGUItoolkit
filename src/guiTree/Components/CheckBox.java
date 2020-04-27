@@ -128,8 +128,6 @@ public class CheckBox extends Visual {
         int textHeight = g.getFontMetrics().getHeight();
         g.drawString(text, getHeight() + 10, getHeight() / 2 + textHeight / 4);
 
-        g.setColor(getBorderColor());
-        g.drawRect(0, 0, getHeight() - 1, getHeight() - 1);
         g.dispose();
     }
 }

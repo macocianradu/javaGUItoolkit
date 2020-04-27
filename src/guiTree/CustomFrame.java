@@ -47,6 +47,7 @@ public class CustomFrame extends JFrame {
         private int startX;
         private int startY;
         private boolean resizing = false;
+        private boolean changedCursor = false;
 
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -87,9 +88,13 @@ public class CustomFrame extends JFrame {
             if(e.getX() < resizeDelta || e.getX() > getWidth() - resizeDelta ||
                     e.getY() < resizeDelta || e.getY() > getHeight() - resizeDelta) {
                 this.setResizeCursor(e);
+                changedCursor = true;
             }
             else{
-                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                if(changedCursor) {
+                    setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                    changedCursor = false;
+                }
             }
         }
 

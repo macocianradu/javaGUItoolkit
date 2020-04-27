@@ -82,14 +82,7 @@ public class Button extends Visual {
         g.setColor(getPaintColor());
 
         //Draw Button
-        if(getHasBorder()) {
-            g.fillRoundRect(1, 1, getWidth() - 1, getHeight() - 1, round, round);
-            g.setColor(getBorderColor());
-            g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, round, round);
-        }
-        else {
-            g.fillRoundRect(0, 0, getWidth(), getHeight(), round, round);
-        }
+        g.fillRoundRect(0, 0, getWidth(), getHeight(), round, round);
 
         //Draw Label
         if(getFont() != null) {

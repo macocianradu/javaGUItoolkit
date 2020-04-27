@@ -36,8 +36,6 @@ public class Slider extends Visual {
         setBackgroundColor(new Color(175, 175, 175));
         setForegroundColor(new Color(112, 112, 112));
         setAccentColor(new Color(50, 50, 50));
-        button1.setHasBorder(false);
-        button2.setHasBorder(false);
 
         if(direction == Direction.Horizontal) {
             button1.setIcon("arrow_left_black");
@@ -193,14 +191,6 @@ public class Slider extends Visual {
     }
 
     @Override
-    public void setBorderColor(Color color) {
-        super.setBorderColor(color);
-        button1.setBorderColor(color);
-        button2.setBorderColor(color);
-        slider.setBorderColor(color);
-    }
-
-    @Override
     public void setName(String name) {
         super.setName(name);
         slider.setName(name + " slider");
@@ -230,10 +220,6 @@ public class Slider extends Visual {
         Graphics2D g = imageBuffer.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        if(getHasBorder()) {
-            g.setColor(getBorderColor());
-            g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
-        }
         g.setColor(getBackgroundColor());
 
         if(direction == Direction.Vertical) {

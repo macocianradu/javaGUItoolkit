@@ -244,6 +244,10 @@ public class Window extends Visual implements Runnable{
     public void addVisual(Visual v) {
         contentPanel.addVisual(v);
     }
+    public void setCursor(Cursor cursor) {
+        System.out.println("Changed cursor ASD");
+        frame.setCursor(cursor);
+    }
 
     @Override
     public void run() {

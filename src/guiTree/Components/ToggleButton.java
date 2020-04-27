@@ -82,14 +82,7 @@ public class ToggleButton extends Visual {
         g.setColor(getPaintColor());
 
         //Draw Button
-        if(getHasBorder()) {
-            g.fillRect(1, 1, this.getWidth() - 2, this.getHeight() - 2);
-            g.setColor(getBorderColor());
-            g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
-        }
-        else {
-            g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
-        }
+        g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
 
         //Draw Label
         if(getFont() != null) {
