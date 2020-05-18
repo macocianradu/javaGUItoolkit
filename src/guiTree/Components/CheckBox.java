@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class CheckBox extends Visual {
+    public static int CHECKBOX_CLICKED = 3;
     private BufferedImage icon;
     private boolean hovered;
     private boolean marked;
@@ -45,6 +46,7 @@ public class CheckBox extends Visual {
                     addAnimation(new ColorAnimation(CheckBox.this, getForegroundColor(), getAccentColor(), 100));
                 }
                 marked = !marked;
+                notifyParent(CHECKBOX_CLICKED);
                 Debugger.log("Calling repaint from pressed: " + getName(), Debugger.Tag.PAINTING);
                 update();
             }
@@ -76,7 +78,17 @@ public class CheckBox extends Visual {
     }
 
     public void setMarked(boolean marked) {
+        if(this.marked != marked) {
+            if (!this.marked) {
+                addAnimation(new ColorAnimation(this, getBackgroundColor(), getForegroundColor(), 100));
+            } else {
+                addAnimation(new ColorAnimation(this, getForegroundColor(), getBackgroundColor(), 100));
+            }
+        }
+
         this.marked = marked;
+
+        update();
     }
 
     public String getText() {
@@ -85,10 +97,12 @@ public class CheckBox extends Visual {
 
     public void setText(String text) {
         this.text = text;
+        update();
     }
 
     public void setIcon(BufferedImage icon) {
         this.icon = icon;
+        update();
     }
 
     public void setIcon(String url) {
@@ -97,6 +111,7 @@ public class CheckBox extends Visual {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        update();
     }
 
     @Override

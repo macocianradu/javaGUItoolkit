@@ -196,7 +196,7 @@ public class Window extends Visual implements Runnable{
     }
 
     @Override
-    public void handleNotification(int notify) {
+    public void handleNotification(Visual v, int notify) {
         switch(notify) {
             case TitleBar.CLOSE: {
                 dispose();

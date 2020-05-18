@@ -2,6 +2,7 @@ package guiTree.Components;
 
 import guiTree.Animations.ColorAnimation;
 import guiTree.Helper.Debugger;
+import guiTree.Helper.Point2;
 import guiTree.Visual;
 import guiTree.events.MouseAdapter;
 
@@ -12,7 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Button extends Visual {
+public class Button extends MenuItem {
     private String label;
     private BufferedImage icon;
     private int round = -1;
@@ -139,5 +140,45 @@ public class Button extends Visual {
 
     public BufferedImage getIcon() {
         return icon;
+    }
+
+    @Override
+    public Point2<Integer> getClosedSize() {
+        return new Point2<>(getWidth(), getHeight());
+    }
+
+    @Override
+    public Point2<Integer> getOpenedSize() {
+        return getClosedSize();
+    }
+
+    @Override
+    public void setClosedSize(Integer width, Integer height) {
+        setSize(width, height);
+    }
+
+    @Override
+    public void setOpenedSize(Integer width, Integer height) {
+        setSize(width, height);
+    }
+
+    @Override
+    public int getClosedWidth() {
+        return getWidth();
+    }
+
+    @Override
+    public int getClosedHeight() {
+        return getHeight();
+    }
+
+    @Override
+    public int getOpenedWidth() {
+        return getWidth();
+    }
+
+    @Override
+    public int getOpenedHeight() {
+        return getHeight();
     }
 }

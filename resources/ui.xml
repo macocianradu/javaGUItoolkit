@@ -18,9 +18,63 @@
             Name="Panel"
             Row="0"
             Column="1">
-            <Border
-                Thickness="10"
-                Color="#ff0000"/>
+            <RadioButtons
+                Size="1.0f, 0.3f">
+                <RadioButton
+                    Text="Iubesc"
+                    Name="Iubesc"
+                    Size="300, 20"
+                    Icon="circle"
+                />
+                <RadioButton
+                        Text="Ioana"
+                        Name="Ioana"
+                        Size="300, 20"
+                        Icon="circle"
+                />
+                <RadioButton
+                        Text="Mult"
+                        Name="Mult"
+                        Size="300, 20"
+                        Icon="circle"
+                />
+            </RadioButtons>
+            <DropDown
+                BackgroundColor="#222222"
+                Name="DropDown"
+                Label="Drop Down Menu"
+                Location="0.0f, 0.5f"
+                ContentHeight="30"
+                ContentWidth="100"
+                ClosedSize="200, 30">
+                <Button
+                    Name="Button1"
+                    Label="B1"/>
+                <Button
+                    Name="Button2"
+                    Label="B2"/>
+                <SideDropDown
+                        Name="SideDropDown"
+                        Label="SideDropDown"
+                        ClosedWidth="100"
+                        ClosedHeight="30"
+                        ContentHeight="30"
+                        ContentWidth="100">
+                    <Button
+                            Name="Button3"
+                            Label="Button3"/>
+                    <Button
+                            Name="Button4"
+                            Label="Button4"/>
+                </SideDropDown>
+
+            </DropDown>
+            <InputTextBox
+                BackgroundColor="#999999"
+                AccentColor="#aaaaaa"
+                ForegroundColor="#ffffff"
+                Location="0.0f, 0.8f"
+                Size="300, 60"/>
         </Panel>
     </GridPanel>
 

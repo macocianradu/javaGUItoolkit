@@ -13,7 +13,7 @@ public class Panel extends Visual {
 
     public Panel() {
         super();
-        overlapping = false;
+        overlapping = true;
         visuals = new ArrayList<>();
     }
 
@@ -97,10 +97,10 @@ public class Panel extends Visual {
     }
 
     @Override
-    public void handleNotification(int notify) {
+    public void handleNotification(Visual v, int notify) {
         if(notify == TitleBar.CLOSE || notify == TitleBar.MAXIMIZE ||
             notify == TitleBar.MINIMIZE || notify == TitleBar.NORMALIZE) {
-            notifyParent(notify);
+            notifyParent(v, notify);
 //            return;
         }
 //        if(notify == SIZE_CHANGED || notify == LOCATION_CHANGED) {

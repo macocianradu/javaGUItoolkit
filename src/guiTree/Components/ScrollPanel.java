@@ -127,14 +127,10 @@ public class ScrollPanel extends Visual {
     }
 
     @Override
-    public void handleNotification(int notify) {
-        if(notify == Slider.SLIDER_MOVED) {
+    public void handleNotification(Visual v, int notify) {
+        if (notify == Slider.SLIDER_MOVED) {
             setLocations();
         }
-    }
-
-    @Override
-    public void handleNotification(Visual v, int notify) {
     }
 
     @Override

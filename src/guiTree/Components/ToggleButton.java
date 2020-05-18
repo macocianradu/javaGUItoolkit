@@ -15,7 +15,6 @@ import java.io.IOException;
 public class ToggleButton extends Visual {
     private String label;
     private Boolean pressed;
-    private Boolean hovered;
     private BufferedImage icon;
 
     public ToggleButton() {
@@ -35,7 +34,6 @@ public class ToggleButton extends Visual {
         this.label = label;
         this.icon = icon;
         pressed = false;
-        hovered = false;
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {

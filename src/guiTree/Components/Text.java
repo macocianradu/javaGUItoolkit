@@ -155,7 +155,7 @@ public class Text extends Visual {
             int startX;
             int endX;
             if(startIndex > endIndex) {
-                endX = startIndex;
+                endX = startIndex - 1;
                 startX = endIndex;
             }
             else {

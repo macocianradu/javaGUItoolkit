@@ -252,6 +252,10 @@ public class Visual {
         return this.height;
     }
 
+    public Point2<Float> getRelativeSize() {
+        return new Point2<>(relativeWidth, relativeHeight);
+    }
+
     public int getLocationX() {
         return this.locationX;
     }
@@ -266,6 +270,10 @@ public class Visual {
 
     public Point2<Float> getRelativeLocation() {
         return new Point2<>(relativeX, relativeY);
+    }
+
+    public boolean isFocused() {
+        return this == focused;
     }
 
     public Font getFont() {
@@ -347,23 +355,14 @@ public class Visual {
 
     }
 
-    public void handleNotification(int notify) {
-
-    }
-
     public void notifyParent(Visual v, int notify) {
         if(parent != null) {
-            if(v == null) {
-                parent.handleNotification(notify);
-            }
-            else {
-                parent.handleNotification(v, notify);
-            }
+            parent.handleNotification(v, notify);
         }
     }
 
     public void notifyParent(int notify) {
-        notifyParent(null, notify);
+        notifyParent(this, notify);
     }
 
     public void addAnimation(AnimationInterface animation) {
@@ -476,6 +475,9 @@ public class Visual {
             mouseListener.mousePressed(entered.createMouseEvent(mouseEvent));
         }
         entered.pressed = true;
+        if(focused != null) {
+            focused.update();
+        }
         focused = entered;
         Debugger.log("Pressed " + entered.name, Debugger.Tag.LISTENER);
     }
