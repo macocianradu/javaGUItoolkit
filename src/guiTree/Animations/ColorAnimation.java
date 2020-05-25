@@ -32,10 +32,10 @@ public class ColorAnimation implements AnimationInterface {
 
     @Override
     public boolean step() {
-        if(from.a > to.a - 1 && from.a < to.a + 1 &&
-                from.b > to.b - 1 && from.b < to.b + 1 &&
-                from.c > to.c - 1 && from.c < to.c + 1 &&
-                from.d > to.d - 1 && from.d < to.d + 1) {
+        if(((from.a + offset.a >= to.a && offset.a >= 0) || (from.a + offset.a <= to.a && offset.a <= 0)) &&
+                ((from.b + offset.b >= to.b && offset.b >= 0) || (from.b + offset.b <= to.b && offset.b <= 0)) &&
+                ((from.c + offset.c >= to.c && offset.c >= 0) || (from.c + offset.c <= to.c && offset.c <= 0)) &&
+                ((from.d + offset.d >= to.d && offset.d >= 0) || (from.d + offset.d <= to.d && offset.d <= 0))) {
             element.setPaintColor(new Color(to.a, to.b, to.c, to.d));
             Debugger.log("Animation for " + element.getName() + " finished", Debugger.Tag.ANIMATIONS);
             return true;

@@ -39,6 +39,14 @@
                         Icon="circle"
                 />
             </RadioButtons>
+
+            <InputTextBox
+                    BackgroundColor="#999999"
+                    AccentColor="#aaaaaa"
+                    ForegroundColor="#ffffff"
+                    Location="0.0f, 0.8f"
+                    Size="300, 60"/>
+
             <DropDown
                 BackgroundColor="#222222"
                 Name="DropDown"
@@ -68,13 +76,22 @@
                             Label="Button4"/>
                 </SideDropDown>
 
+                <SideDropDown
+                        Name="SideDropDown"
+                        Label="SideDropDown"
+                        ClosedWidth="100"
+                        ClosedHeight="30"
+                        ContentHeight="30"
+                        ContentWidth="100">
+                    <Button
+                            Name="Button5"
+                            Label="Button5"/>
+                    <Button
+                            Name="Button6"
+                            Label="Button6"/>
+                </SideDropDown>
+
             </DropDown>
-            <InputTextBox
-                BackgroundColor="#999999"
-                AccentColor="#aaaaaa"
-                ForegroundColor="#ffffff"
-                Location="0.0f, 0.8f"
-                Size="300, 60"/>
         </Panel>
     </GridPanel>
 

@@ -38,6 +38,11 @@ public class Border extends Visual {
         update();
     }
 
+    @Override
+    public boolean isInside(int x, int y) {
+        return false;
+    }
+
     public void paint(BufferedImage imageBuffer) {
         Graphics2D g = imageBuffer.createGraphics();
 

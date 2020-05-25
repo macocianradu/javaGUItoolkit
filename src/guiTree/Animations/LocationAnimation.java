@@ -20,7 +20,8 @@ public class LocationAnimation implements AnimationInterface {
 
     @Override
     public boolean step() {
-        if(from.x > to.x - 1 && from.x < to.x + 1 && from.y > to.y - 1 && from.y < to.y + 1) {
+        if(((from.x + offset.x >= to.x && offset.x >= 0) || (from.x + offset.x <= to.x && offset.x <= 0)) &&
+                ((from.y + offset.y >= to.y && offset.y >= 0) || (from.y + offset.y <= to.y && offset.y <= 0))) {
             element.setLocation(to.x, to.y);
             Debugger.log("Animation for " + element.getName() + " finished", Debugger.Tag.ANIMATIONS);
             return true;

@@ -1,18 +1,24 @@
 package guiTree.Components;
 
+import guiTree.Animations.ColorAnimation;
 import guiTree.Animations.SizeAnimation;
+import guiTree.Helper.Debugger;
 import guiTree.Helper.Point2;
 import guiTree.Visual;
 import guiTree.events.MouseAdapter;
-import javafx.css.Size;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DropDown extends ToggleButton implements Menu{
+public class DropDown extends MenuItem implements Menu{
+    private String label;
+    private BufferedImage icon;
     private List<MenuItem> items;
     private boolean isOpen;
     private boolean elementWidthSet;
@@ -35,11 +41,31 @@ public class DropDown extends ToggleButton implements Menu{
 
         addMouseListener(new MouseAdapter() {
             @Override
+            public void mouseEntered(MouseEvent mouseEvent) {
+                if(!isOpen) {
+                    addAnimation(new ColorAnimation(DropDown.this, getBackgroundColor(), getAccentColor(), 100));
+                    Debugger.log("Calling repaint from entered: " + getName(), Debugger.Tag.PAINTING);
+                    update();
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent mouseEvent) {
+                if(!isOpen) {
+                    addAnimation(new ColorAnimation(DropDown.this, getAccentColor(), getBackgroundColor(), 100));
+                    Debugger.log("Calling repaint from exited: " + getName(), Debugger.Tag.PAINTING);
+                    update();
+                }
+            }
+
+            @Override
             public void mousePressed(MouseEvent mouseEvent) {
                 if(isOpen) {
+                    addAnimation(new ColorAnimation(DropDown.this, getForegroundColor(), getAccentColor(), 100));
                     close();
                     return;
                 }
+                addAnimation(new ColorAnimation(DropDown.this, getAccentColor(), getForegroundColor(), 100));
                 open();
             }
         });
@@ -53,8 +79,8 @@ public class DropDown extends ToggleButton implements Menu{
         }
 
         if(!elementWidthSet) {
-            if(elementWidth < ((MenuItem) v).getClosedWidth()) {
-                setElementWidth(((MenuItem) v).getClosedWidth());
+            if(elementWidth < ((MenuItem) v).getClosedSize().x) {
+                setElementWidth(((MenuItem) v).getClosedSize().x);
             }
         }
         else {
@@ -66,16 +92,16 @@ public class DropDown extends ToggleButton implements Menu{
         }
 
         v.setLocationX(0);
-        openedSize.x = Math.max(openedSize.x, ((MenuItem) v).getOpenedWidth());
+        openedSize.x = Math.max(openedSize.x, ((MenuItem) v).getOpenedSize().x);
         if(items.size() == 0) {
             v.setLocationY(getHeight());
-            openedSize.y = closedSize.y + ((MenuItem) v).getOpenedHeight();
+            openedSize.y = closedSize.y + ((MenuItem) v).getOpenedSize().y;
             items.add((MenuItem) v);
             return;
         }
 
-        v.setLocationY(items.get(items.size() - 1).getLocationY() + items.get(items.size() - 1).getClosedHeight());
-        openedSize.y = Math.max(openedSize.y, v.getLocationY() + ((MenuItem) v).getOpenedHeight());
+        v.setLocationY(items.get(items.size() - 1).getLocationY() + items.get(items.size() - 1).getClosedSize().y);
+        openedSize.y = Math.max(openedSize.y, v.getLocationY() + ((MenuItem) v).getOpenedSize().y);
 
         items.add((MenuItem)v);
     }
@@ -97,8 +123,8 @@ public class DropDown extends ToggleButton implements Menu{
         openedSize.y -= v.getHeight();
 
         if(!elementWidthSet) {
-            if(((MenuItem) v).getClosedWidth() == elementWidth) {
-                setElementWidth(items.stream().mapToInt(MenuItem::getClosedWidth).max().orElse(0));
+            if(((MenuItem) v).getClosedSize().x == elementWidth) {
+                setElementWidth(items.stream().mapToInt(f -> f.getClosedSize().x).max().orElse(0));
             }
         }
 
@@ -107,9 +133,25 @@ public class DropDown extends ToggleButton implements Menu{
         }
     }
 
+    @Override
+    public Point2<Integer> getClosedSize() {
+        return closedSize;
+    }
+
+    @Override
+    public Point2<Integer> getOpenedSize() {
+        return openedSize;
+    }
+
     public void setClosedSize(Integer width, Integer height) {
         setClosedWidth(width);
         setClosedHeight(height);
+    }
+
+    @Override
+    public void setOpenedSize(Integer width, Integer height) {
+        openedSize.x = width;
+        openedSize.y = height;
     }
 
     public void setClosedHeight(Integer height) {
@@ -166,60 +208,46 @@ public class DropDown extends ToggleButton implements Menu{
     }
 
     public void open() {
+        System.out.println("Opening");
         isOpen = true;
         items.forEach(super::addVisual);
-        addAnimation(new SizeAnimation(this, closedSize, openedSize, 70));
+        addAnimation(new SizeAnimation(this, new Point2<>(getWidth(), getHeight()), openedSize, 70));
     }
 
     public void close() {
+        System.out.println("Closing");
         isOpen = false;
         items.forEach(super::removeVisual);
-        addAnimation(new SizeAnimation(this, openedSize, closedSize, 70));
+        addAnimation(new SizeAnimation(this, new Point2<>(getWidth(), getHeight()), closedSize, 70));
     }
 
-//    public void open() {
-//        int width = elementWidth;
-//        int height = items.stream().mapToInt(f -> f.getOpenedHeight() + f.getLocationY()).max().orElse(0);
-//
-//        if(width == 0) {
-//            width = items.stream().mapToInt(MenuItem::getClosedWidth).max().orElse(0);
-//        }
-//        int finalWidth = width;
-//        items.forEach(f -> f.setClosedWidth(finalWidth));
-//        int openedWidth = items.stream().mapToInt(MenuItem::getOpenedWidth).max().orElse(0);
-//
-//        addAnimation(new SizeAnimation(this, new Point2<>(getWidth(), getHeight()), new Point2<>(Math.max(width, openedWidth), height), 70));
-//        for(Visual v: items) {
-//            super.addVisual(v);
-//        }
-//        isOpen = true;
-//    }
-//
-//    public void close() {
-//        addAnimation(new SizeAnimation(this, new Point2<>(getWidth(), getHeight()), new Point2<>(closedWidth, closedHeight), 70));
-//        isOpen = false;
-//    }
+    public String getLabel() {
+        return label;
+    }
 
-//    @Override
-//    public void handleNotification(Visual v, int notify) {
-//        assert v instanceof MenuItem;
-//        MenuItem item = (MenuItem) v;
-//        if(notify == SIZE_CHANGED) {
-//            if(isOpen) {
-//                if(elementWidthSet) {
-//                    item.setClosedWidth(elementWidth);
-//                }
-//                else {
-//                    if(item.getClosedWidth() > elementWidth) {
-//                        setElementWidth(item.getClosedWidth());
-//                    }
-//                }
-//                if(elementHeightSet) {
-//                    item.setClosedHeight(elementHeight);
-//                }
-//            }
-//        }
-//    }
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public void setIcon(BufferedImage icon) {
+        this.icon = icon;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void setIcon(String url) {
+        try{
+            icon = ImageIO.read(new File("resources\\icons\\" + url + ".png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public BufferedImage getIcon() {
+        return icon;
+    }
 
     public void paint(BufferedImage imageBuffer)
     {
@@ -238,23 +266,24 @@ public class DropDown extends ToggleButton implements Menu{
         g.setColor(this.getFontColor());
         int textWidth = 0;
         int textHeight = 0;
-        if(!getLabel().equals("")) {
-            textWidth = g.getFontMetrics().stringWidth(getLabel());
-            textHeight = g.getFontMetrics().getHeight();
-        }
 
-        g.drawString(getLabel(), (getWidth() - textWidth)/2, (closedSize.y + textHeight)/2);
 
         //Draw Icon
-        if(getIcon() != null) {
-            int iconWidth = getIcon().getWidth();
-            int iconHeight = getIcon().getHeight();
+        if(icon != null) {
+            int iconWidth = icon.getWidth();
+            int iconHeight = icon.getHeight();
+            textWidth += iconWidth;
 
-            int iconX = (getWidth() - iconWidth - textWidth) / 2;
+            int iconX = closedSize.x - iconWidth - 3;
             int iconY = (closedSize.y - iconHeight - textHeight) / 2;
             Graphics2D g2 = imageBuffer.createGraphics();
-            g2.drawImage(getIcon(), iconX, iconY, null);
+            g2.drawImage(icon, iconX, iconY, null);
             g2.dispose();
+        }
+        if(!label.equals("")) {
+            textWidth += g.getFontMetrics().stringWidth(label);
+            textHeight = g.getFontMetrics().getHeight();
+            g.drawString(label, (closedSize.x - textWidth)/2, closedSize.y/2 + textHeight/2);
         }
 
         g.dispose();

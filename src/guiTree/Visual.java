@@ -245,11 +245,11 @@ public class Visual {
     }
 
     public int getWidth() {
-        return this.width;
+        return width;
     }
 
     public int getHeight() {
-        return this.height;
+        return height;
     }
 
     public Point2<Float> getRelativeSize() {
@@ -257,15 +257,27 @@ public class Visual {
     }
 
     public int getLocationX() {
-        return this.locationX;
+        return locationX;
     }
 
     public int getLocationY() {
-        return this.locationY;
+        return locationY;
     }
 
     public Point2<Integer> getLocation() {
         return new Point2<>(locationX, locationY);
+    }
+
+    public int getAbsoluteX() {
+        return absoluteX;
+    }
+
+    public int getAbsoluteY() {
+        return absoluteY;
+    }
+
+    public Point2<Integer> getAbsoluteLocation() {
+        return new Point2<>(absoluteX, absoluteY);
     }
 
     public Point2<Float> getRelativeLocation() {
@@ -373,6 +385,10 @@ public class Visual {
         animations.remove(animation);
     }
 
+    public void removeAllAnimations() {
+        animations.clear();
+    }
+
     public void repaint() {
         Debugger.log("Called repaint from " + name, Debugger.Tag.PAINTING);
         for(int i = 0; i < animations.size(); i++) {
@@ -432,27 +448,39 @@ public class Visual {
     ---------------------------------------------------------------------*/
 
     public void addMouseListener(MouseListener mouseListener) {
-        this.mouseListeners.add(mouseListener);
+        mouseListeners.add(mouseListener);
     }
 
     public void removeMouseListener(MouseListener mouseListener) {
-        this.mouseListeners.remove(mouseListener);
+        mouseListeners.remove(mouseListener);
+    }
+
+    public void removeAllMouseListeners() {
+        mouseListeners.clear();
     }
 
     public void addMouseWheelListener(MouseWheelListener mouseWheelListener) {
-        this.mouseWheelListeners.add(mouseWheelListener);
+        mouseWheelListeners.add(mouseWheelListener);
     }
 
     public void removeMouseWheelListener(MouseWheelListener mouseWheelListener) {
-        this.mouseWheelListeners.remove(mouseWheelListener);
+        mouseWheelListeners.remove(mouseWheelListener);
+    }
+
+    public void removeAllMouseWheelListeners() {
+        mouseWheelListeners.clear();
     }
 
     public void addKeyListener(KeyListener keyListener) {
-        this.keyListeners.add(keyListener);
+        keyListeners.add(keyListener);
     }
 
     public void removeKeyListener(KeyListener keyListener) {
-        this.keyListeners.remove(keyListener);
+        keyListeners.remove(keyListener);
+    }
+
+    public void removeAllKeyListeners() {
+        keyListeners.clear();
     }
 
     void mouseClicked(MouseEvent mouseEvent) {
@@ -645,7 +673,7 @@ public class Visual {
                 mouseEvent.getClickCount(), mouseEvent.isPopupTrigger(), mouseEvent.getButton());
     }
 
-    private boolean isInside(int x, int y) {
+    public boolean isInside(int x, int y) {
         return x > absoluteX && x < absoluteX +  width && y > absoluteY && y < absoluteY + height;
     }
 

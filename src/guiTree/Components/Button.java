@@ -161,24 +161,4 @@ public class Button extends MenuItem {
     public void setOpenedSize(Integer width, Integer height) {
         setSize(width, height);
     }
-
-    @Override
-    public int getClosedWidth() {
-        return getWidth();
-    }
-
-    @Override
-    public int getClosedHeight() {
-        return getHeight();
-    }
-
-    @Override
-    public int getOpenedWidth() {
-        return getWidth();
-    }
-
-    @Override
-    public int getOpenedHeight() {
-        return getHeight();
-    }
 }

@@ -12,27 +12,19 @@ public abstract class MenuItem extends Visual {
 
     public abstract void setOpenedSize(Integer width, Integer height);
 
-    public abstract int getClosedWidth();
-
-    public abstract int getClosedHeight();
-
-    public abstract int getOpenedWidth();
-
-    public abstract int getOpenedHeight();
-
     public void setClosedWidth(Integer width) {
-        setClosedSize(width, getClosedHeight());
+        setClosedSize(width, getClosedSize().y);
     }
 
     public void setClosedHeight(Integer height) {
-        setClosedSize(getClosedWidth(), height);
+        setClosedSize(getClosedSize().x, height);
     }
 
     public void setOpenedWidth(Integer width) {
-        setOpenedSize(width, getOpenedHeight());
+        setOpenedSize(width, getOpenedSize().y);
     }
 
     public void setOpenedHeight(Integer height) {
-        setOpenedSize(getOpenedWidth(), height);
+        setOpenedSize(getOpenedSize().x, height);
     }
 }
