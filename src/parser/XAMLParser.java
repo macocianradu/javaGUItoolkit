@@ -1,6 +1,7 @@
 package parser;
 
 import com.sun.jdi.InvalidTypeException;
+import guiTree.Components.Decoarations.Decoration;
 import parser.converters.Converter;
 import guiTree.Helper.Debugger;
 import guiTree.Visual;
@@ -46,7 +47,6 @@ public class XAMLParser {
             }
             try {
                 Method method = object.getClass().getMethod(methodName, parameterTypes);
-                assert method != null;
                 method.invoke(object, parameterList.toArray());
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
@@ -126,7 +126,7 @@ public class XAMLParser {
         }
         Debugger.log("Parsing " + parentClass, Debugger.Tag.PARSING);
         Object parentObject = parentClass.getDeclaredConstructor().newInstance();
-        Debugger.log("Constructor called succesfuly for " + parentObject, Debugger.Tag.PARSING);
+        Debugger.log("Constructor called successfully for " + parentObject, Debugger.Tag.PARSING);
 
         setAttributes(parentObject, parentNode.getAttributes());
 
@@ -139,9 +139,17 @@ public class XAMLParser {
 
                 Object childObject = parseNode(childNode);
 
-                if(parentObject instanceof Visual && childObject instanceof Visual) {
-                    Debugger.log("Adding " + childObject + " to " + parentObject, Debugger.Tag.PARSING);
-                    addVisual((Visual) parentObject, (Visual) childObject);
+                if(parentObject instanceof Visual) {
+                    if(childObject instanceof Decoration) {
+                        Debugger.log("Adding decoration " + childObject + " to " + parentObject, Debugger.Tag.PARSING);
+                        ((Visual)parentObject).addVisual((Decoration) childObject);
+                    }
+                    else {
+                        if (childObject instanceof Visual) {
+                            Debugger.log("Adding " + childObject + " to " + parentObject, Debugger.Tag.PARSING);
+                            addVisual((Visual) parentObject, (Visual) childObject);
+                        }
+                    }
                 }
             }
         }

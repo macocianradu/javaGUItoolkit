@@ -125,7 +125,12 @@ public class InputTextBox extends Visual {
                         }
                         return;
                     }
-                    caretPosition.x --;
+                    if(keyEvent.isControlDown()) {
+                        moveCaretToNextWord(-1);
+                    }
+                    else {
+                        caretPosition.x--;
+                    }
                     if(!keyEvent.isShiftDown()) {
                         startDragPosition = new Point2<>(caretPosition);
                     }
@@ -148,7 +153,12 @@ public class InputTextBox extends Visual {
                         }
                         return;
                     }
-                    caretPosition.x ++;
+                    if(keyEvent.isControlDown()) {
+                        moveCaretToNextWord(1);
+                    }
+                    else {
+                        caretPosition.x++;
+                    }
                     if(!keyEvent.isShiftDown()) {
                         startDragPosition = new Point2<>(caretPosition);
                     }
@@ -311,6 +321,46 @@ public class InputTextBox extends Visual {
         return new Point2<>(currentLine.length(), y);
     }
 
+    private void moveCaretToNextWord(int direction) {
+        if(direction > 0) {
+            if (lines.get(caretPosition.y).length() == caretPosition.x) {
+                if (lines.size() > caretPosition.y + 1) {
+                    caretPosition.y++;
+                    caretPosition.x = 0;
+                    return;
+                }
+            }
+        }
+        else {
+            if (caretPosition.x == 0) {
+                if (caretPosition.y > 0) {
+                    caretPosition.y--;
+                    caretPosition.x = lines.get(caretPosition.y).length();
+                    return;
+                }
+            }
+        }
+        StringBuilder currentLine = lines.get(caretPosition.y);
+        char currentChar;
+        currentChar = currentLine.charAt(caretPosition.x + direction);
+        while(currentChar == ' ' ){
+            caretPosition.x += direction;
+            currentChar = currentLine.charAt(caretPosition.x);
+            if((currentLine.length() == caretPosition.x && direction > 0) || (caretPosition.x == 0 && direction < 0)) {
+                return;
+            }
+        }
+        do {
+            caretPosition.x += direction;
+            if(currentLine.length() == caretPosition.x && direction > 0) {
+                return;
+            }
+            currentChar = currentLine.charAt(caretPosition.x);
+             if(caretPosition.x == 0 && direction < 0) {
+                return;
+            }
+        } while((currentChar >= 'a' && currentChar <= 'z') || (currentChar >= 'A' && currentChar <= 'Z'));
+    }
 
     private void deleteSelection() {
         selectionRectangles.clear();

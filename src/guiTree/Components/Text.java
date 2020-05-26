@@ -1,114 +1,115 @@
 package guiTree.Components;
 
+import guiTree.Components.Decoarations.LeftTextAligner;
+import guiTree.Components.Decoarations.RightTextAligner;
+import guiTree.Components.Decoarations.TextAligner;
+import guiTree.Helper.Point2;
+import guiTree.Helper.Point4;
 import guiTree.Visual;
+import guiTree.events.KeyAdapter;
 import guiTree.events.MouseAdapter;
 
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Text extends Visual {
-    private String text;
-    private boolean selectable;
-    private int startIndex;
-    private int endIndex;
-    private int textWidth;
-    private int textHeight;
-    private boolean inside;
-    private int[] characterWidthMap;
+    private List<StringBuilder> lines;
+    private String title;
+    private Point2<Integer> caretPosition;
+    private Point2<Integer> startDragPosition;
+    private List<StringBuilder> selectedText;
+    private List<Point4<Integer>> selectionRectangles;
     private FontMetrics fontMetrics;
-    private int textX;
-    private int textY;
+    private TextAligner textAligner;
+    private int paragraphSpacing;
+    private boolean selectable;
 
     public Text() {
-        this(0, 0, "");
+        this(true, "");
     }
 
-    public Text(int x, int y, String text) {
-        super(x, y);
-        this.text = text;
-        inside = false;
-        characterWidthMap = new int[text.length()];
-        startIndex = -1;
-        endIndex = -1;
-        textX = 0;
-        textY = 0;
+    public Text(Boolean visible) {
+        this(visible, "");
+    }
+
+    public Text(String title) {
+        this(true, title);
+    }
+
+    public Text(Boolean visible, String title) {
+        super();
+        this.title = title;
+        lines = new ArrayList<>();
+        selectionRectangles = new ArrayList<>();
+        lines.add(new StringBuilder());
+        caretPosition = new Point2<>(0, 0);
+        startDragPosition = new Point2<>(0, 0);
+        textAligner = new LeftTextAligner();
+        paragraphSpacing = 1;
+        selectable = true;
+        selectedText = new ArrayList<>();
 
         addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(MouseEvent mouseEvent) {
-                int x = mouseEvent.getX();
-                int y = mouseEvent.getY();
-                if(isOverText(x, y)) {
-                    startIndex = getCharAt(x);
-                    System.out.println("Start Index: " + startIndex);
-                    return;
-                }
-                startIndex = -1;
-                endIndex = -1;
+            public void mouseDragged(MouseEvent mouseEvent) {
+                caretPosition = getCaretPosition(mouseEvent.getX(), mouseEvent.getY());
+                setSelection();
                 update();
             }
-
             @Override
-            public void mouseDragged(MouseEvent mouseEvent) {
-                int x = mouseEvent.getX();
-                int y = mouseEvent.getY();
-
-                if(startIndex != -1) {
-                    endIndex = getCharAt(x);
-                    System.out.println("End index: " + endIndex);
+            public void mousePressed(MouseEvent mouseEvent) {
+                caretPosition = getCaretPosition(mouseEvent.getX(), mouseEvent.getY());
+                startDragPosition = new Point2<>(caretPosition.x, caretPosition.y);
+                setSelection();
+            }
+            @Override
+            public void mouseEntered(MouseEvent mouseEvent) {
+                if(selectable) {
+                    setCursor(new Cursor(Cursor.TEXT_CURSOR));
                 }
-                update();
             }
 
             @Override
             public void mouseExited(MouseEvent mouseEvent) {
-                if(inside) {
-                    setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                }
+                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
+        });
 
+        addKeyListener(new KeyAdapter() {
             @Override
-            public void mouseMoved(MouseEvent mouseEvent) {
-                int x = mouseEvent.getX();
-                int y = mouseEvent.getY();
-                if(isOverText(x, y)) {
-                    if(!inside) {
-                        setCursor(new Cursor(Cursor.TEXT_CURSOR));
-                        inside = true;
+            public void keyPressed(KeyEvent keyEvent) {
+                if(keyEvent.getKeyCode() == KeyEvent.VK_C) {
+                    if(keyEvent.isControlDown()) {
+                        copyToClipboard();
+                        return;
                     }
-                    return;
                 }
-                if(inside) {
-                    setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                    inside = false;
+
+                if(keyEvent.getKeyCode() == KeyEvent.VK_V) {
+                    if(keyEvent.isControlDown()) {
+                        pasteFromClipboard();
+                        update();
+                        return;
+                    }
+                }
+
+                if(keyEvent.getKeyCode() == KeyEvent.VK_A) {
+                    if(keyEvent.isControlDown()) {
+                        selectAll();
+                        update();
+                    }
                 }
             }
         });
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-        characterWidthMap = new int[text.length()];
-    }
-
-    public void setSelectable(Boolean selectable) {
-        this.selectable = selectable;
-    }
-
-    private int getCharAt(int x) {
-        int location = (getWidth() - textWidth)/2;
-        for(int i = 0; i < text.length(); i++) {
-            if(x < location + characterWidthMap[i] / 2) {
-                return i;
-            }
-            location += characterWidthMap[i];
-        }
-        return text.length()-1;
     }
 
     @Override
@@ -117,69 +118,213 @@ public class Text extends Visual {
         fontMetrics = null;
     }
 
-    private boolean isOverText(int x, int y) {
-        if(x < textX || x > textX + textWidth) {
-            return false;
-        }
-        if(y > textY || y < textY - textHeight) {
-            return false;
-        }
-        System.out.println("Text X: " + textX + " Text Y: " + textY + " x: " + x + " y: " + y + " textWidth: " + textWidth + " textHeight: " + textHeight);
-        return true;
+    @Override
+    public void setSize() {
+        super.setSize();
+        textAligner.setSize(getWidth(), getHeight());
     }
 
-    private void setCharacterWidthMap() {
-        for(int i = 0; i < text.length(); i++) {
-            int charWidth = fontMetrics.charWidth(text.charAt(i));
-            characterWidthMap[i] = charWidth;
-        }
-        textWidth = fontMetrics.stringWidth(text);
-        textHeight = fontMetrics.getHeight();
-        textX = (getWidth() - textWidth)/2;
-        textY = (getHeight() + textHeight)/2;
+    public void setSpacing(int spacing) {
+        this.paragraphSpacing = spacing;
+        textAligner.setSpacing(spacing);
     }
 
+    public void setSelectable(boolean selectable) {
+        this.selectable = selectable;
+    }
 
+    public void setText(String text) {
+        lines.clear();
+        int lineIndex = text.indexOf('\n');
+        while(lineIndex != -1) {
+            lines.add(new StringBuilder(text.substring(0, lineIndex)));
+            text = text.substring(lineIndex + 1);
+            lineIndex = text.indexOf('\n');
+        }
+        lines.add(new StringBuilder(text));
+        textAligner.setWholeText(lines);
+        update();
+    }
+
+    public void setAlignment(String textAlignment) {
+        textAlignment = textAlignment.toLowerCase();
+        if(textAlignment.equals("left")) {
+            textAligner = new LeftTextAligner();
+            textAligner.setWholeText(lines);
+            textAligner.setSize(getWidth(), getHeight());
+            textAligner.setSpacing(paragraphSpacing);
+            return;
+        }
+        if(textAlignment.equals("right")) {
+            textAligner = new RightTextAligner();
+            textAligner.setWholeText(lines);
+            textAligner.setSize(getWidth(), getHeight());
+            textAligner.setSpacing(paragraphSpacing);
+            return;
+        }
+        System.err.println("Alignment does not exist");
+    }
+
+    private void copyToClipboard() {
+        StringBuilder clipboardText = new StringBuilder();
+        for(StringBuilder line: selectedText) {
+            clipboardText.append(line).append('\n');
+        }
+        StringSelection stringSelection = new StringSelection(clipboardText.toString());
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, null);
+    }
+
+    private void selectAll() {
+        caretPosition.x = lines.get(lines.size() - 1).length();
+        caretPosition.y = lines.size() - 1;
+        startDragPosition.x = 0;
+        startDragPosition.y = 0;
+        setSelection();
+    }
+
+    private void pasteFromClipboard() {
+        Transferable clipboardTransferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(this);
+        String clipboardText = null;
+        try {
+            clipboardText = (String) clipboardTransferable.getTransferData(DataFlavor.stringFlavor);
+        } catch (UnsupportedFlavorException | IOException e) {
+            e.printStackTrace();
+        }
+        if(clipboardText == null) {
+            return;
+        }
+        clipboardText = clipboardText.substring(0, clipboardText.length() -1 );
+        if(clipboardText.indexOf('\n') == -1) {
+            lines.get(caretPosition.y).insert(caretPosition.x, clipboardText);
+            caretPosition.x += clipboardText.length();
+            startDragPosition = caretPosition;
+        }
+    }
+
+    private Point2<Integer> getPositionOnScreen(int x, int y){
+        return textAligner.getPositionOnScreen(x, y);
+    }
+
+    private Point2<Integer> getCaretPosition(int x, int y) {
+        return textAligner.getCaretPosition(x, y);
+    }
+
+    private void deleteSelection() {
+        selectionRectangles.clear();
+        selectedText.clear();
+
+        if(caretPosition.equals(startDragPosition)) {
+            return;
+        }
+        Point2<Integer> selectionStart;
+        Point2<Integer> selectionEnd;
+        if(caretPosition.compareTo(startDragPosition) < 0) {
+            selectionStart = new Point2<>(caretPosition);
+            selectionEnd = new Point2<>(startDragPosition);
+        }
+        else {
+            selectionStart = new Point2<>(startDragPosition);
+            selectionEnd = new Point2<>(caretPosition);
+        }
+        caretPosition = selectionStart;
+
+        if(selectionStart.y.equals(selectionEnd.y)) {
+            StringBuilder currentLine = lines.get(selectionStart.y);
+            int lineLength = currentLine.length();
+            int newLength = lineLength - selectionEnd.x + selectionStart.x;
+            currentLine.insert(selectionStart.x, currentLine.substring(selectionEnd.x));
+            currentLine = new StringBuilder(currentLine.substring(0, newLength));
+            lines.set(selectionStart.y, currentLine);
+            return;
+        }
+
+        while(selectionStart.y + 1 < selectionEnd.y) {
+            lines.remove(selectionStart.y + 1);
+            selectionEnd.y--;
+        }
+
+        StringBuilder currentLine = lines.get(selectionStart.y);
+        currentLine.insert(selectionStart.x, lines.get(selectionEnd.y).substring(selectionEnd.x));
+        currentLine = new StringBuilder(currentLine.substring(0, selectionStart.x + lines.get(selectionEnd.y).substring(selectionEnd.x).length()));
+        lines.remove((int)selectionEnd.y);
+        lines.set(selectionStart.y, currentLine);
+    }
+
+    private void setSelection() {
+        if(!selectable) {
+            return;
+        }
+        selectedText.clear();
+        selectionRectangles.clear();
+        System.out.println(caretPosition + " " + startDragPosition);
+        if(caretPosition.equals(startDragPosition)) {
+            return;
+        }
+        Point2<Integer> selectionStart;
+        Point2<Integer> selectionEnd;
+        if(caretPosition.compareTo(startDragPosition) < 0) {
+            selectionStart = new Point2<>(caretPosition);
+            selectionEnd = new Point2<>(startDragPosition);
+        }
+        else {
+            selectionStart = new Point2<>(startDragPosition);
+            selectionEnd = new Point2<>(caretPosition);
+        }
+
+        if(selectionEnd.y.equals(selectionStart.y)) {
+            selectedText.add(new StringBuilder());
+            Point2<Integer> startRect = getPositionOnScreen(selectionStart.x, selectionStart.y);
+            Point2<Integer> endRect = getPositionOnScreen(selectionEnd.x, selectionEnd.y);
+            selectionRectangles.add(new Point4<>(startRect.x, startRect.y + 3, endRect.x, endRect.y + fontMetrics.getHeight() + 3));
+            StringBuilder currentLine = lines.get(selectionStart.y);
+            for(int x = selectionStart.x; x < selectionEnd.x; x++) {
+                selectedText.get(0).insert(selectedText.get(0).length(), currentLine.charAt(x));
+            }
+            return;
+        }
+
+        for(int y = selectionStart.y; y < selectionEnd.y; y++) {
+            StringBuilder currentLine = lines.get(y);
+            Point2<Integer> startRect = getPositionOnScreen(selectionStart.x, y);
+            Point2<Integer> endRect = getPositionOnScreen(currentLine.length(), y);
+            selectionRectangles.add(new Point4<>(startRect.x, startRect.y + 3, endRect.x, endRect.y + fontMetrics.getHeight() + 3));
+            selectedText.add(new StringBuilder());
+            int selectionIndex = 0;
+            for(int x = selectionStart.x; x < currentLine.length(); x++) {
+                selectedText.get(selectedText.size() - 1).insert(selectionIndex++, currentLine.charAt(x));
+            }
+            selectionStart.x = 0;
+        }
+        StringBuilder currentLine = lines.get(selectionEnd.y);
+        selectedText.add(new StringBuilder());
+        Point2<Integer> startRect = getPositionOnScreen(selectionStart.x, selectionEnd.y);
+        Point2<Integer> endRect = getPositionOnScreen(selectionEnd.x, selectionEnd.y);
+        selectionRectangles.add(new Point4<>(startRect.x, startRect.y + 3, endRect.x, endRect.y + fontMetrics.getHeight() + 3));
+        int selectionIndex = 0;
+        for(int x = 0; x < selectionEnd.x; x++) {
+            selectedText.get(selectedText.size() - 1).insert(selectionIndex++, currentLine.charAt(x));
+        }
+    }
+
+    @Override
     public void paint(BufferedImage imageBuffer) {
         Graphics2D g = imageBuffer.createGraphics();
-
-        if(getFont() != null) {
-            g.setFont(getFont());
-        }
         if(fontMetrics == null) {
             fontMetrics = g.getFontMetrics();
-            setCharacterWidthMap();
+            textAligner.setFontMetrics(fontMetrics);
         }
 
-        if(startIndex != -1 && endIndex != -1) {
-            int startX;
-            int endX;
-            if(startIndex > endIndex) {
-                endX = startIndex - 1;
-                startX = endIndex;
-            }
-            else {
-                startX = startIndex;
-                endX = endIndex;
-            }
-            int highlightStartX = textX;
-            int highlightEndX = textX;
-
-            for(int i = 0; i <= endX; i++) {
-                if(i < startX) {
-                    highlightStartX += characterWidthMap[i];
-                }
-                highlightEndX += characterWidthMap[i];
-            }
-
+        if(selectable) {
             g.setColor(Color.BLUE);
-            g.fillRect(highlightStartX, textY - textHeight + 3, highlightEndX - highlightStartX, textHeight);
+            for (Point4<Integer> rect : selectionRectangles) {
+                g.fillRect(rect.a, rect.b, rect.c - rect.a, rect.d - rect.b + paragraphSpacing);
+            }
         }
 
         g.setColor(getFontColor());
-
-        g.drawString(text, textX, textY);
-
-        g.dispose();
+        for(StringBuilder line: lines) {
+            Point2<Integer> position = textAligner.alignLine(line.toString(), lines.indexOf(line));
+            g.drawString(line.toString(), position.x, position.y);
+        }
     }
 }

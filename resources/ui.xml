@@ -9,8 +9,9 @@
         Size="1.0f, 1.0f"
         Name="Main Grid">
         <Text
-            Text="Ioana"
+            Text="Ioana &#10;E &#10;Cea &#10;Mai &#10;Tare"
             Name="Text"
+            Alignment="Right"
             Row="0"
             Column="0"/>
         <Panel
@@ -45,7 +46,8 @@
                     AccentColor="#aaaaaa"
                     ForegroundColor="#ffffff"
                     Location="0.0f, 0.8f"
-                    Size="300, 60"/>
+                    Size="300, 60">
+            </InputTextBox>>
 
             <DropDown
                 BackgroundColor="#222222"

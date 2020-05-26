@@ -1,11 +1,9 @@
-package guiTree.Components;
-
-import guiTree.Visual;
+package guiTree.Components.Decoarations;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class Border extends Visual {
+public class Border extends Decoration {
     private int thickness;
     private Color color;
 
@@ -38,16 +36,11 @@ public class Border extends Visual {
         update();
     }
 
-    @Override
-    public boolean isInside(int x, int y) {
-        return false;
-    }
-
     public void paint(BufferedImage imageBuffer) {
         Graphics2D g = imageBuffer.createGraphics();
 
         g.setColor(color);
         g.setStroke(new BasicStroke(thickness));
-        g.drawRect(0, 0, getWidth(), getHeight());
+        g.drawRect(thickness/2, thickness/2, getWidth() - thickness, getHeight() - thickness);
     }
 }

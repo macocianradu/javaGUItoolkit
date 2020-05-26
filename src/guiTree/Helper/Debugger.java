@@ -2,7 +2,7 @@ package guiTree.Helper;
 
 public class Debugger {
     public enum Tag {
-        LISTENER(true),
+        LISTENER(false),
         PAINTING(false),
         FPS(false),
         ANIMATIONS(false),

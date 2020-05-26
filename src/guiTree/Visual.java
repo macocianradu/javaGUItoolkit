@@ -1,6 +1,7 @@
 package guiTree;
 
 import guiTree.Animations.AnimationInterface;
+import guiTree.Components.Decoarations.Decoration;
 import guiTree.Helper.Debugger;
 import guiTree.Helper.Point2;
 import guiTree.Helper.Timer;
@@ -337,15 +338,27 @@ public class Visual {
     }
 
     public void addVisual(Visual child) {
-        this.children.add(child);
+        children.add(child);
         child.setParent(this);
         child.setLocation();
         child.setSize();
 
-        if(this.active) {
+        if(active) {
             child.activate();
         }
-        update();
+        child.update();
+    }
+
+    public void addVisual(Decoration decoration) {
+        children.add(decoration);
+        ((Visual)decoration).setParent(this);
+        decoration.setLocation();
+        decoration.setSize();
+
+        if(active) {
+            ((Visual)decoration).activate();
+        }
+        decoration.update();
     }
 
     public void removeVisual(Visual child) {
@@ -410,7 +423,7 @@ public class Visual {
         timer.startTiming();
 
         clearImageBuffer();
-        this.paint(imageBuffer);
+        paint(imageBuffer);
         for (Visual v : children) {
             if (v.dirty && v.active) {
                 v.revalidate();
