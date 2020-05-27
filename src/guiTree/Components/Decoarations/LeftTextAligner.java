@@ -14,7 +14,7 @@ public class LeftTextAligner implements TextAligner{
     private int textHeight;
 
     @Override
-    public Point2<Integer> alignLine(String text, int line) {
+    public Point2<Integer> alignLine(int line) {
         int x = 0;
         int y = (line + 1) * textHeight;
         y += spacing * line;
@@ -25,14 +25,8 @@ public class LeftTextAligner implements TextAligner{
     public Point2<Integer> getPositionOnScreen(int x, int y){
         String currentLine = wholeText.get(y);
         y = (fontMetrics.getHeight() + spacing) * y;
-        int width = 0;
-        for(int i = 1; i <= currentLine.length(); i++) {
-            width += fontMetrics.charWidth(currentLine.charAt(i - 1));
-            if(x == i) {
-                return new Point2<>(width, y);
-            }
-        }
-        return new Point2<>(0, y);
+        int width = fontMetrics.stringWidth(currentLine.substring(0, x));
+        return new Point2<>(width, y);
     }
 
     @Override

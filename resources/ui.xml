@@ -11,7 +11,7 @@
         <Text
             Text="Ioana &#10;E &#10;Cea &#10;Mai &#10;Tare"
             Name="Text"
-            Alignment="Right"
+            Alignment="left"
             Row="0"
             Column="0"/>
         <Panel
@@ -19,8 +19,12 @@
             Name="Panel"
             Row="0"
             Column="1">
+            <Image
+                Size="0.5f, 0.3f"
+                Location="0.5f, 0.0f"
+                Image="heart"/>
             <RadioButtons
-                Size="1.0f, 0.3f">
+                Size="0.4f, 0.3f">
                 <RadioButton
                     Text="Iubesc"
                     Name="Iubesc"
@@ -52,17 +56,20 @@
             <DropDown
                 BackgroundColor="#222222"
                 Name="DropDown"
-                Label="Drop Down Menu"
+                Label="Text Alignment"
                 Location="0.0f, 0.5f"
                 ContentHeight="30"
                 ContentWidth="100"
                 ClosedSize="200, 30">
                 <Button
-                    Name="Button1"
-                    Label="B1"/>
+                        Name="align_to_left"
+                        Label="Align to Left"/>
                 <Button
-                    Name="Button2"
-                    Label="B2"/>
+                        Name="align_to_right"
+                        Label="Align to Right"/>
+                <Button
+                        Name="align_to_center"
+                        Label="Align to Center"/>
                 <SideDropDown
                         Name="SideDropDown"
                         Label="SideDropDown"

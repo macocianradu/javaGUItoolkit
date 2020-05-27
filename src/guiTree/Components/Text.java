@@ -1,5 +1,6 @@
 package guiTree.Components;
 
+import guiTree.Components.Decoarations.CenterTextAligner;
 import guiTree.Components.Decoarations.LeftTextAligner;
 import guiTree.Components.Decoarations.RightTextAligner;
 import guiTree.Components.Decoarations.TextAligner;
@@ -148,21 +149,30 @@ public class Text extends Visual {
 
     public void setAlignment(String textAlignment) {
         textAlignment = textAlignment.toLowerCase();
-        if(textAlignment.equals("left")) {
-            textAligner = new LeftTextAligner();
-            textAligner.setWholeText(lines);
-            textAligner.setSize(getWidth(), getHeight());
-            textAligner.setSpacing(paragraphSpacing);
-            return;
+        switch(textAlignment) {
+            case "left": {
+                textAligner = new LeftTextAligner();
+                break;
+            }
+            case "right": {
+                textAligner = new RightTextAligner();
+                break;
+            }
+            case "center": {
+                textAligner = new CenterTextAligner();
+                break;
+            }
+            default: {
+                System.err.println("Alignment does not exist");
+                return;
+            }
         }
-        if(textAlignment.equals("right")) {
-            textAligner = new RightTextAligner();
-            textAligner.setWholeText(lines);
-            textAligner.setSize(getWidth(), getHeight());
-            textAligner.setSpacing(paragraphSpacing);
-            return;
+        textAligner.setWholeText(lines);
+        textAligner.setSize(getWidth(), getHeight());
+        if(fontMetrics != null) {
+            textAligner.setFontMetrics(fontMetrics);
         }
-        System.err.println("Alignment does not exist");
+        textAligner.setSpacing(paragraphSpacing);
     }
 
     private void copyToClipboard() {
@@ -207,47 +217,6 @@ public class Text extends Visual {
 
     private Point2<Integer> getCaretPosition(int x, int y) {
         return textAligner.getCaretPosition(x, y);
-    }
-
-    private void deleteSelection() {
-        selectionRectangles.clear();
-        selectedText.clear();
-
-        if(caretPosition.equals(startDragPosition)) {
-            return;
-        }
-        Point2<Integer> selectionStart;
-        Point2<Integer> selectionEnd;
-        if(caretPosition.compareTo(startDragPosition) < 0) {
-            selectionStart = new Point2<>(caretPosition);
-            selectionEnd = new Point2<>(startDragPosition);
-        }
-        else {
-            selectionStart = new Point2<>(startDragPosition);
-            selectionEnd = new Point2<>(caretPosition);
-        }
-        caretPosition = selectionStart;
-
-        if(selectionStart.y.equals(selectionEnd.y)) {
-            StringBuilder currentLine = lines.get(selectionStart.y);
-            int lineLength = currentLine.length();
-            int newLength = lineLength - selectionEnd.x + selectionStart.x;
-            currentLine.insert(selectionStart.x, currentLine.substring(selectionEnd.x));
-            currentLine = new StringBuilder(currentLine.substring(0, newLength));
-            lines.set(selectionStart.y, currentLine);
-            return;
-        }
-
-        while(selectionStart.y + 1 < selectionEnd.y) {
-            lines.remove(selectionStart.y + 1);
-            selectionEnd.y--;
-        }
-
-        StringBuilder currentLine = lines.get(selectionStart.y);
-        currentLine.insert(selectionStart.x, lines.get(selectionEnd.y).substring(selectionEnd.x));
-        currentLine = new StringBuilder(currentLine.substring(0, selectionStart.x + lines.get(selectionEnd.y).substring(selectionEnd.x).length()));
-        lines.remove((int)selectionEnd.y);
-        lines.set(selectionStart.y, currentLine);
     }
 
     private void setSelection() {
@@ -323,7 +292,7 @@ public class Text extends Visual {
 
         g.setColor(getFontColor());
         for(StringBuilder line: lines) {
-            Point2<Integer> position = textAligner.alignLine(line.toString(), lines.indexOf(line));
+            Point2<Integer> position = textAligner.alignLine(lines.indexOf(line));
             g.drawString(line.toString(), position.x, position.y);
         }
     }

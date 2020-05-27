@@ -207,6 +207,23 @@ public class DropDown extends MenuItem implements Menu{
         elementHeightSet = true;
     }
 
+    @Override
+    public Visual findByName(String name) {
+        if(getName().equals(name)){
+            return this;
+        }
+        else{
+            for(Visual child: items){
+                Visual visual;
+                visual = child.findByName(name);
+                if(visual != null){
+                    return visual;
+                }
+            }
+        }
+        return null;
+    }
+
     public void open() {
         System.out.println("Opening");
         isOpen = true;
