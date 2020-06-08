@@ -1,32 +1,25 @@
-package guiTree.Components.Decoarations;
+package guiTree.Components.Decorations;
 
 import guiTree.Helper.Point2;
-import jdk.jfr.Percentage;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LeftTextAligner implements TextAligner{
-    private int spacing;
+public class CenterTextAligner implements TextAligner{
+    private int width;
+    private int height;
     private FontMetrics fontMetrics;
-    private List<String> wholeText;
+    private int spacing;
     private int textHeight;
+    private List<String> wholeText;
 
     @Override
     public Point2<Integer> alignLine(int line) {
-        int x = 0;
+        int x = (width - fontMetrics.stringWidth(wholeText.get(line))) / 2;
         int y = (line + 1) * textHeight;
         y += spacing * line;
         return new Point2<>(x, y);
-    }
-
-    @Override
-    public Point2<Integer> getPositionOnScreen(int x, int y){
-        String currentLine = wholeText.get(y);
-        y = (fontMetrics.getHeight() + spacing) * y;
-        int width = fontMetrics.stringWidth(currentLine.substring(0, x));
-        return new Point2<>(width, y);
     }
 
     @Override
@@ -39,20 +32,33 @@ public class LeftTextAligner implements TextAligner{
         if(y < 0) {
             return new Point2<>(0, 0);
         }
+
         String currentLine = wholeText.get(y);
+        x -= (width - fontMetrics.stringWidth(currentLine)) / 2;
         for(int i = 0; i < currentLine.length(); i++) {
-            if(x < fontMetrics.charWidth(currentLine.charAt(i)) / 2) {
+            if(x < (fontMetrics.charWidth(currentLine.charAt(i))) / 2) {
                 return new Point2<>(i, y);
             }
             x -= fontMetrics.charWidth(currentLine.charAt(i));
         }
-        return new Point2<>(currentLine.length(), y);
+        return new Point2<>(0, y);
     }
 
-    public void setWholeText(List<StringBuilder> text) {
-        wholeText = new ArrayList<>();
-        for(StringBuilder line: text) {
-            wholeText.add(line.toString());
+    @Override
+    public Point2<Integer> getPositionOnScreen(int x, int y) {
+        String currentLine = wholeText.get(y);
+        y = (fontMetrics.getHeight() + spacing) * y;
+
+        int width = (this.width - fontMetrics.stringWidth(currentLine)) / 2;
+        width += fontMetrics.stringWidth(currentLine.substring(0, x));
+        return new Point2<>(width, y);
+    }
+
+    @Override
+    public void setWholeText(List<StringBuilder> wholeText) {
+        this.wholeText = new ArrayList<>();
+        for(StringBuilder line: wholeText) {
+            this.wholeText.add(line.toString());
         }
     }
 
@@ -64,10 +70,12 @@ public class LeftTextAligner implements TextAligner{
     @Override
     public void setFontMetrics(FontMetrics fontMetrics) {
         this.fontMetrics = fontMetrics;
-        textHeight = fontMetrics.getHeight();
+        this.textHeight = fontMetrics.getHeight();
     }
 
     @Override
     public void setSize(int width, int height) {
+        this.width = width;
+        this.height = height;
     }
 }

@@ -134,8 +134,8 @@ public class ScrollPanel extends Visual {
     }
 
     @Override
-    public void paint(BufferedImage imageBuffer) {
-        Graphics2D g = imageBuffer.createGraphics();
+    public void paint(Image imageBuffer) {
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.setColor(getPaintColor());
 
         g.fillRect(0, 0, getWidth(), getHeight());
@@ -205,17 +205,14 @@ public class ScrollPanel extends Visual {
     private static class VisualLocation {
         Visual v;
         Point2<Integer> originalLocation;
-        Point2<Float> originalRelativeLocation;
 
         public VisualLocation(Visual v) {
             this.v = v;
             originalLocation = v.getLocation();
-            originalRelativeLocation = v.getRelativeLocation();
         }
 
         public void updateLocation() {
             originalLocation = v.getLocation();
-            originalRelativeLocation = v.getRelativeLocation();
         }
     }
 }

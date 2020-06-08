@@ -1,7 +1,6 @@
 package parser;
 
-import com.sun.jdi.InvalidTypeException;
-import guiTree.Components.Decoarations.Decoration;
+import guiTree.Components.Decorations.Decoration;
 import parser.converters.Converter;
 import guiTree.Helper.Debugger;
 import guiTree.Visual;
@@ -18,6 +17,7 @@ import java.util.List;
 public class XAMLParser {
     private final static String packageGuiTree = "guiTree.";
     private final static String packageComponents = "guiTree.Components.";
+    private final static String packageDecorations = "guiTree.Components.Decorations.";
     private static Converter valueConverter = new Converter();
 
     private static void setAttributes(Object object, NamedNodeMap attributeList){
@@ -102,7 +102,7 @@ public class XAMLParser {
                 for (int i = 0; i < types.length; i++) {
                     try {
                         primitiveAttributes.add(valueConverter.objectCreatorFactory(types[i], values.get(i)));
-                    } catch (InvalidTypeException | NumberFormatException e) {
+                    } catch (InvalidClassException | NumberFormatException e) {
                         primitiveAttributes.clear();
                         break;
                     }
@@ -122,7 +122,12 @@ public class XAMLParser {
             parentClass = Class.forName(packageComponents.concat(parentNode.getNodeName()));
         }
         catch (ClassNotFoundException e) {
-            parentClass = Class.forName(packageGuiTree.concat(parentNode.getNodeName()));
+            try {
+                parentClass = Class.forName(packageGuiTree.concat(parentNode.getNodeName()));
+            }
+            catch (ClassNotFoundException f) {
+                parentClass = Class.forName(packageDecorations.concat(parentNode.getNodeName()));
+            }
         }
         Debugger.log("Parsing " + parentClass, Debugger.Tag.PARSING);
         Object parentObject = parentClass.getDeclaredConstructor().newInstance();

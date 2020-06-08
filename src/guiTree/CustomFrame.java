@@ -9,7 +9,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
 public class CustomFrame extends JFrame {
-    private BufferedImage imageBuffer;
+    private Image imageBuffer;
     private Window parentWindow;
     private final int resizeDelta = 5;
 
@@ -31,7 +31,7 @@ public class CustomFrame extends JFrame {
         this.addMouseListener(listener);
     }
 
-    public void setImageBuffer(BufferedImage imageBuffer) {
+    public void setImageBuffer(Image imageBuffer) {
         this.imageBuffer = imageBuffer;
     }
 

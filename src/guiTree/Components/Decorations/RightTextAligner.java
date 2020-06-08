@@ -1,4 +1,4 @@
-package guiTree.Components.Decoarations;
+package guiTree.Components.Decorations;
 
 import guiTree.Helper.Point2;
 
@@ -6,17 +6,17 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CenterTextAligner implements TextAligner{
-    private int width;
-    private int height;
-    private FontMetrics fontMetrics;
+public class RightTextAligner implements TextAligner{
     private int spacing;
-    private int textHeight;
+    private FontMetrics fontMetrics;
     private List<String> wholeText;
+    private int textHeight;
+    private int width;
 
     @Override
     public Point2<Integer> alignLine(int line) {
-        int x = (width - fontMetrics.stringWidth(wholeText.get(line))) / 2;
+        String text = wholeText.get(line);
+        int x = width - fontMetrics.stringWidth(text);
         int y = (line + 1) * textHeight;
         y += spacing * line;
         return new Point2<>(x, y);
@@ -32,14 +32,14 @@ public class CenterTextAligner implements TextAligner{
         if(y < 0) {
             return new Point2<>(0, 0);
         }
-
         String currentLine = wholeText.get(y);
-        x -= (width - fontMetrics.stringWidth(currentLine)) / 2;
-        for(int i = 0; i < currentLine.length(); i++) {
-            if(x < (fontMetrics.charWidth(currentLine.charAt(i))) / 2) {
-                return new Point2<>(i, y);
+        int index = currentLine.length();
+        for(int i = width - currentLine.length(); i < width; i++) {
+            if(x > width - fontMetrics.charWidth(currentLine.charAt(index - 1))) {
+                return new Point2<>(index, y);
             }
-            x -= fontMetrics.charWidth(currentLine.charAt(i));
+            x += fontMetrics.charWidth(currentLine.charAt(index - 1));
+            index--;
         }
         return new Point2<>(0, y);
     }
@@ -48,8 +48,7 @@ public class CenterTextAligner implements TextAligner{
     public Point2<Integer> getPositionOnScreen(int x, int y) {
         String currentLine = wholeText.get(y);
         y = (fontMetrics.getHeight() + spacing) * y;
-        int textStart = (width - fontMetrics.stringWidth(currentLine)) / 2;
-        int width = textStart;
+        int width = this.width - fontMetrics.stringWidth(currentLine);
         width += fontMetrics.stringWidth(currentLine.substring(0, x));
         return new Point2<>(width, y);
     }
@@ -70,12 +69,11 @@ public class CenterTextAligner implements TextAligner{
     @Override
     public void setFontMetrics(FontMetrics fontMetrics) {
         this.fontMetrics = fontMetrics;
-        this.textHeight = fontMetrics.getHeight();
+        textHeight = fontMetrics.getHeight();
     }
 
     @Override
     public void setSize(int width, int height) {
         this.width = width;
-        this.height = height;
     }
 }

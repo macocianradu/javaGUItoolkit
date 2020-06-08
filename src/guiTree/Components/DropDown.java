@@ -266,10 +266,11 @@ public class DropDown extends MenuItem implements Menu{
         return icon;
     }
 
-    public void paint(BufferedImage imageBuffer)
+    @Override
+    public void paint(Image imageBuffer)
     {
         //Get Graphics
-        Graphics2D g = imageBuffer.createGraphics();
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(getPaintColor());
 
@@ -293,7 +294,7 @@ public class DropDown extends MenuItem implements Menu{
 
             int iconX = closedSize.x - iconWidth - 3;
             int iconY = (closedSize.y - iconHeight - textHeight) / 2;
-            Graphics2D g2 = imageBuffer.createGraphics();
+            Graphics2D g2 = (Graphics2D)imageBuffer.getGraphics();
             g2.drawImage(icon, iconX, iconY, null);
             g2.dispose();
         }

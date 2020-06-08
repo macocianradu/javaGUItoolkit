@@ -73,10 +73,10 @@ public class ToggleButton extends Visual {
     }
 
     @Override
-    public void paint(BufferedImage imageBuffer)
+    public void paint(Image imageBuffer)
     {
         //Get Graphics
-        Graphics2D g = imageBuffer.createGraphics();
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.setColor(getPaintColor());
 
         //Draw Button
@@ -103,7 +103,7 @@ public class ToggleButton extends Visual {
 
             int iconX = (this.getWidth() - iconWidth - textWidth) / 2;
             int iconY = (this.getHeight() - iconHeight - textHeight) / 2;
-            Graphics2D g2 = imageBuffer.createGraphics();
+            Graphics2D g2 = (Graphics2D)imageBuffer.getGraphics();
             g2.drawImage(icon, iconX, iconY, null);
             g2.dispose();
         }

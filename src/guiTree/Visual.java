@@ -1,9 +1,11 @@
 package guiTree;
 
 import guiTree.Animations.AnimationInterface;
-import guiTree.Components.Decoarations.Decoration;
+import guiTree.Components.Decorations.*;
+import guiTree.Components.Decorations.Placers.*;
 import guiTree.Helper.Debugger;
 import guiTree.Helper.Point2;
+import guiTree.Helper.Point4;
 import guiTree.Helper.Timer;
 import guiTree.events.KeyListener;
 import guiTree.events.MouseListener;
@@ -14,10 +16,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Visual {
     /*--------------------------------------------------------------------
@@ -26,7 +30,8 @@ public class Visual {
 
     public static final int SIZE_CHANGED = 1;
     public static final int LOCATION_CHANGED = 2;
-    private static List<AnimationInterface> animations = new ArrayList<>();
+    public static final boolean GPU_DISABLED = false;
+    public static final boolean GPU_ENABLED = true;
 
     /*--------------------------------------------------------------------
                             Tree Elements
@@ -34,11 +39,13 @@ public class Visual {
 
     private List<Visual> children;
     private Visual parent;
-    private BufferedImage imageBuffer;
+    private Image imageBuffer;
     private String name;
     private List<MouseListener> mouseListeners;
     private List<MouseWheelListener> mouseWheelListeners;
     private List<KeyListener> keyListeners;
+    private static List<AnimationInterface> animations = new ArrayList<>();
+    private static boolean useGPU = GPU_DISABLED;
 
     /*--------------------------------------------------------------------
                         Attributes
@@ -51,10 +58,9 @@ public class Visual {
     private Float relativeHeight;
     private Integer locationX;
     private Integer locationY;
+    private Placer locationPlacer;
     private Integer absoluteX;
     private Integer absoluteY;
-    private Float relativeX;
-    private Float relativeY;
     private Font font;
     private Color backgroundColor;
     private Color foregroundColor;
@@ -66,7 +72,8 @@ public class Visual {
     private static Visual entered;
     private static Visual focused;
     private Boolean pressed;
-    private Boolean validating;
+    private Lock validating;
+    private Boolean hardwareAccelerated;
 
     /*--------------------------------------------------------------------
                         Constructors
@@ -77,35 +84,38 @@ public class Visual {
     }
 
     public Visual(int width, int height) {
-        this.children = new ArrayList<>();
-        this.mouseWheelListeners = new ArrayList<>();
-        this.mouseListeners = new ArrayList<>();
-        this.keyListeners = new ArrayList<>();
-        this.parent = null;
-        this.name = "";
-        this.backgroundColor = Color.WHITE;
-        this.foregroundColor = Color.BLUE;
-        this.fontColor = Color.BLACK;
-        this.accentColor = Color.BLUE;
+        children = new ArrayList<>();
+        mouseWheelListeners = new ArrayList<>();
+        mouseListeners = new ArrayList<>();
+        keyListeners = new ArrayList<>();
+        parent = null;
+        name = "";
+        backgroundColor = Color.WHITE;
+        foregroundColor = Color.BLUE;
+        fontColor = Color.BLACK;
+        accentColor = Color.BLUE;
 
-        this.dirty = true;
-        this.active = this instanceof Window;
-        this.pressed = false;
-        this.attributeMap = new HashMap<>();
+        dirty = true;
+        active = this instanceof Window;
+        pressed = false;
+        attributeMap = new HashMap<>();
 
         this.width = width;
         this.height = height;
-        this.relativeWidth = -1.0f;
-        this.relativeHeight = -1.0f;
-        this.relativeX = -1.0f;
-        this.relativeY = -1.0f;
+        relativeWidth = -1.0f;
+        relativeHeight = -1.0f;
+        locationPlacer = new GeneralPlacer();
+        locationPlacer.setElementSize(width, height);
+        locationPlacer.setLocation(0, 0);
+        locationPlacer.setRelativeLocation(-1.0f, -1.0f);
 
-        this.locationX = 0;
-        this.locationY = 0;
-        this.absoluteX = 0;
-        this.absoluteY = 0;
+        locationX = 0;
+        locationY = 0;
+        absoluteX = 0;
+        absoluteY = 0;
 
-        this.validating = false;
+        validating = new ReentrantLock();
+        hardwareAccelerated = useGPU;
     }
 
     /*--------------------------------------------------------------------
@@ -127,12 +137,14 @@ public class Visual {
 
         }
         initializeImageBuffer();
+        locationPlacer.setElementSize(width, height);
 
         for(Visual v: children) {
             if(v.relativeHeight > 0.0 || v.relativeWidth > 0.0) {
                 v.setSize();
             }
-            if(v.relativeX >= 0.0 || v.relativeY >= 0.0) {
+            if(v.locationPlacer != null) {
+                v.locationPlacer.setParentSize(getWidth(), getHeight());
                 v.setLocation();
             }
         }
@@ -168,15 +180,18 @@ public class Visual {
         setSize();
     }
 
+    public void setMargins(Integer up, Integer down, Integer left, Integer right) {
+        locationPlacer.setMargins(up, down, left, right);
+    }
+
+    public void setMargins(Integer margin) {
+        locationPlacer.setMargins(margin);
+    }
+
     public void setLocation() {
-        if(parent != null) {
-            if(relativeX >= 0.0) {
-                locationX = Math.round(relativeX * parent.width);
-            }
-            if(relativeY >= 0.0) {
-                locationY = Math.round(relativeY * parent.height);
-            }
-        }
+        Point2<Integer> location = locationPlacer.getPosition();
+        locationX = location.x;
+        locationY = location.y;
 
         calculateAbsoluteLocation();
         update();
@@ -184,14 +199,12 @@ public class Visual {
     }
 
     public void setLocation(Float x, Float y) {
-        relativeX = x;
-        relativeY = y;
+        locationPlacer.setRelativeLocation(x, y);
         setLocation();
     }
 
     public void setLocation(Integer x, Integer y) {
-        this.locationX = x;
-        this.locationY = y;
+        locationPlacer.setLocation(x, y);
         setLocation();
     }
 
@@ -203,8 +216,78 @@ public class Visual {
         setLocation(getLocationX(), y);
     }
 
+    public void setLocation(String location) {
+        location = location.toLowerCase();
+        Point4<Integer> margins = locationPlacer.getMargins();
+        switch (location) {
+            case "top_left": {
+                locationPlacer = new TopLeftPlacer();
+                break;
+            }
+            case "top_right": {
+                locationPlacer = new TopRightPlacer();
+                break;
+            }
+            case "top_center": {
+                locationPlacer = new TopCenterPlacer();
+                break;
+            }
+            case "middle_left": {
+                locationPlacer = new MiddleLeftPlacer();
+                break;
+            }
+            case "middle_center": {
+                locationPlacer = new MiddleCenterPlacer();
+                break;
+            }
+            case "middle_right": {
+                locationPlacer = new MiddleRightPlacer();
+                break;
+            }
+            case "bottom_left": {
+                locationPlacer = new BottomLeftPlacer();
+                break;
+            }
+            case "bottom_center": {
+                locationPlacer = new BottomCenterPlacer();
+                break;
+            }
+            case "bottom_right": {
+                locationPlacer = new BottomRightPlacer();
+                break;
+            }
+            default: {
+                System.err.println("Not a valid location");
+                return;
+            }
+        }
+        locationPlacer.setElementSize(width, height);
+        locationPlacer.setMargins(margins.a, margins.b, margins.c, margins.d);
+        if(parent != null) {
+            locationPlacer.setParentSize(parent.width, parent.height);
+        }
+        setLocation();
+    }
+
     public void setFont(Font font) {
         this.font = font;
+    }
+
+    public void setFont(String font, Integer style) {
+        setFont(font, 10f, style);
+    }
+
+    public void setFont(String font, Float size) {
+        setFont(font, size, Font.PLAIN);
+    }
+
+    public void setFont(String font, Float size, Integer style) {
+        try {
+            this.font = Font.createFont(Font.TRUETYPE_FONT, new File("resources\\fonts\\" + font + ".ttf"));
+            this.font = this.font.deriveFont(style, size);
+        } catch (FontFormatException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setBackgroundColor(Color backgroundColor) {
@@ -231,6 +314,19 @@ public class Visual {
     public void setPaintColor(Color paintColor) {
         this.paintColor = paintColor;
         update();
+    }
+
+    public void setHardwareAccelerated(Boolean hardwareAccelerated) {
+        this.hardwareAccelerated = hardwareAccelerated;
+        children.forEach(f -> f.setHardwareAccelerated(hardwareAccelerated));
+        initializeImageBuffer();
+        update();
+    }
+
+    public static void setEnableGPU(Boolean gpu) {
+        useGPU = gpu;
+        System.setProperty("sun.java2d.opengl", "true");
+        System.setProperty("sun.java2d.accthreshold", "0");
     }
 
     public void setAttribute(String attribute, String value) {
@@ -265,6 +361,10 @@ public class Visual {
         return locationY;
     }
 
+    public Point4<Integer> getMargins() {
+        return locationPlacer.getMargins();
+    }
+
     public Point2<Integer> getLocation() {
         return new Point2<>(locationX, locationY);
     }
@@ -279,10 +379,6 @@ public class Visual {
 
     public Point2<Integer> getAbsoluteLocation() {
         return new Point2<>(absoluteX, absoluteY);
-    }
-
-    public Point2<Float> getRelativeLocation() {
-        return new Point2<>(relativeX, relativeY);
     }
 
     public boolean isFocused() {
@@ -311,6 +407,14 @@ public class Visual {
 
     public Color getPaintColor() {
         return paintColor;
+    }
+
+    public boolean isHardwareAccelerated() {
+        return hardwareAccelerated;
+    }
+
+    public boolean isGpuEnabled() {
+        return useGPU;
     }
 
     public String getAttribute(String attribute) {
@@ -419,21 +523,25 @@ public class Visual {
         Debugger.log("Revalidating " + name, Debugger.Tag.PAINTING);
         Timer timer = new Timer();
 
-        validating = true;
-        timer.startTiming();
+        validating.lock();
+        try {
+            timer.startTiming();
 
-        clearImageBuffer();
-        paint(imageBuffer);
-        for (Visual v : children) {
-            if (v.dirty && v.active) {
-                v.revalidate();
+            clearImageBuffer();
+            paint(imageBuffer);
+            for (Visual v : children) {
+                if (v.dirty && v.active) {
+                    v.revalidate();
+                }
+                Graphics2D g = (Graphics2D) imageBuffer.getGraphics();
+                g.drawImage(v.imageBuffer, v.locationX, v.locationY, null);
+                g.dispose();
             }
-            imageBuffer.getGraphics().drawImage(v.imageBuffer, v.locationX, v.locationY, null);
+
+            dirty = false;
+        } finally {
+            validating.unlock();
         }
-
-        dirty = false;
-        validating = false;
-
         if(!(this instanceof Window)){
             long time = timer.stopTiming();
             Debugger.log("Finished Revalidating " + name + ": " + time, Debugger.Tag.PAINTING);
@@ -453,7 +561,7 @@ public class Visual {
         }
     }
 
-    public void paint(BufferedImage imageBuffer) {
+    public void paint(Image imageBuffer) {
     }
 
     /*--------------------------------------------------------------------
@@ -521,6 +629,7 @@ public class Visual {
         }
         focused = entered;
         Debugger.log("Pressed " + entered.name, Debugger.Tag.LISTENER);
+        System.out.println(entered.name + " hardware accelerated: " + imageBuffer.getCapabilities(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration()).isAccelerated());
     }
 
     void mouseEntered(MouseEvent mouseEvent) {
@@ -578,7 +687,8 @@ public class Visual {
                 entered = this;
             }
         }
-        for(Visual v: children) {
+        for(int i = children.size() - 1; i >=0; i--) {
+            Visual v = children.get(i);
             if(v.isInside(mouseX, mouseY)) {
                 v.mouseMoved(mouseEvent);
                 return;
@@ -649,7 +759,13 @@ public class Visual {
         if(this.width <= 0 || this.height <= 0) {
             return;
         }
-        this.imageBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        if(useGPU == GPU_ENABLED && hardwareAccelerated) {
+            imageBuffer = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().createCompatibleVolatileImage(width, height, Transparency.TRANSLUCENT);
+            imageBuffer.setAccelerationPriority(0);
+            clearImageBuffer();
+            return;
+        }
+        imageBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         clearImageBuffer();
     }
 
@@ -657,7 +773,7 @@ public class Visual {
         if(imageBuffer == null) {
             return;
         }
-        Graphics2D g = this.imageBuffer.createGraphics();
+        Graphics2D g = (Graphics2D) imageBuffer.getGraphics();
 
         g.setComposite(AlphaComposite.Clear);
         g.fillRect(0, 0, getWidth(), getHeight());
@@ -705,16 +821,19 @@ public class Visual {
     }
 
     public void update() {
-        dirty = true;
+        validating.lock();
+        try {
+            dirty = true;
+        } finally {
+            validating.unlock();
+        }
         if(parent != null) {
-            while(parent.validating){
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            parent.validating.lock();
+            try {
+                parent.update();
+            } finally {
+                parent.validating.unlock();
             }
-            parent.update();
         }
     }
 }

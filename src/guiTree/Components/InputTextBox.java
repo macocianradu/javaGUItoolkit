@@ -456,15 +456,14 @@ public class InputTextBox extends Visual {
     }
 
     @Override
-    public void paint(BufferedImage imageBuffer) {
-        Graphics2D g = imageBuffer.createGraphics();
+    public void paint(Image imageBuffer) {
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
 
         g.setColor(getPaintColor());
         g.fillRect(0, 0, getWidth(), getHeight());
 
         if(fontMetrics == null) {
             fontMetrics = g.getFontMetrics();
-            return;
         }
 
         g.setColor(Color.BLUE);
@@ -487,5 +486,6 @@ public class InputTextBox extends Visual {
             g.drawString(line.toString(), 0, y);
             y += fontMetrics.getHeight();
         }
+        g.dispose();
     }
 }

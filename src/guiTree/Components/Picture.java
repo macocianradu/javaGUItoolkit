@@ -8,17 +8,17 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Image extends Visual {
+public class Picture extends Visual {
     private BufferedImage bufferedImage;
 
-    public Image() {
+    public Picture() {
     }
 
-    public Image(String url) {
+    public Picture(String url) {
         setImage(url);
     }
 
-    public Image(BufferedImage image) {
+    public Picture(BufferedImage image) {
         setImage(image);
     }
 
@@ -28,15 +28,16 @@ public class Image extends Visual {
 
     public void setImage(String url) {
         try{
-            bufferedImage = ImageIO.read(new File("resources\\icons\\" + url + ".png"));
+            bufferedImage = ImageIO.read(new File("resources\\images\\" + url + ".png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void paint(BufferedImage imageBuffer) {
-        Graphics2D g = imageBuffer.createGraphics();
+    public void paint(Image imageBuffer) {
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.drawImage(bufferedImage, 0, 0, getWidth(), getHeight(), null);
+        g.dispose();
     }
 }

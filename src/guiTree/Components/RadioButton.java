@@ -9,8 +9,8 @@ public class RadioButton extends CheckBox {
     }
 
     @Override
-    public void paint(BufferedImage imageBuffer) {
-        Graphics2D g = imageBuffer.createGraphics();
+    public void paint(Image imageBuffer) {
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g.setColor(getPaintColor());

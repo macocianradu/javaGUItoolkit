@@ -1,9 +1,9 @@
 package guiTree.Components;
 
-import guiTree.Components.Decoarations.CenterTextAligner;
-import guiTree.Components.Decoarations.LeftTextAligner;
-import guiTree.Components.Decoarations.RightTextAligner;
-import guiTree.Components.Decoarations.TextAligner;
+import guiTree.Components.Decorations.CenterTextAligner;
+import guiTree.Components.Decorations.LeftTextAligner;
+import guiTree.Components.Decorations.RightTextAligner;
+import guiTree.Components.Decorations.TextAligner;
 import guiTree.Helper.Point2;
 import guiTree.Helper.Point4;
 import guiTree.Visual;
@@ -276,8 +276,8 @@ public class Text extends Visual {
     }
 
     @Override
-    public void paint(BufferedImage imageBuffer) {
-        Graphics2D g = imageBuffer.createGraphics();
+    public void paint(Image imageBuffer) {
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         if(fontMetrics == null) {
             fontMetrics = g.getFontMetrics();
             textAligner.setFontMetrics(fontMetrics);
@@ -295,5 +295,6 @@ public class Text extends Visual {
             Point2<Integer> position = textAligner.alignLine(lines.indexOf(line));
             g.drawString(line.toString(), position.x, position.y);
         }
+        g.dispose();
     }
 }

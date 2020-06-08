@@ -1,9 +1,9 @@
 package parser.converters;
 
-import com.sun.jdi.InvalidTypeException;
 import guiTree.Components.Slider;
 
 import java.awt.*;
+import java.io.InvalidClassException;
 import java.util.HashMap;
 
 public class Converter {
@@ -24,10 +24,10 @@ public class Converter {
         this.converterTable.put(Slider.Direction.class, new DirectionConverter());
     }
 
-    public Object objectCreatorFactory (Class<?> type, String content) throws InvalidTypeException {
+    public Object objectCreatorFactory (Class<?> type, String content) throws InvalidClassException {
         if(this.converterTable.containsKey(type)) {
             return this.converterTable.get(type).convert(content);
         }
-        throw new InvalidTypeException();
+        throw new InvalidClassException(type.getName());
     }
 }

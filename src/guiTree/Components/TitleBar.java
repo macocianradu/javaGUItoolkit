@@ -134,12 +134,12 @@ public class TitleBar extends Visual {
     }
 
     @Override
-    public void paint(BufferedImage imageBuffer) {
-        Graphics2D g = imageBuffer.createGraphics();
+    public void paint(Image imageBuffer) {
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.setColor(getBackgroundColor());
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        Graphics2D iconGraphics = imageBuffer.createGraphics();
+        Graphics2D iconGraphics = (Graphics2D)imageBuffer.getGraphics();
         iconGraphics.drawImage(icon, 5, (getHeight() - icon.getHeight())/2, null);
         iconGraphics.dispose();
 
@@ -153,6 +153,7 @@ public class TitleBar extends Visual {
             g.setColor(Color.WHITE);
         }
         g.drawString(title, stringOffset, getHeight()/2 + textHeight/4);
+        g.dispose();
     }
 
     private void setButtonLocation() {

@@ -3,6 +3,8 @@
         Name="Window"
         Visible="True"
         Title="Sudoku 1.0"
+        EnableGPU="True"
+        HardwareAccelerated="True"
         Size="1024, 576">
     <GridPanel
         BackgroundColor="#75ff75"
@@ -17,11 +19,13 @@
         <Panel
             BackgroundColor="#555555"
             Name="Panel"
+            Overlapping="false"
             Row="0"
             Column="1">
-            <Image
+            <Picture
                 Size="0.5f, 0.3f"
-                Location="0.5f, 0.0f"
+                Margins="10"
+                Name="Image"
                 Image="heart"/>
             <RadioButtons
                 Size="0.4f, 0.3f">
@@ -61,43 +65,58 @@
                 ContentHeight="30"
                 ContentWidth="100"
                 ClosedSize="200, 30">
-                <Button
-                        Name="align_to_left"
-                        Label="Align to Left"/>
-                <Button
-                        Name="align_to_right"
-                        Label="Align to Right"/>
-                <Button
-                        Name="align_to_center"
-                        Label="Align to Center"/>
                 <SideDropDown
-                        Name="SideDropDown"
-                        Label="SideDropDown"
+                        Name="TopSide"
+                        Label="Top"
                         ClosedWidth="100"
                         ClosedHeight="30"
                         ContentHeight="30"
                         ContentWidth="100">
                     <Button
-                            Name="Button3"
-                            Label="Button3"/>
+                            Name="topLeft"
+                            Label="Left"/>
                     <Button
-                            Name="Button4"
-                            Label="Button4"/>
+                            Name="topCenter"
+                            Label="Center"/>
+                    <Button
+                            Name="topRight"
+                            Label="Right"/>
                 </SideDropDown>
 
                 <SideDropDown
-                        Name="SideDropDown"
-                        Label="SideDropDown"
+                        Name="MiddleSide"
+                        Label="Middle"
                         ClosedWidth="100"
                         ClosedHeight="30"
                         ContentHeight="30"
                         ContentWidth="100">
                     <Button
-                            Name="Button5"
-                            Label="Button5"/>
+                            Name="middleLeft"
+                            Label="Left"/>
                     <Button
-                            Name="Button6"
-                            Label="Button6"/>
+                            Name="middleCenter"
+                            Label="Center"/>
+                    <Button
+                            Name="middleRight"
+                            Label="Right"/>
+                </SideDropDown>
+
+                <SideDropDown
+                        Name="BottomSide"
+                        Label="Bottom"
+                        ClosedWidth="100"
+                        ClosedHeight="30"
+                        ContentHeight="30"
+                        ContentWidth="100">
+                    <Button
+                            Name="bottomLeft"
+                            Label="Left"/>
+                    <Button
+                            Name="bottomCenter"
+                            Label="Center"/>
+                    <Button
+                            Name="bottomRight"
+                            Label="Right"/>
                 </SideDropDown>
 
             </DropDown>

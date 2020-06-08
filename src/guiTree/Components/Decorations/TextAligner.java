@@ -1,4 +1,4 @@
-package guiTree.Components.Decoarations;
+package guiTree.Components.Decorations;
 
 import guiTree.Helper.Point2;
 

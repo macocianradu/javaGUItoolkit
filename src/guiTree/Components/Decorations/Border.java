@@ -1,4 +1,4 @@
-package guiTree.Components.Decoarations;
+package guiTree.Components.Decorations;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -36,11 +36,13 @@ public class Border extends Decoration {
         update();
     }
 
-    public void paint(BufferedImage imageBuffer) {
-        Graphics2D g = imageBuffer.createGraphics();
+    @Override
+    public void paint(Image imageBuffer) {
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
 
         g.setColor(color);
         g.setStroke(new BasicStroke(thickness));
         g.drawRect(thickness/2, thickness/2, getWidth() - thickness, getHeight() - thickness);
+        g.dispose();
     }
 }

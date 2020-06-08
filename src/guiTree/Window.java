@@ -76,7 +76,7 @@ public class Window extends Visual implements Runnable{
         Debugger.log("Calling repaint from window set size: ", Debugger.Tag.PAINTING);
     }
 
-    public void setFrameImageBuffer(BufferedImage imageBuffer){
+    public void setFrameImageBuffer(Image imageBuffer){
         this.frame.setImageBuffer(imageBuffer);
         this.frame.repaint();
     }
@@ -244,8 +244,8 @@ public class Window extends Visual implements Runnable{
     public void addVisual(Visual v) {
         contentPanel.addVisual(v);
     }
+
     public void setCursor(Cursor cursor) {
-        System.out.println("Changed cursor ASD");
         frame.setCursor(cursor);
     }
 

@@ -115,8 +115,8 @@ public class CheckBox extends Visual {
     }
 
     @Override
-    public void paint(BufferedImage imageBuffer) {
-        Graphics2D g = imageBuffer.createGraphics();
+    public void paint(Image imageBuffer) {
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
 
         g.setColor(getPaintColor());
 
@@ -130,7 +130,7 @@ public class CheckBox extends Visual {
 
                 int iconX = (this.getHeight() - iconWidth) / 2;
                 int iconY = (this.getHeight() - iconHeight) / 2;
-                Graphics2D g2 = imageBuffer.createGraphics();
+                Graphics2D g2 = (Graphics2D)imageBuffer.getGraphics();
                 g2.drawImage(icon, iconX, iconY, null);
                 g2.dispose();
             }

@@ -1,6 +1,5 @@
 import guiTree.Components.Button;
-import guiTree.Components.DropDown;
-import guiTree.Components.Text;
+import guiTree.Components.Picture;
 import guiTree.Window;
 import guiTree.events.MouseAdapter;
 import parser.XAMLParser;
@@ -16,34 +15,87 @@ public class Main {
             e.printStackTrace();
         }
         assert window != null;
-        Button alignToLeft  = (Button) window.findByName("align_to_left");
-        Button alignToRight  = (Button) window.findByName("align_to_right");
-        Button alignToCenter  = (Button) window.findByName("align_to_center");
-        Text textField = (Text) window.findByName("Text");
+        Button topLeft  = (Button) window.findByName("topLeft");
+        Button topCenter  = (Button) window.findByName("topCenter");
+        Button topRight  = (Button) window.findByName("topRight");
+        Button middleLeft  = (Button) window.findByName("middleLeft");
+        Button middleCenter  = (Button) window.findByName("middleCenter");
+        Button middleRight  = (Button) window.findByName("middleRight");
+        Button bottomLeft  = (Button) window.findByName("bottomLeft");
+        Button bottomCenter  = (Button) window.findByName("bottomCenter");
+        Button bottomRight  = (Button) window.findByName("bottomRight");
+        Picture picture = (Picture) window.findByName("Image");
 
-        alignToLeft.addMouseListener(new MouseAdapter() {
+        topLeft.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
-                textField.setAlignment("left");
-                textField.update();
+                picture.setLocation("top_left");
+                picture.update();
             }
         });
 
-        alignToCenter.addMouseListener(new MouseAdapter() {
+        topRight.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
-                textField.setAlignment("center");
-                textField.update();
+                picture.setLocation("top_right");
+                picture.update();
             }
         });
 
-        alignToRight.addMouseListener(new MouseAdapter() {
+        topCenter.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
-                textField.setAlignment("right");
-                textField.update();
+                picture.setLocation("top_center");
+                picture.update();
             }
         });
 
+        middleLeft.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                picture.setLocation("middle_left");
+                picture.update();
+            }
+        });
+
+        middleRight.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                picture.setLocation("middle_right");
+                picture.update();
+            }
+        });
+
+        middleCenter.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                picture.setLocation("middle_center");
+                picture.update();
+            }
+        });
+
+        bottomLeft.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                picture.setLocation("bottom_left");
+                picture.update();
+            }
+        });
+
+        bottomRight.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                picture.setLocation("bottom_right");
+                picture.update();
+            }
+        });
+
+        bottomCenter.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                picture.setLocation("bottom_center");
+                picture.update();
+            }
+        });
     }
 }

@@ -1,7 +1,7 @@
 package parser.converters;
 
-import com.sun.jdi.InvalidTypeException;
+import java.io.InvalidClassException;
 
 public interface ConverterInterface<T> {
-    T convert(String content) throws InvalidTypeException;
+    T convert(String content) throws InvalidClassException;
 }
