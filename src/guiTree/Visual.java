@@ -128,10 +128,10 @@ public class Visual {
 
     public void setSize() {
         if(parent != null) {
-            if(relativeWidth > 0.0) {
+            if(relativeWidth >= 0.0) {
                 width = Math.round(relativeWidth * parent.width);
             }
-            if(relativeHeight > 0.0) {
+            if(relativeHeight >= 0.0) {
                 height = Math.round(relativeHeight * parent.height);
             }
 
@@ -182,10 +182,12 @@ public class Visual {
 
     public void setMargins(Integer up, Integer down, Integer left, Integer right) {
         locationPlacer.setMargins(up, down, left, right);
+        setLocation();
     }
 
     public void setMargins(Integer margin) {
         locationPlacer.setMargins(margin);
+        setLocation();
     }
 
     public void setLocation() {
@@ -470,13 +472,14 @@ public class Visual {
             return;
         }
         this.children.remove(child);
-        child.setParent(null);
+        child.parent = null;
         child.imageBuffer = null;
         child.deactivate();
         update();
     }
 
     private void setParent(Visual parent) {
+        locationPlacer.setParentSize(parent.width, parent.height);
         this.parent = parent;
     }
 
