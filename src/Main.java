@@ -1,4 +1,5 @@
 import guiTree.Components.Button;
+import guiTree.Components.Panel;
 import guiTree.Components.Picture;
 import guiTree.Window;
 import guiTree.events.MouseAdapter;
@@ -25,6 +26,7 @@ public class Main {
         Button bottomCenter  = (Button) window.findByName("bottomCenter");
         Button bottomRight  = (Button) window.findByName("bottomRight");
         Picture picture = (Picture) window.findByName("Image");
+        Panel panel = (Panel) window.findByName("Panel");
 
         topLeft.addMouseListener(new MouseAdapter() {
             @Override

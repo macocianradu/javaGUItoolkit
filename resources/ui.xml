@@ -3,8 +3,6 @@
         Name="Window"
         Visible="True"
         Title="Sudoku 1.0"
-        EnableGPU="True"
-        HardwareAccelerated="True"
         Size="1024, 576">
     <GridPanel
         BackgroundColor="#75ff75"
@@ -19,7 +17,7 @@
         <Panel
             BackgroundColor="#555555"
             Name="Panel"
-            Overlapping="false"
+            Overlapping="true"
             Row="0"
             Column="1">
             <Picture
@@ -28,6 +26,7 @@
                 Name="Image"
                 Image="heart"/>
             <RadioButtons
+                Name="Radio Buttons"
                 Size="0.4f, 0.3f">
                 <RadioButton
                     Text="Iubesc"
@@ -53,6 +52,7 @@
                     BackgroundColor="#999999"
                     AccentColor="#aaaaaa"
                     ForegroundColor="#ffffff"
+                    Name="Input Text Box"
                     Location="0.0f, 0.8f"
                     Size="300, 60">
             </InputTextBox>>

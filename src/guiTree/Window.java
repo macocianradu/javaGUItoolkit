@@ -174,6 +174,7 @@ public class Window extends Visual implements Runnable{
 
     public void setMainPanel(Panel panel) {
         this.removeVisual(mainPanel);
+        mainPanel.setOverlapping(true);
         contentPanel = new Panel();
         contentPanel.setName("ContentPanel");
         if(titleBar != null) {

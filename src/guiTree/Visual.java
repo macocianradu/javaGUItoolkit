@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Visual {
@@ -72,7 +71,7 @@ public class Visual {
     private static Visual entered;
     private static Visual focused;
     private Boolean pressed;
-    private Lock validating;
+    private static ReentrantLock validating = new ReentrantLock();
     private Boolean hardwareAccelerated;
 
     /*--------------------------------------------------------------------
@@ -114,7 +113,6 @@ public class Visual {
         absoluteX = 0;
         absoluteY = 0;
 
-        validating = new ReentrantLock();
         hardwareAccelerated = useGPU;
     }
 
@@ -210,6 +208,16 @@ public class Visual {
         setLocation();
     }
 
+    public void setLocationX(Float x) {
+        locationPlacer.setRelativeLocation(x, getRelativeLocation().y);
+        setLocation();
+    }
+
+    public void setLocationY(Float y) {
+        locationPlacer.setRelativeLocation(getRelativeLocation().x, y);
+        setLocation();
+    }
+
     public void setLocationX(Integer x) {
         setLocation(x, getLocationY());
     }
@@ -287,6 +295,7 @@ public class Visual {
         try {
             this.font = Font.createFont(Font.TRUETYPE_FONT, new File("resources\\fonts\\" + font + ".ttf"));
             this.font = this.font.deriveFont(style, size);
+            update();
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();
         }
@@ -370,6 +379,8 @@ public class Visual {
     public Point2<Integer> getLocation() {
         return new Point2<>(locationX, locationY);
     }
+
+    public Point2<Float> getRelativeLocation() {return locationPlacer.getRelativeLocation();}
 
     public int getAbsoluteX() {
         return absoluteX;
@@ -518,7 +529,12 @@ public class Visual {
             }
         }
         if(dirty && active) {
-            revalidate();
+            validating.lock();
+            try {
+                revalidate();
+            } finally {
+                validating.unlock();
+            }
         }
     }
 
@@ -526,25 +542,21 @@ public class Visual {
         Debugger.log("Revalidating " + name, Debugger.Tag.PAINTING);
         Timer timer = new Timer();
 
-        validating.lock();
-        try {
-            timer.startTiming();
+        timer.startTiming();
 
-            clearImageBuffer();
-            paint(imageBuffer);
-            for (Visual v : children) {
-                if (v.dirty && v.active) {
-                    v.revalidate();
-                }
-                Graphics2D g = (Graphics2D) imageBuffer.getGraphics();
-                g.drawImage(v.imageBuffer, v.locationX, v.locationY, null);
-                g.dispose();
+        clearImageBuffer();
+        paint(imageBuffer);
+        for (Visual v : children) {
+            if (v.dirty && v.active) {
+                v.revalidate();
             }
-
-            dirty = false;
-        } finally {
-            validating.unlock();
+            Graphics2D g = (Graphics2D) imageBuffer.getGraphics();
+            g.drawImage(v.imageBuffer, v.locationX, v.locationY, null);
+            g.dispose();
         }
+
+        dirty = false;
+
         if(!(this instanceof Window)){
             long time = timer.stopTiming();
             Debugger.log("Finished Revalidating " + name + ": " + time, Debugger.Tag.PAINTING);
@@ -632,7 +644,6 @@ public class Visual {
         }
         focused = entered;
         Debugger.log("Pressed " + entered.name, Debugger.Tag.LISTENER);
-        System.out.println(entered.name + " hardware accelerated: " + imageBuffer.getCapabilities(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration()).isAccelerated());
     }
 
     void mouseEntered(MouseEvent mouseEvent) {
@@ -824,19 +835,14 @@ public class Visual {
     }
 
     public void update() {
-        validating.lock();
-        try {
+        if(!dirty) {
+            validating.lock();
             dirty = true;
-        } finally {
             validating.unlock();
         }
+
         if(parent != null) {
-            parent.validating.lock();
-            try {
-                parent.update();
-            } finally {
-                parent.validating.unlock();
-            }
+            parent.update();
         }
     }
 }
