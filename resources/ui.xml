@@ -9,7 +9,7 @@
         Size="1.0f, 1.0f"
         Name="Main Grid">
         <Text
-            Text="Ioana &#10;E &#10;Cea &#10;Mai &#10;Tare"
+            Text="Text &#10;Scris &#10;In &#10;Text &#10;Box"
             Name="Text"
             Alignment="left"
             Row="0"
@@ -24,25 +24,25 @@
                 Size="0.5f, 0.3f"
                 Margins="10"
                 Name="Image"
-                Image="heart"/>
+                Image="clover"/>
             <RadioButtons
                 Name="Radio Buttons"
                 Size="0.4f, 0.3f">
                 <RadioButton
-                    Text="Iubesc"
-                    Name="Iubesc"
+                    Text="Up"
+                    Name="Up"
                     Size="300, 20"
                     Icon="circle"
                 />
                 <RadioButton
-                        Text="Ioana"
-                        Name="Ioana"
+                        Text="Middle"
+                        Name="Middle"
                         Size="300, 20"
                         Icon="circle"
                 />
                 <RadioButton
-                        Text="Mult"
-                        Name="Mult"
+                        Text="Down"
+                        Name="Down"
                         Size="300, 20"
                         Icon="circle"
                 />
@@ -60,7 +60,7 @@
             <DropDown
                 BackgroundColor="#222222"
                 Name="DropDown"
-                Label="Text Alignment"
+                Label="Image Position"
                 Location="0.0f, 0.5f"
                 ContentHeight="30"
                 ContentWidth="100"
@@ -73,6 +73,7 @@
                         ContentHeight="30"
                         ContentWidth="100">
                     <Button
+                            Disable="true"
                             Name="topLeft"
                             Label="Left"/>
                     <Button

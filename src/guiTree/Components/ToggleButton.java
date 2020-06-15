@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class ToggleButton extends Visual {
     private String label;
@@ -125,7 +126,9 @@ public class ToggleButton extends Visual {
 
     public void setIcon(String url) {
         try{
-            icon = ImageIO.read(new File("resources\\icons\\" + url + ".png"));
+            InputStream iconStream = getClass().getClassLoader().getResourceAsStream("icons/" + url + ".png");
+            assert iconStream != null;
+            icon = ImageIO.read(iconStream);
         } catch (IOException e) {
             e.printStackTrace();
         }

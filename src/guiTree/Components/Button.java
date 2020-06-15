@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Button extends MenuItem {
     private String label;
@@ -75,6 +76,11 @@ public class Button extends MenuItem {
     }
 
     @Override
+    public void setPaintColor(Color color) {
+        super.setPaintColor(color);
+    }
+
+    @Override
     public void paint(Image imageBuffer)
     {
         //Get Graphics
@@ -132,7 +138,9 @@ public class Button extends MenuItem {
 
     public void setIcon(String url) {
         try{
-            icon = ImageIO.read(new File("resources\\icons\\" + url + ".png"));
+            InputStream iconStream = getClass().getClassLoader().getResourceAsStream("icons/" + url + ".png");
+            assert iconStream != null;
+            icon = ImageIO.read(iconStream);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Picture extends Visual {
     private BufferedImage bufferedImage;
@@ -28,7 +29,9 @@ public class Picture extends Visual {
 
     public void setImage(String url) {
         try{
-            bufferedImage = ImageIO.read(new File("resources\\images\\" + url + ".png"));
+            InputStream iconStream = getClass().getClassLoader().getResourceAsStream("images/" + url + ".png");
+            assert iconStream != null;
+            bufferedImage = ImageIO.read(iconStream);
         } catch (IOException e) {
             e.printStackTrace();
         }

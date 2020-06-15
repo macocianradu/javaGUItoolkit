@@ -11,6 +11,8 @@ import guiTree.events.KeyListener;
 import guiTree.events.MouseListener;
 import guiTree.events.MouseWheelListener;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -18,6 +20,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -73,6 +76,7 @@ public class Visual {
     private Boolean pressed;
     private static ReentrantLock validating = new ReentrantLock();
     private Boolean hardwareAccelerated;
+    private Boolean disabled;
 
     /*--------------------------------------------------------------------
                         Constructors
@@ -112,6 +116,8 @@ public class Visual {
         locationY = 0;
         absoluteX = 0;
         absoluteY = 0;
+
+        disabled = false;
 
         hardwareAccelerated = useGPU;
     }
@@ -293,7 +299,9 @@ public class Visual {
 
     public void setFont(String font, Float size, Integer style) {
         try {
-            this.font = Font.createFont(Font.TRUETYPE_FONT, new File("resources\\fonts\\" + font + ".ttf"));
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("fonts/" + font + ".ttf");
+            assert fontStream != null;
+            this.font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
             this.font = this.font.deriveFont(style, size);
             update();
         } catch (FontFormatException | IOException e) {
@@ -342,6 +350,13 @@ public class Visual {
 
     public void setAttribute(String attribute, String value) {
         attributeMap.put(attribute, value);
+    }
+
+    public void setDisable(Boolean disable) {
+        disabled = disable;
+        if(disable) {
+            setPaintColor(Color.LIGHT_GRAY);
+        }
     }
 
     /*--------------------------------------------------------------------
@@ -432,6 +447,10 @@ public class Visual {
 
     public String getAttribute(String attribute) {
         return attributeMap.get(attribute);
+    }
+
+    public Boolean isDisabled() {
+        return disabled;
     }
 
     /*--------------------------------------------------------------------
@@ -620,30 +639,39 @@ public class Visual {
     }
 
     void mouseClicked(MouseEvent mouseEvent) {
+        Debugger.log("Clicked " + entered.name, Debugger.Tag.LISTENER);
+        if(entered.disabled) {
+            return;
+        }
         for(MouseListener mouseListener: entered.mouseListeners) {
             mouseListener.mouseClicked(entered.createMouseEvent(mouseEvent));
         }
-        Debugger.log("Clicked " + entered.name, Debugger.Tag.LISTENER);
     }
 
     void mouseReleased(MouseEvent mouseEvent) {
+        entered.pressed = false;
+        Debugger.log("Released " + entered.name, Debugger.Tag.LISTENER);
+        if(entered.disabled) {
+            return;
+        }
         for(MouseListener mouseListener: entered.mouseListeners) {
             mouseListener.mouseReleased(entered.createMouseEvent(mouseEvent));
         }
-        Debugger.log("Released " + entered.name, Debugger.Tag.LISTENER);
-        entered.pressed = false;
     }
 
     void mousePressed(MouseEvent mouseEvent) {
-        for(MouseListener mouseListener: entered.mouseListeners) {
-            mouseListener.mousePressed(entered.createMouseEvent(mouseEvent));
-        }
+        Debugger.log("Pressed " + entered.name, Debugger.Tag.LISTENER);
         entered.pressed = true;
         if(focused != null) {
             focused.update();
         }
         focused = entered;
-        Debugger.log("Pressed " + entered.name, Debugger.Tag.LISTENER);
+        if(entered.disabled) {
+            return;
+        }
+        for(MouseListener mouseListener: entered.mouseListeners) {
+            mouseListener.mousePressed(entered.createMouseEvent(mouseEvent));
+        }
     }
 
     void mouseEntered(MouseEvent mouseEvent) {
@@ -659,10 +687,7 @@ public class Visual {
             }
         }
         entered = this;
-        for(MouseListener mouseListener: mouseListeners) {
-            mouseListener.mouseEntered(createMouseEvent(mouseEvent));
-        }
-        Debugger.log("Entered " + entered.name, Debugger.Tag.LISTENER);
+        fireEnteredListener(entered, mouseEvent);
     }
 
     void mouseExited(MouseEvent mouseEvent) {
@@ -672,18 +697,18 @@ public class Visual {
         if(entered.pressed) {
             return;
         }
-        for (MouseListener mouseListener : entered.mouseListeners) {
-            mouseListener.mouseExited(entered.createMouseEvent(mouseEvent));
-        }
-        Debugger.log("Exited " + entered.name, Debugger.Tag.LISTENER);
+        fireExitedListener(entered, mouseEvent);
         entered = null;
     }
 
     void mouseDragged(MouseEvent mouseEvent) {
+        Debugger.log("Dragged " + entered.name, Debugger.Tag.LISTENER);
+        if(entered.disabled) {
+            return;
+        }
         for (MouseListener mouseListener : entered.mouseListeners) {
             mouseListener.mouseDragged(entered.createMouseEvent(mouseEvent));
         }
-        Debugger.log("Dragged " + entered.name, Debugger.Tag.LISTENER);
     }
 
     void mouseMoved(MouseEvent mouseEvent) {
@@ -694,10 +719,7 @@ public class Visual {
         int mouseY = mouseEvent.getY();
         if(entered != null) {
             if (!entered.isInside(mouseX, mouseY)) {
-                for (MouseListener mouseListener : entered.mouseListeners) {
-                    mouseListener.mouseExited(entered.createMouseEvent(mouseEvent));
-                }
-                Debugger.log("Exited " + entered.name, Debugger.Tag.LISTENER);
+                fireExitedListener(entered, mouseEvent);
                 entered = this;
             }
         }
@@ -709,19 +731,12 @@ public class Visual {
             }
         }
         if (this != entered && entered != null) {
-            for (MouseListener mouseListener : entered.mouseListeners) {
-                mouseListener.mouseExited(entered.createMouseEvent(mouseEvent));
-            }
+            fireExitedListener(entered, mouseEvent);
             entered = this;
-            for (MouseListener mouseListener : mouseListeners) {
-                mouseListener.mouseEntered(createMouseEvent(mouseEvent));
-            }
-            Debugger.log("Entered " + this.name, Debugger.Tag.LISTENER);
+            fireEnteredListener(entered, mouseEvent);
         }
         else {
-            for (MouseListener mouseListener : mouseListeners) {
-                mouseListener.mouseMoved(createMouseEvent(mouseEvent));
-            }
+            fireMovedListener(this, mouseEvent);
         }
         Debugger.log("Moved " + this.name, Debugger.Tag.LISTENER);
     }
@@ -831,6 +846,50 @@ public class Visual {
             for(Visual v: children) {
                 v.calculateAbsoluteLocation();
             }
+        }
+    }
+
+    private void fireExitedListener(Visual v, MouseEvent mouseEvent) {
+        Debugger.log("Exited " + v.name, Debugger.Tag.LISTENER);
+        if(v.disabled) {
+            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            return;
+        }
+        for(MouseListener listener: v.mouseListeners) {
+            listener.mouseExited(mouseEvent);
+        }
+    }
+
+    private void fireEnteredListener(Visual v, MouseEvent mouseEvent) {
+        Debugger.log("Entered " + v.name, Debugger.Tag.LISTENER);
+        if(v.disabled) {
+            InputStream iconStream = getClass().getClassLoader().getResourceAsStream("icons/forbidden_red.png");
+            try {
+                assert iconStream != null;
+                BufferedImage forbiddenIcon = ImageIO.read(iconStream);
+                BufferedImage actualCursor = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D cursorGraphics = actualCursor.createGraphics();
+                cursorGraphics.setColor(new Color(0, 0, 0, 0));
+                cursorGraphics.fillRect(0, 0, actualCursor.getWidth(), actualCursor.getHeight());
+                cursorGraphics.drawImage(forbiddenIcon, 0, 0, null);
+                cursorGraphics.dispose();
+                setCursor(Toolkit.getDefaultToolkit().createCustomCursor(actualCursor, new Point(0, 0), "forbidden cursor"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+        for(MouseListener listener: v.mouseListeners) {
+            listener.mouseEntered(mouseEvent);
+        }
+    }
+
+    private void fireMovedListener(Visual v, MouseEvent mouseEvent) {
+        if(v.disabled) {
+            return;
+        }
+        for(MouseListener listener: v.mouseListeners) {
+            listener.mouseMoved(mouseEvent);
         }
     }
 

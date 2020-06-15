@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -256,7 +257,9 @@ public class DropDown extends MenuItem implements Menu{
 
     public void setIcon(String url) {
         try{
-            icon = ImageIO.read(new File("resources\\icons\\" + url + ".png"));
+            InputStream iconStream = getClass().getClassLoader().getResourceAsStream("icons/" + url + ".png");
+            assert iconStream != null;
+            icon = ImageIO.read(iconStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
