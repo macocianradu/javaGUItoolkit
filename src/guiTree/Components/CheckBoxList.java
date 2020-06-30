@@ -145,7 +145,7 @@ public class CheckBoxList extends Visual {
     public List<CheckBox> getActiveBoxes() {
         List<CheckBox> markedBoxes = new ArrayList<>();
         for(CheckBox cb: checkBoxList) {
-            if(cb.isMarked()) {
+            if(cb.getPressed()) {
                 markedBoxes.add(cb);
             }
         }

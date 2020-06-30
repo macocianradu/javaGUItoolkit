@@ -25,28 +25,52 @@
                 Margins="10"
                 Name="Image"
                 Image="clover"/>
-            <RadioButtons
+            <RadioButtonList
                 Name="Radio Buttons"
                 Size="0.4f, 0.3f">
                 <RadioButton
-                    Text="Up"
+                    Label="Up"
                     Name="Up"
                     Size="300, 20"
                     Icon="circle"
                 />
                 <RadioButton
-                        Text="Middle"
-                        Name="Middle"
-                        Size="300, 20"
-                        Icon="circle"
+                    Label="Middle"
+                    Name="Middle"
+                    Size="300, 20"
+                    Icon="circle"
                 />
                 <RadioButton
-                        Text="Down"
-                        Name="Down"
-                        Size="300, 20"
-                        Icon="circle"
+                    Label="Down"
+                    Name="Down"
+                    Size="300, 20"
+                    Icon="circle"
                 />
-            </RadioButtons>
+            </RadioButtonList>
+
+            <CheckBoxList
+                    Name="Check Box"
+                    Size="0.4f, 0.3f"
+                    Location="0.5f, 0.0f">
+                <CheckBox
+                    Label="Up"
+                    Name="Up"
+                    Size="300, 20"
+                    Icon="circle"
+                />
+                <CheckBox
+                    Label="Middle"
+                    Name="Middle"
+                    Size="300, 20"
+                    Icon="circle"
+                />
+                <CheckBox
+                    Label="Down"
+                    Name="Down"
+                    Size="300, 20"
+                    Icon="circle"
+                />
+            </CheckBoxList>
 
             <InputTextBox
                     BackgroundColor="#999999"

@@ -17,7 +17,7 @@ public class RadioButton extends CheckBox {
 
         g.drawOval(1, 1, getHeight() - 2, getHeight() - 2);
 
-        if(isMarked()) {
+        if(getPressed()) {
             if(getHeight() > 9) {
                 g.fillOval(5, 5, getHeight() - 9, getHeight() - 9);
             }
@@ -28,7 +28,7 @@ public class RadioButton extends CheckBox {
             g.setFont(getFont());
         }
         int textHeight = g.getFontMetrics().getHeight();
-        g.drawString(getText(), getHeight() + 10, getHeight() / 2 + textHeight / 4);
+        g.drawString(getLabel(), getHeight() + 10, getHeight() / 2 + textHeight / 4);
 
         g.dispose();
     }

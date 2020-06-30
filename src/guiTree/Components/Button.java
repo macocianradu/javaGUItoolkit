@@ -9,6 +9,7 @@ import guiTree.events.MouseAdapter;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -91,30 +92,41 @@ public class Button extends MenuItem {
         //Draw Button
         g.fillRoundRect(0, 0, getWidth(), getHeight(), round, round);
 
-        //Draw Label
-        if(getFont() != null) {
-            g.setFont(getFont());
-        }
-        g.setColor(this.getFontColor());
+        //Get Sizes
         int textWidth = 0;
         int textHeight = 0;
+        int iconWidth = 0;
+        int iconHeight = 0;
+        if(icon != null) {
+            iconWidth = icon.getWidth();
+            iconHeight = icon.getHeight();
+        }
+
         if(!label.equals("")) {
             textWidth = g.getFontMetrics().stringWidth(label);
             textHeight = g.getFontMetrics().getHeight();
         }
 
-        g.drawString(this.label, (this.getWidth() - textWidth)/2, (this.getHeight() + textHeight)/2);
-
         //Draw Icon
         if(icon != null) {
-            int iconWidth = icon.getWidth();
-            int iconHeight = icon.getHeight();
-
-            int iconX = (this.getWidth() - iconWidth - textWidth) / 2;
-            int iconY = (this.getHeight() - iconHeight - textHeight) / 2;
+            int iconX = (getWidth() - iconWidth - textWidth - 10) / 2;
+            int iconY = (getHeight() - iconHeight)/2;
             Graphics2D g2 = (Graphics2D)imageBuffer.getGraphics();
             g2.drawImage(icon, iconX, iconY, null);
             g2.dispose();
+
+        }
+
+        //Draw Label
+        if(getFont() != null) {
+            g.setFont(getFont());
+        }
+        g.setColor(this.getFontColor());
+
+        if(!label.equals("")) {
+            int labelX = (getWidth() + iconWidth - textWidth) / 2;
+            int labelY = (getHeight() - textHeight) / 2 + g.getFontMetrics().getAscent();
+            g.drawString(this.label, labelX, labelY);
         }
 
         g.dispose();

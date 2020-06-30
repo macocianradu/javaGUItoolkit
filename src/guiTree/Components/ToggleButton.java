@@ -2,40 +2,30 @@ package guiTree.Components;
 
 import guiTree.Animations.ColorAnimation;
 import guiTree.Helper.Debugger;
-import guiTree.Visual;
 import guiTree.events.MouseAdapter;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-public class ToggleButton extends Visual {
-    private String label;
+public class ToggleButton extends Button {
     private Boolean pressed;
-    private BufferedImage icon;
 
     public ToggleButton() {
         this("", null);
     }
 
-    public ToggleButton(String label) {
-        this(label, null);
+    public ToggleButton(String text) {
+        this(text, null);
     }
 
     public ToggleButton(BufferedImage icon) {
-        this(null, icon);
+        this("", icon);
     }
 
     public ToggleButton(String label, BufferedImage icon) {
-        super();
-        this.label = label;
-        this.icon = icon;
+        super(label, icon);
+        removeAllMouseListeners();
         pressed = false;
-        this.addMouseListener(new MouseAdapter() {
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
                 if(pressed) {
@@ -73,73 +63,14 @@ public class ToggleButton extends Visual {
         });
     }
 
-    @Override
-    public void paint(Image imageBuffer)
-    {
-        //Get Graphics
-        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
-        g.setColor(getPaintColor());
-
-        //Draw Button
-        g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
-
-        //Draw Label
-        if(getFont() != null) {
-            g.setFont(getFont());
-        }
-        g.setColor(this.getFontColor());
-        int textWidth = 0;
-        int textHeight = 0;
-        if(!label.equals("")) {
-            textWidth = g.getFontMetrics().stringWidth(label);
-            textHeight = g.getFontMetrics().getHeight();
-        }
-
-        g.drawString(this.label, (this.getWidth() - textWidth)/2, (this.getHeight() + textHeight)/2);
-
-        //Draw Icon
-        if(icon != null) {
-            int iconWidth = icon.getWidth();
-            int iconHeight = icon.getHeight();
-
-            int iconX = (this.getWidth() - iconWidth - textWidth) / 2;
-            int iconY = (this.getHeight() - iconHeight - textHeight) / 2;
-            Graphics2D g2 = (Graphics2D)imageBuffer.getGraphics();
-            g2.drawImage(icon, iconX, iconY, null);
-            g2.dispose();
-        }
-
-        g.dispose();
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public String getLabel() {
-        return this.label;
-    }
-
-    public void setIcon(BufferedImage icon) {
-        this.icon = icon;
-    }
-
-    public void setIcon(String url) {
-        try{
-            InputStream iconStream = getClass().getClassLoader().getResourceAsStream("icons/" + url + ".png");
-            assert iconStream != null;
-            icon = ImageIO.read(iconStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public BufferedImage getIcon() {
-        return icon;
-    }
-
     public void setPressed(Boolean pressed) {
         this.pressed = pressed;
+        if(!pressed) {
+            addAnimation(new ColorAnimation(ToggleButton.this, getPaintColor(), getBackgroundColor(), 100));
+        }
+        else {
+            addAnimation(new ColorAnimation(ToggleButton.this, getPaintColor(), getForegroundColor(), 100));
+        }
     }
 
     public Boolean getPressed() {

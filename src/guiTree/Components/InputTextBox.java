@@ -21,7 +21,6 @@ import java.util.List;
 
 public class InputTextBox extends Visual {
     private List<StringBuilder> lines;
-    private String title;
     private Point2<Integer> caretPosition;
     private Point2<Integer> startDragPosition;
     private List<StringBuilder> selectedText;
@@ -30,20 +29,7 @@ public class InputTextBox extends Visual {
     private int paragraphSpacing;
 
     public InputTextBox() {
-        this(true, "");
-    }
-
-    public InputTextBox(Boolean visible) {
-        this(visible, "");
-    }
-
-    public InputTextBox(String title) {
-        this(true, title);
-    }
-
-    public InputTextBox(Boolean visible, String title) {
         super();
-        this.title = title;
         lines = new ArrayList<>();
         selectionRectangles = new ArrayList<>();
         lines.add(new StringBuilder());

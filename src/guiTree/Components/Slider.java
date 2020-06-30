@@ -5,7 +5,6 @@ import guiTree.events.MouseAdapter;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 
 public class Slider extends Visual {
     public static final int SLIDER_MOVED = 3;

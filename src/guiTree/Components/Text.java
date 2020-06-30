@@ -17,14 +17,12 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Text extends Visual {
     private List<StringBuilder> lines;
-    private String title;
     private Point2<Integer> caretPosition;
     private Point2<Integer> startDragPosition;
     private List<StringBuilder> selectedText;
@@ -35,20 +33,7 @@ public class Text extends Visual {
     private boolean selectable;
 
     public Text() {
-        this(true, "");
-    }
-
-    public Text(Boolean visible) {
-        this(visible, "");
-    }
-
-    public Text(String title) {
-        this(true, title);
-    }
-
-    public Text(Boolean visible, String title) {
         super();
-        this.title = title;
         lines = new ArrayList<>();
         selectionRectangles = new ArrayList<>();
         lines.add(new StringBuilder());
@@ -91,14 +76,6 @@ public class Text extends Visual {
                 if(keyEvent.getKeyCode() == KeyEvent.VK_C) {
                     if(keyEvent.isControlDown()) {
                         copyToClipboard();
-                        return;
-                    }
-                }
-
-                if(keyEvent.getKeyCode() == KeyEvent.VK_V) {
-                    if(keyEvent.isControlDown()) {
-                        pasteFromClipboard();
-                        update();
                         return;
                     }
                 }
@@ -190,25 +167,6 @@ public class Text extends Visual {
         startDragPosition.x = 0;
         startDragPosition.y = 0;
         setSelection();
-    }
-
-    private void pasteFromClipboard() {
-        Transferable clipboardTransferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(this);
-        String clipboardText = null;
-        try {
-            clipboardText = (String) clipboardTransferable.getTransferData(DataFlavor.stringFlavor);
-        } catch (UnsupportedFlavorException | IOException e) {
-            e.printStackTrace();
-        }
-        if(clipboardText == null) {
-            return;
-        }
-        clipboardText = clipboardText.substring(0, clipboardText.length() -1 );
-        if(clipboardText.indexOf('\n') == -1) {
-            lines.get(caretPosition.y).insert(caretPosition.x, clipboardText);
-            caretPosition.x += clipboardText.length();
-            startDragPosition = caretPosition;
-        }
     }
 
     private Point2<Integer> getPositionOnScreen(int x, int y){

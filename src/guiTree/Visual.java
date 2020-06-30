@@ -94,6 +94,7 @@ public class Visual {
         parent = null;
         name = "";
         backgroundColor = Color.WHITE;
+        paintColor = Color.WHITE;
         foregroundColor = Color.BLUE;
         fontColor = Color.BLACK;
         accentColor = Color.BLUE;
@@ -142,13 +143,14 @@ public class Visual {
         }
         initializeImageBuffer();
         locationPlacer.setElementSize(width, height);
+        setLocation();
 
         for(Visual v: children) {
             if(v.relativeHeight > 0.0 || v.relativeWidth > 0.0) {
                 v.setSize();
             }
             if(v.locationPlacer != null) {
-                v.locationPlacer.setParentSize(getWidth(), getHeight());
+                v.locationPlacer.setParentSize(width, height);
                 v.setLocation();
             }
         }
@@ -565,7 +567,8 @@ public class Visual {
 
         clearImageBuffer();
         paint(imageBuffer);
-        for (Visual v : children) {
+        for (int i = 0; i < children.size(); i++) {
+            Visual v = children.get(i);
             if (v.dirty && v.active) {
                 v.revalidate();
             }

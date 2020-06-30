@@ -99,7 +99,7 @@ public class GridPanel extends Visual {
         update();
     }
 
-    public void setRowPadding(int row, int col, int padding) {
+    public void setRowPadding(Integer row, Integer col, Integer padding) {
         rowPadding.put(new Point2<>(col, row), padding);
         for(int i = rowSizes.size(); i <= row + padding; i++) {
             rowSizes.add(0);
@@ -107,7 +107,7 @@ public class GridPanel extends Visual {
         updateSize();
     }
 
-    public void setColumnPadding(int row, int col, int padding) {
+    public void setColumnPadding(Integer row, Integer col, Integer padding) {
         columnPadding.put(new Point2<>(col, row), padding);
         for(int i = columnSizes.size(); i <= col + padding; i++) {
             columnSizes.add(0);
@@ -115,12 +115,12 @@ public class GridPanel extends Visual {
         updateSize();
     }
 
-    public void setRowSize(int row, int height) {
+    public void setRowSize(Integer row, Integer height) {
         fixedRows.put(row, height);
         updateSize();
     }
 
-    public void setColumnSize(int column, int width) {
+    public void setColumnSize(Integer column, Integer width) {
         fixedColumns.put(column, width);
         updateSize();
     }

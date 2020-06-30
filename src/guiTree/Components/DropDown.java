@@ -11,7 +11,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -270,8 +269,7 @@ public class DropDown extends MenuItem implements Menu{
     }
 
     @Override
-    public void paint(Image imageBuffer)
-    {
+    public void paint(Image imageBuffer) {
         //Get Graphics
         Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

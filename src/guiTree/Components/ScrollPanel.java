@@ -11,15 +11,10 @@ import java.util.List;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 
 public class ScrollPanel extends Visual {
     private List<VisualLocation> children;
 
-    private float positionX;
-    private float positionY;
-    private float ratioX;
-    private float ratioY;
     private Slider verticalScrollBar;
     private Slider horizontalScrollBar;
 
