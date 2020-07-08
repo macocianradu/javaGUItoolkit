@@ -6,18 +6,19 @@ import guiTree.Helper.Debugger;
 import guiTree.Visual;
 import guiTree.Window;
 import org.w3c.dom.*;
+import parser.converters.ConverterInterface;
 
 import javax.xml.parsers.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URL;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
-public class XAMLParser {
-    private final static String packageGuiTree = "guiTree.";
-    private final static String packageComponents = "guiTree.Components.";
-    private final static String packageDecorations = "guiTree.Components.Decorations.";
+public class XMLParser {
+    private static Map<String, Class<?>> classMap;
     private static Converter valueConverter = new Converter();
 
     private static void setAttributes(Object object, NamedNodeMap attributeList){
@@ -68,9 +69,12 @@ public class XAMLParser {
     public static Window parse(String filepath) throws Exception {
         Object rootObject;
         Debugger.log("Started", Debugger.Tag.PARSING);
-        FileInputStream fileIS = new FileInputStream(new File("resources/" + filepath));
+        InputStream fileIS = XMLParser.class.getClassLoader().getResourceAsStream(filepath);
+
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = builderFactory.newDocumentBuilder();
+        Class<?>[] classes = getClasses();
+        classMap = createClassTable(classes);
         Document xmlDocument = builder.parse(fileIS);
 
         xmlDocument.normalize();
@@ -117,18 +121,8 @@ public class XAMLParser {
     }
 
     private static Object parseNode(Node parentNode)throws Exception{
-        Class<?> parentClass;
-        try {
-            parentClass = Class.forName(packageComponents.concat(parentNode.getNodeName()));
-        }
-        catch (ClassNotFoundException e) {
-            try {
-                parentClass = Class.forName(packageGuiTree.concat(parentNode.getNodeName()));
-            }
-            catch (ClassNotFoundException f) {
-                parentClass = Class.forName(packageDecorations.concat(parentNode.getNodeName()));
-            }
-        }
+        Class<?> parentClass = classMap.get(parentNode.getNodeName());
+
         Debugger.log("Parsing " + parentClass, Debugger.Tag.PARSING);
         Object parentObject = parentClass.getDeclaredConstructor().newInstance();
         Debugger.log("Constructor called successfully for " + parentObject, Debugger.Tag.PARSING);
@@ -159,6 +153,89 @@ public class XAMLParser {
             }
         }
         return parentObject;
+    }
+
+    private static Class<?>[] getClasses()
+            throws ClassNotFoundException, IOException {
+        URL classRoot = XMLParser.class.getProtectionDomain().getCodeSource().getLocation();
+        URL projectRoot = ClassLoader.getSystemResource("");
+        File dir;
+        ClassLoader classLoader = XMLParser.class.getClassLoader();
+
+        ArrayList<Class<?>> classes = new ArrayList<>();
+
+        String path = classRoot.getPath();
+        if(path.indexOf('.') > 0) {
+            if (path.substring(path.lastIndexOf('.')).equals(".jar")) {
+                JarFile jarFile = new JarFile(classRoot.getPath());
+                Enumeration<JarEntry> jarEntries = jarFile.entries();
+                while (jarEntries.hasMoreElements()) {
+                    JarEntry jarEntry = jarEntries.nextElement();
+                    String filePath = jarEntry.getName();
+                    if (filePath.indexOf('.') < 0) {
+                        continue;
+                    }
+                    if (filePath.substring(filePath.lastIndexOf('.')).equals(".class")) {
+                        filePath = filePath.replaceAll("/", ".");
+                        classes.add(Class.forName(filePath.substring(0, filePath.lastIndexOf('.'))));
+                    }
+                }
+            }
+        }
+        else {
+            dir = new File(classRoot.getFile());
+            classes.addAll(findClasses(dir, ""));
+        }
+        if(!projectRoot.getPath().equals(classRoot.getPath())){
+            dir = new File(projectRoot.getFile());
+            classes.addAll(findClasses(dir, ""));
+        }
+
+        return classes.toArray(new Class[0]);
+    }
+
+
+    private static List<Class<?>> findClasses(File directory, String packageName) throws ClassNotFoundException {
+        Debugger.log("Getting Classes from Directory: " + directory.getName(), Debugger.Tag.PARSING);
+        List<Class<?>> classes = new ArrayList<>();
+        if (!directory.exists()) {
+            return classes;
+        }
+        File[] files = directory.listFiles();
+        if(files == null) {
+            return classes;
+        }
+        for (File file : files) {
+            if (file.isDirectory()) {
+                assert !file.getName().contains(".");
+                classes.addAll(findClasses(file, packageName + "." + file.getName()));
+            } else if (file.getName().endsWith(".class")) {
+                if(packageName.length() == 0) {
+                    classes.add(Class.forName(file.getName().substring(0, file.getName().length() - 6)));
+                }
+                else {
+                    classes.add(Class.forName(packageName.substring(1) + '.' + file.getName().substring(0, file.getName().length() - 6)));
+                }
+            }
+        }
+        return classes;
+    }
+
+    private static Map<String, Class<?>> createClassTable(Class<?>[] classes) {
+        Map<String, Class<?>> map = new HashMap<>();
+        for(Class<?> c: classes) {
+            if(c.getName().indexOf('.') >= 0) {
+                map.put(c.getName().substring(c.getName().lastIndexOf('.') + 1), c);
+            }
+            else {
+                map.put(c.getName(), c);
+            }
+        }
+        return map;
+    }
+
+    public static void addConverter(ConverterInterface<?> converterInterface) {
+        valueConverter.addConverter(converterInterface);
     }
 
     private static void addVisual(Visual parentObject, Visual childObject){

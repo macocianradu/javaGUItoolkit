@@ -15,4 +15,9 @@ public class FloatConverter implements ConverterInterface<Float> {
 
         return Float.parseFloat(content);
     }
+
+    @Override
+    public Class<?> getConversionClass() {
+        return Float.class;
+    }
 }

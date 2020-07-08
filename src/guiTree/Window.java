@@ -16,11 +16,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Window extends Visual implements Runnable{
     public CustomFrame frame;
+    private int FPS;
     private TitleBar titleBar;
     private Panel mainPanel;
     private Panel contentPanel;
@@ -46,12 +47,15 @@ public class Window extends Visual implements Runnable{
 
         BufferedImage icon = null;
         try {
-            icon = ImageIO.read(new File("resources\\icons\\square_white.png"));
+            InputStream iconStream = getClass().getClassLoader().getResourceAsStream("icons/square_white.png");
+            assert iconStream != null;
+            icon = ImageIO.read(iconStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
         TitleBar bar = new TitleBar(title, icon);
         bar.setName("TitleBar");
+        FPS = 60;
         bar.setBackgroundColor(Color.GRAY);
         this.setTitleBar(bar);
         close = false;
@@ -158,6 +162,10 @@ public class Window extends Visual implements Runnable{
         frame.setLocationRelativeTo(null);
     }
 
+    public void setFPS(int FPS) {
+        this.FPS = FPS;
+    }
+
     public void setUndecorated(Boolean undecorated){frame.setUndecorated(undecorated);}
 
     public void setState(int state) {
@@ -258,7 +266,7 @@ public class Window extends Visual implements Runnable{
         frameTimer.startTiming();
         secondTimer.startTiming();
         while(!close) {
-            if(frameTimer.getTime() >= 1000/60) {
+            if(frameTimer.getTime() >= 1000/FPS) {
                 repaint();
                 frameTimer.startTiming();
                 frames ++;

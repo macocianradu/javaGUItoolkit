@@ -16,4 +16,9 @@ public class DirectionConverter implements ConverterInterface<Slider.Direction> 
         }
         throw new InvalidClassException(Slider.Direction.class.getName());
     }
+
+    @Override
+    public Class<?> getConversionClass() {
+        return Slider.Direction.class;
+    }
 }

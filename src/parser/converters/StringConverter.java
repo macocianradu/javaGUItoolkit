@@ -6,4 +6,9 @@ public class StringConverter implements ConverterInterface<String> {
     public String convert(String content) {
         return content;
     }
+
+    @Override
+    public Class<?> getConversionClass() {
+        return String.class;
+    }
 }

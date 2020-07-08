@@ -8,4 +8,9 @@ public class ColorConverter implements ConverterInterface<Color> {
         content = content.replaceAll(" ", "");
         return Color.decode(content);
     }
+
+    @Override
+    public Class<?> getConversionClass() {
+        return Color.class;
+    }
 }

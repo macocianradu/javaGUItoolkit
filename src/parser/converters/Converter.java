@@ -30,4 +30,8 @@ public class Converter {
         }
         throw new InvalidClassException(type.getName());
     }
+
+    public void addConverter(ConverterInterface<?> converterInterface) {
+        converterTable.put(converterInterface.getConversionClass(), converterInterface);
+    }
 }

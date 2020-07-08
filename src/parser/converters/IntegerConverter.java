@@ -7,4 +7,9 @@ public class IntegerConverter implements ConverterInterface<Integer> {
         content = content.replaceAll(" ", "");
         return Integer.parseInt(content);
     }
+
+    @Override
+    public Class<?> getConversionClass() {
+        return Integer.class;
+    }
 }

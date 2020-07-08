@@ -1,24 +1,6 @@
 <?xml version="1.0"?>
-<Window
-        Name="Window"
-        Visible="True"
-        Title="GUI DEMO"
-        Size="1024, 576">
-        <Button
-            BackgroundColor="#ff0000"
-            Label="Button 1"
-            Icon="circle"
-            Location="top_left"
-            Size="0.3f, 0.1f"/>
-        <ToggleButton
-            BackgroundColor="#00ff00"
-            Label="Button 2"
-            Icon="arrow_up_white"
-            Location="top_right"
-            Size="0.3f, 0.3f"/>
-        <Panel
-            BackgroundColor="#555555"
-            Size="0.5f, 0.5f"
-            Location="0f, 0.5f"
-        />
+<Window Visible="True" Size="1024, 576">
+        <Button BackgroundColor="#ff0000" Label="Button 1" Icon="circle" Location="top_left" Size="0.3f, 0.1f"/>
+        <ToggleButton BackgroundColor="#00ff00" Label="Button 2" Icon="arrow_up_white" Location="top_right" Size="0.3f, 0.3f"/>
+        <Panel BackgroundColor="#555555" Size="0.5f, 0.5f" Location="0f, 0.5f"/>
 </Window>

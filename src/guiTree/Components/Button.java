@@ -82,8 +82,7 @@ public class Button extends MenuItem {
     }
 
     @Override
-    public void paint(Image imageBuffer)
-    {
+    public void paint(Image imageBuffer) {
         //Get Graphics
         Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -109,7 +108,13 @@ public class Button extends MenuItem {
 
         //Draw Icon
         if(icon != null) {
-            int iconX = (getWidth() - iconWidth - textWidth - 10) / 2;
+            int iconX;
+            if(textWidth != 0) {
+                iconX = (getWidth() - iconWidth - textWidth - 10) / 2;
+            }
+            else {
+                iconX = (getWidth() - iconWidth) / 2;
+            }
             int iconY = (getHeight() - iconHeight)/2;
             Graphics2D g2 = (Graphics2D)imageBuffer.getGraphics();
             g2.drawImage(icon, iconX, iconY, null);

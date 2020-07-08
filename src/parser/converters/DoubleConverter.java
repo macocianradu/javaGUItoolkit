@@ -7,4 +7,9 @@ public class DoubleConverter implements ConverterInterface<Double>{
         content = content.replaceAll(" ", "");
         return Double.parseDouble(content);
     }
+
+    @Override
+    public Class<?> getConversionClass() {
+        return Double.class;
+    }
 }

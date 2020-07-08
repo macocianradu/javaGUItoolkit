@@ -7,4 +7,9 @@ public class BooleanConverter implements ConverterInterface<Boolean> {
         content = content.replaceAll(" ", "");
         return Boolean.valueOf(content);
     }
+
+    @Override
+    public Class<?> getConversionClass() {
+        return Boolean.class;
+    }
 }

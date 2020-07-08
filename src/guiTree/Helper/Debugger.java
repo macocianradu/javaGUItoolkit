@@ -2,13 +2,17 @@ package guiTree.Helper;
 
 public class Debugger {
     public enum Tag {
-        LISTENER(true),
+        LISTENER(false),
         PAINTING(false),
         FPS(false),
         ANIMATIONS(false),
         PARSING(false);
 
         public boolean value;
+
+        private void setValue(Boolean value) {
+            this.value = value;
+        }
 
         Tag(boolean value) {
             this.value = value;
@@ -21,5 +25,9 @@ public class Debugger {
         if(tag.value) {
             System.out.println("[" + tag.toString() + "] " + message);
         }
+    }
+
+    public void enableTag(Tag tag, Boolean value) {
+        tag.setValue(value);
     }
 }

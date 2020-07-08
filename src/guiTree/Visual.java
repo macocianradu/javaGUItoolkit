@@ -12,13 +12,11 @@ import guiTree.events.MouseListener;
 import guiTree.events.MouseWheelListener;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -237,48 +235,17 @@ public class Visual {
     public void setLocation(String location) {
         location = location.toLowerCase();
         Point4<Integer> margins = locationPlacer.getMargins();
-        switch (location) {
-            case "top_left": {
-                locationPlacer = new TopLeftPlacer();
-                break;
-            }
-            case "top_right": {
-                locationPlacer = new TopRightPlacer();
-                break;
-            }
-            case "top_center": {
-                locationPlacer = new TopCenterPlacer();
-                break;
-            }
-            case "middle_left": {
-                locationPlacer = new MiddleLeftPlacer();
-                break;
-            }
-            case "middle_center": {
-                locationPlacer = new MiddleCenterPlacer();
-                break;
-            }
-            case "middle_right": {
-                locationPlacer = new MiddleRightPlacer();
-                break;
-            }
-            case "bottom_left": {
-                locationPlacer = new BottomLeftPlacer();
-                break;
-            }
-            case "bottom_center": {
-                locationPlacer = new BottomCenterPlacer();
-                break;
-            }
-            case "bottom_right": {
-                locationPlacer = new BottomRightPlacer();
-                break;
-            }
-            default: {
-                System.err.println("Not a valid location");
-                return;
-            }
+        Point2<Integer> absLocation = locationPlacer.getLocation();
+        Point2<Float> relativeLocation = locationPlacer.getRelativeLocation();
+
+        Placer placer = LocationPlacerFactory.getPlacer(location);
+        if(placer == null) {
+            System.out.println("Not a valid placer " + location);
+            return;
         }
+        locationPlacer = placer;
+        locationPlacer.setLocation(absLocation.x, absLocation.y);
+        locationPlacer.setRelativeLocation(relativeLocation.x, relativeLocation.y);
         locationPlacer.setElementSize(width, height);
         locationPlacer.setMargins(margins.a, margins.b, margins.c, margins.d);
         if(parent != null) {
@@ -337,14 +304,14 @@ public class Visual {
         update();
     }
 
-    public void setHardwareAccelerated(Boolean hardwareAccelerated) {
+    public void setHardwareAcceleratedOnElement(Boolean hardwareAccelerated) {
         this.hardwareAccelerated = hardwareAccelerated;
-        children.forEach(f -> f.setHardwareAccelerated(hardwareAccelerated));
+        children.forEach(f -> f.setHardwareAcceleratedOnElement(hardwareAccelerated));
         initializeImageBuffer();
         update();
     }
 
-    public static void setEnableGPU(Boolean gpu) {
+    public static void setHardwareAcceleration(Boolean gpu) {
         useGPU = gpu;
         System.setProperty("sun.java2d.opengl", "true");
         System.setProperty("sun.java2d.accthreshold", "0");
@@ -375,6 +342,10 @@ public class Visual {
 
     public int getHeight() {
         return height;
+    }
+
+    public Point2<Integer> getSize(){
+        return new Point2<>(width, height);
     }
 
     public Point2<Float> getRelativeSize() {
@@ -439,11 +410,11 @@ public class Visual {
         return paintColor;
     }
 
-    public boolean isHardwareAccelerated() {
+    public boolean isElementHardwareAccelerated() {
         return hardwareAccelerated;
     }
 
-    public boolean isGpuEnabled() {
+    public boolean isHardwareAccelerationEnabled() {
         return useGPU;
     }
 
@@ -510,6 +481,16 @@ public class Visual {
         update();
     }
 
+    public void removeAllVisuals() {
+        children.forEach(f -> {
+            f.parent = null;
+            f.imageBuffer = null;
+            f.deactivate();
+        });
+        children.clear();
+
+    }
+
     private void setParent(Visual parent) {
         locationPlacer.setParentSize(parent.width, parent.height);
         this.parent = parent;
@@ -549,14 +530,11 @@ public class Visual {
                 i--;
             }
         }
+        validating.lock();
         if(dirty && active) {
-            validating.lock();
-            try {
-                revalidate();
-            } finally {
-                validating.unlock();
-            }
+            revalidate();
         }
+        validating.unlock();
     }
 
     private void revalidate() {
@@ -567,6 +545,7 @@ public class Visual {
 
         clearImageBuffer();
         paint(imageBuffer);
+
         for (int i = 0; i < children.size(); i++) {
             Visual v = children.get(i);
             if (v.dirty && v.active) {
@@ -897,11 +876,11 @@ public class Visual {
     }
 
     public void update() {
+        validating.lock();
         if(!dirty) {
-            validating.lock();
             dirty = true;
-            validating.unlock();
         }
+        validating.unlock();
 
         if(parent != null) {
             parent.update();
