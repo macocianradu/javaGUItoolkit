@@ -10,4 +10,9 @@ for describing user interfaces in a more natural way than the
 classic wall of text associated with the native code-behind
 approach.
 
+![example](./resources/example.png)
+
+
+
+The following is a 10 minute demo video showing how an application can be developed, and how the interaction between the xml parsing and the java code works
 ![demo-gig](./resources/jistdemo.gif)
