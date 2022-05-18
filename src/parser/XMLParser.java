@@ -66,7 +66,7 @@ public class XMLParser {
        return returnMethods;
     }
 
-    public static Window parse(String filepath) throws Exception {
+    public static Visual parse(String filepath) throws Exception {
         Object rootObject;
         Debugger.log("Started", Debugger.Tag.PARSING);
         InputStream fileIS = XMLParser.class.getClassLoader().getResourceAsStream(filepath);
@@ -84,10 +84,7 @@ public class XMLParser {
 
         rootObject = parseNode(rootNode);
 
-        if(rootObject instanceof Window) {
-            return (Window) rootObject;
-        }
-        return null;
+        return (Visual)rootObject;
     }
 
     private static List<Object> convertStringToPrimitives(String value, List<Method> methods){

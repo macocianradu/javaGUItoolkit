@@ -3,6 +3,7 @@ package guiTree;
 import guiTree.Animations.AnimationInterface;
 import guiTree.Components.Decorations.*;
 import guiTree.Components.Decorations.Placers.*;
+import guiTree.Components.DropDown;
 import guiTree.Helper.Debugger;
 import guiTree.Helper.Point2;
 import guiTree.Helper.Point4;
@@ -44,7 +45,6 @@ public class Visual {
     private List<MouseListener> mouseListeners;
     private List<MouseWheelListener> mouseWheelListeners;
     private List<KeyListener> keyListeners;
-    private static List<AnimationInterface> animations = new ArrayList<>();
     private static boolean useGPU = GPU_DISABLED;
 
     /*--------------------------------------------------------------------
@@ -254,8 +254,21 @@ public class Visual {
         setLocation();
     }
 
+    public void setLocation(Placer placer) {
+        locationPlacer = placer;
+        setLocation();
+    }
+
     public void setFont(Font font) {
         this.font = font;
+    }
+
+    public void setFontSize(Float size) {
+        if(font == null) {
+            font = new Font("TimesRoman", Font.BOLD, Math.round(size));
+            return;
+        }
+        font = font.deriveFont(size);
     }
 
     public void setFont(String font, Integer style) {
@@ -511,25 +524,25 @@ public class Visual {
     }
 
     public void addAnimation(AnimationInterface animation) {
-        animations.add(animation);
+        if (parent != null) {
+            parent.addAnimation(animation);
+        }
     }
 
     public void removeAnimation(AnimationInterface animation) {
-        animations.remove(animation);
+        if(parent != null) {
+            parent.removeAnimation(animation);
+        }
     }
 
     public void removeAllAnimations() {
-        animations.clear();
+        if(parent != null) {
+            parent.removeAllAnimations();
+        }
     }
 
     public void repaint() {
         Debugger.log("Called repaint from " + name, Debugger.Tag.PAINTING);
-        for(int i = 0; i < animations.size(); i++) {
-            if(animations.get(i).step()) {
-                animations.remove(animations.get(i));
-                i--;
-            }
-        }
         validating.lock();
         if(dirty && active) {
             revalidate();
@@ -546,7 +559,8 @@ public class Visual {
         clearImageBuffer();
         paint(imageBuffer);
 
-        for (int i = 0; i < children.size(); i++) {
+        int size = children.size();
+        for (int i = 0; i < size; i++) {
             Visual v = children.get(i);
             if (v.dirty && v.active) {
                 v.revalidate();
@@ -578,6 +592,13 @@ public class Visual {
     }
 
     public void paint(Image imageBuffer) {
+    }
+
+    public void bringToFront(Visual v) {
+        if(children.contains(v)) {
+            children.remove(v);
+            children.add(v);
+        }
     }
 
     /*--------------------------------------------------------------------
@@ -760,6 +781,10 @@ public class Visual {
             }
             Debugger.log("Wheel Moved " + focused.name, Debugger.Tag.LISTENER);
         }
+    }
+
+    public void requestFocus() {
+        focused = this;
     }
 
     /*--------------------------------------------------------------------

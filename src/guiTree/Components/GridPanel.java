@@ -162,8 +162,9 @@ public class GridPanel extends Visual {
         updateSize();
     }
 
-    public void paint(BufferedImage imageBuffer) {
-        Graphics2D g = imageBuffer.createGraphics();
+    @Override
+    public void paint(Image imageBuffer) {
+        Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.setColor(getBackgroundColor());
         g.fillRect(0, 0, getWidth(), getHeight());
         g.dispose();

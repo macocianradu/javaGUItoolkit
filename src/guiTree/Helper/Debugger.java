@@ -27,7 +27,7 @@ public class Debugger {
         }
     }
 
-    public void enableTag(Tag tag, Boolean value) {
+    public static void enableTag(Tag tag, Boolean value) {
         tag.setValue(value);
     }
 }

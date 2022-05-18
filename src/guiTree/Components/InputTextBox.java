@@ -236,6 +236,12 @@ public class InputTextBox extends Visual {
         fontMetrics = null;
     }
 
+    public String getText() {
+        StringBuilder builder = new StringBuilder();
+        lines.forEach(f -> builder.append(f).append('\n'));
+        return builder.substring(0, builder.length() - 1);
+    }
+
     private void copyToClipboard() {
         StringBuilder clipboardText = new StringBuilder();
         for(StringBuilder line: selectedText) {

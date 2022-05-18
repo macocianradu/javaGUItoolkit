@@ -2,9 +2,9 @@ package guiTree.Components;
 
 import guiTree.Helper.Point2;
 import guiTree.Visual;
+import guiTree.Window;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 public class Panel extends Visual {
@@ -78,6 +78,9 @@ public class Panel extends Visual {
         if(notify == TitleBar.CLOSE || notify == TitleBar.MAXIMIZE ||
             notify == TitleBar.MINIMIZE || notify == TitleBar.NORMALIZE) {
             notifyParent(v, notify);
+        }
+        if(notify == Window.BRING_TO_FRONT) {
+            bringToFront(v);
         }
 //        if(notify == SIZE_CHANGED) {
 //            reposition();

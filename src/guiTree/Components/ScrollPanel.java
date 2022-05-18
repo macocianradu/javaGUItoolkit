@@ -14,6 +14,12 @@ import java.awt.event.MouseEvent;
 
 public class ScrollPanel extends Visual {
     private List<VisualLocation> children;
+    private boolean outHorizontal = false;
+    private boolean outVertical = false;
+    private LocationAnimation outAnimationHorizontal;
+    private LocationAnimation outAnimationVertical;
+    private LocationAnimation inAnimationHorizontal;
+    private LocationAnimation inAnimationVertical;
 
     private Slider verticalScrollBar;
     private Slider horizontalScrollBar;
@@ -22,7 +28,6 @@ public class ScrollPanel extends Visual {
         super();
         setName("ScrollPanel");
         children = new ArrayList<>();
-        addMouseListener(new BarListener());
         addMouseWheelListener(new MouseWheelListener());
     }
 
@@ -89,7 +94,16 @@ public class ScrollPanel extends Visual {
             }
         }
 
+        v.setLocation("general");
         super.addVisual(v);
+        if(verticalScrollBar != null) {
+            super.removeVisual(verticalScrollBar);
+            super.addVisual(verticalScrollBar);
+        }
+        if(horizontalScrollBar != null) {
+            super.removeVisual(horizontalScrollBar);
+            super.addVisual(horizontalScrollBar);
+        }
         children.add(new VisualLocation(v));
     }
 
@@ -115,9 +129,16 @@ public class ScrollPanel extends Visual {
 
     private void setLocations() {
         for(VisualLocation visualLocation:children) {
+            if(horizontalScrollBar == null) {
+                visualLocation.v.setLocationY(visualLocation.originalLocation.y - Math.round(verticalScrollBar.getSliderLocation() * (getFarthestY() - getHeight() + 20)));
+                continue;
+            }
+            if(verticalScrollBar == null) {
+                visualLocation.v.setLocationX(visualLocation.originalLocation.x - Math.round(horizontalScrollBar.getSliderLocation() * (getFarthestX() - getWidth() + 20)));
+                continue;
+            }
             visualLocation.v.setLocation(visualLocation.originalLocation.x - Math.round(horizontalScrollBar.getSliderLocation() * (getFarthestX() - getWidth() + 20)),
                                             visualLocation.originalLocation.y - Math.round(verticalScrollBar.getSliderLocation() * (getFarthestY() - getHeight() + 20)));
-            System.out.println("Moved: " + visualLocation.v + " from x: " + visualLocation.originalLocation + " to " + visualLocation.v.getLocation());
         }
     }
 
@@ -138,52 +159,44 @@ public class ScrollPanel extends Visual {
         g.dispose();
     }
 
-    private class BarListener extends MouseAdapter {
-        private boolean outHorizontal = false;
-        private boolean outVertical = false;
-        private LocationAnimation outAnimationHorizontal;
-        private LocationAnimation outAnimationVertical;
-        private LocationAnimation inAnimationHorizontal;
-        private LocationAnimation inAnimationVertical;
-
-        @Override
-        public void mouseMoved(MouseEvent mouseEvent) {
-            if(verticalScrollBar != null) {
-                if (mouseEvent.getX() > getWidth() - verticalScrollBar.getWidth() && mouseEvent.getY() > verticalScrollBar.getLocationY() && mouseEvent.getY() < verticalScrollBar.getHeight()) {
-                    if (!outVertical) {
-                        outAnimationVertical = new LocationAnimation(verticalScrollBar, verticalScrollBar.getLocation(), new Point2<>(getWidth() - verticalScrollBar.getWidth(), verticalScrollBar.getLocationY()), 300);
-                        removeAnimation(inAnimationVertical);
-                        addAnimation(outAnimationVertical);
-                        outVertical = true;
-                    }
-                } else {
-                    if (outVertical) {
-                        inAnimationVertical = new LocationAnimation(verticalScrollBar, verticalScrollBar.getLocation(), new Point2<>(getWidth(), verticalScrollBar.getLocationY()), 300);
-                        removeAnimation(outAnimationVertical);
-                        addAnimation(inAnimationVertical);
-                        outVertical = false;
-                    }
+    @Override
+    public boolean isInside(int x, int y) {
+        if(verticalScrollBar != null) {
+            if (x > getWidth() + getAbsoluteX() - verticalScrollBar.getWidth() && y > verticalScrollBar.getAbsoluteY() && y < verticalScrollBar.getHeight() + verticalScrollBar.getAbsoluteY()) {
+                if (!outVertical) {
+                    outAnimationVertical = new LocationAnimation(verticalScrollBar, verticalScrollBar.getLocation(), new Point2<>(getWidth() - verticalScrollBar.getWidth(), verticalScrollBar.getLocationY()), 300);
+                    removeAnimation(inAnimationVertical);
+                    addAnimation(outAnimationVertical);
+                    outVertical = true;
                 }
-            }
-
-            if(horizontalScrollBar != null) {
-                if (mouseEvent.getY() > getHeight() - horizontalScrollBar.getHeight() && mouseEvent.getX() > horizontalScrollBar.getLocationX() && mouseEvent.getX() < horizontalScrollBar.getWidth()) {
-                    if (!outHorizontal) {
-                        outAnimationHorizontal = new LocationAnimation(horizontalScrollBar, horizontalScrollBar.getLocation(), new Point2<>(horizontalScrollBar.getLocationX(), getHeight() - horizontalScrollBar.getHeight()), 300);
-                        removeAnimation(inAnimationHorizontal);
-                        addAnimation(outAnimationHorizontal);
-                        outHorizontal = true;
-                    }
-                } else {
-                    if (outHorizontal) {
-                        inAnimationHorizontal = new LocationAnimation(horizontalScrollBar, horizontalScrollBar.getLocation(), new Point2<>(horizontalScrollBar.getLocationX(), getHeight()), 300);
-                        removeAnimation(outAnimationHorizontal);
-                        addAnimation(inAnimationHorizontal);
-                        outHorizontal = false;
-                    }
+            } else {
+                if (outVertical) {
+                    inAnimationVertical = new LocationAnimation(verticalScrollBar, verticalScrollBar.getLocation(), new Point2<>(getWidth(), verticalScrollBar.getLocationY()), 300);
+                    removeAnimation(outAnimationVertical);
+                    addAnimation(inAnimationVertical);
+                    outVertical = false;
                 }
             }
         }
+
+        if(horizontalScrollBar != null) {
+            if (y > getHeight() + getAbsoluteY() - horizontalScrollBar.getHeight() && x > horizontalScrollBar.getAbsoluteX() && x < horizontalScrollBar.getWidth() + horizontalScrollBar.getAbsoluteX()) {
+                if (!outHorizontal) {
+                    outAnimationHorizontal = new LocationAnimation(horizontalScrollBar, horizontalScrollBar.getLocation(), new Point2<>(horizontalScrollBar.getLocationX(), getHeight() - horizontalScrollBar.getHeight()), 300);
+                    removeAnimation(inAnimationHorizontal);
+                    addAnimation(outAnimationHorizontal);
+                    outHorizontal = true;
+                }
+            } else {
+                if (outHorizontal) {
+                    inAnimationHorizontal = new LocationAnimation(horizontalScrollBar, horizontalScrollBar.getLocation(), new Point2<>(horizontalScrollBar.getLocationX(), getHeight()), 300);
+                    removeAnimation(outAnimationHorizontal);
+                    addAnimation(inAnimationHorizontal);
+                    outHorizontal = false;
+                }
+            }
+        }
+        return super.isInside(x, y);
     }
 
     private class MouseWheelListener extends MouseAdapter {

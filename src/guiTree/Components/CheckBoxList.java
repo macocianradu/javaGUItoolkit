@@ -39,7 +39,7 @@ public class CheckBoxList extends Visual {
 
         }
         else {
-            checkbox.setLocation(0, checkBoxList.get(checkBoxList.size() - 1).getLocationY() + spacing);
+            checkbox.setLocation(0, checkBoxList.get(checkBoxList.size() - 1).getLocationY() + checkBoxList.get(checkBoxList.size() - 1).getHeight() + spacing);
         }
         if(icon != null) {
             checkbox.setIcon(icon);
@@ -88,6 +88,7 @@ public class CheckBoxList extends Visual {
             cb.setSize(width, height);
         }
         checkBoxSize = new Point2<>(width, height);
+        setSpacing(this.spacing);
     }
 
     @Override
@@ -138,7 +139,7 @@ public class CheckBoxList extends Visual {
         int offsetY = 0;
         for(CheckBox cb: checkBoxList) {
             cb.setLocationY(offsetY);
-            offsetY += spacing;
+            offsetY += spacing + cb.getHeight();
         }
     }
 

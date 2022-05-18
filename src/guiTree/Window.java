@@ -1,5 +1,6 @@
 package guiTree;
 
+import guiTree.Animations.AnimationInterface;
 import guiTree.Components.TitleBar;
 import guiTree.Helper.Debugger;
 import guiTree.Helper.Point2;
@@ -19,13 +20,18 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Window extends Visual implements Runnable{
+    public static final int BRING_TO_FRONT = 100;
     public CustomFrame frame;
     private int FPS;
     private TitleBar titleBar;
     private Panel mainPanel;
     private Panel contentPanel;
     private Point2<Integer> oldSize;
+    private List<AnimationInterface> animations;
     private Boolean close;
     private Point2<Integer> oldLocation;
 
@@ -42,6 +48,7 @@ public class Window extends Visual implements Runnable{
             repaint();
         });
         this.mainPanel = new Panel();
+        animations = new ArrayList<>();
 
         this.setMainPanel(mainPanel);
 
@@ -109,8 +116,8 @@ public class Window extends Visual implements Runnable{
         frame.addWindowStateListener(listener);
     }
 
-    public void dispose()
-    {
+    public void dispose() {
+        close = true;
         frame.dispose();
     }
 
@@ -200,8 +207,43 @@ public class Window extends Visual implements Runnable{
         this.mainPanel = panel;
     }
 
-    public Panel getMainPanel() {
-        return this.mainPanel;
+    public void setContentPanel(Panel contentPanel) {
+        mainPanel.removeVisual(this.contentPanel);
+        contentPanel.setName("ContentPanel");
+
+        if(titleBar != null) {
+            mainPanel.addVisual(titleBar);
+            contentPanel.setLocation(0, titleBar.getHeight());
+            contentPanel.setSize(mainPanel.getWidth(), mainPanel.getHeight() - titleBar.getHeight());
+        }
+        else {
+            contentPanel.setLocation(0, 0);
+            contentPanel.setSize(mainPanel.getWidth(), mainPanel.getHeight());
+        }
+
+        mainPanel.addVisual(contentPanel);
+        this.contentPanel = contentPanel;
+    }
+
+    public Panel getContentPanel() {
+        return contentPanel;
+    }
+
+    public void setTitleBarBackgroundColor(Color color) {
+        titleBar.setBackgroundColor(color);
+    }
+
+    public void setTitleBarAccentColor(Color color) {
+        titleBar.setAccentColor(color);
+    }
+
+    public void setTitleBarForegroundColor(Color color) {
+        titleBar.setForegroundColor(color);
+    }
+
+    @Override
+    public void setBackgroundColor(Color color) {
+        contentPanel.setBackgroundColor(color);
     }
 
     @Override
@@ -259,6 +301,21 @@ public class Window extends Visual implements Runnable{
     }
 
     @Override
+    public void addAnimation(AnimationInterface animation) {
+        animations.add(animation);
+    }
+
+    @Override
+    public void removeAnimation(AnimationInterface animation) {
+        animations.remove(animation);
+    }
+
+    @Override
+    public void removeAllAnimations() {
+        animations.clear();
+    }
+
+    @Override
     public void run() {
         Timer frameTimer = new Timer();
         Timer secondTimer = new Timer();
@@ -267,6 +324,12 @@ public class Window extends Visual implements Runnable{
         secondTimer.startTiming();
         while(!close) {
             if(frameTimer.getTime() >= 1000/FPS) {
+                for(int i = 0; i < animations.size(); i++) {
+                    if(animations.get(i).step()) {
+                        animations.remove(animations.get(i));
+                        i--;
+                    }
+                }
                 repaint();
                 frameTimer.startTiming();
                 frames ++;

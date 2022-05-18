@@ -25,6 +25,7 @@ public class DropDown extends MenuItem implements Menu{
     private boolean elementHeightSet;
     private int elementHeight;
     private int elementWidth;
+    private int round;
     private Point2<Integer> closedSize;
     private Point2<Integer> openedSize;
 
@@ -38,6 +39,8 @@ public class DropDown extends MenuItem implements Menu{
         elementHeightSet = false;
         closedSize = new Point2<>(getWidth(), getHeight());
         openedSize = new Point2<>(getWidth(), getHeight());
+        label = "";
+        round = 0;
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -225,14 +228,12 @@ public class DropDown extends MenuItem implements Menu{
     }
 
     public void open() {
-        System.out.println("Opening");
         isOpen = true;
         items.forEach(super::addVisual);
         addAnimation(new SizeAnimation(this, new Point2<>(getWidth(), getHeight()), openedSize, 70));
     }
 
     public void close() {
-        System.out.println("Closing");
         isOpen = false;
         items.forEach(super::removeVisual);
         addAnimation(new SizeAnimation(this, new Point2<>(getWidth(), getHeight()), closedSize, 70));
@@ -254,6 +255,10 @@ public class DropDown extends MenuItem implements Menu{
         return isOpen;
     }
 
+    public void setRound(Integer round) {
+        this.round = round;
+    }
+
     public void setIcon(String url) {
         try{
             InputStream iconStream = getClass().getClassLoader().getResourceAsStream("icons/" + url + ".png");
@@ -270,39 +275,54 @@ public class DropDown extends MenuItem implements Menu{
 
     @Override
     public void paint(Image imageBuffer) {
-        //Get Graphics
         Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(getPaintColor());
 
         //Draw Button
-        g.fillRect(0, 0, closedSize.x, closedSize.y);
+        g.fillRoundRect(0, 0, getClosedSize().x, getClosedSize().y, round, round);
+
+        //Get Sizes
+        int textWidth = 0;
+        int textHeight = 0;
+        int iconWidth = 0;
+        int iconHeight = 0;
+        if(icon != null) {
+            iconWidth = icon.getWidth();
+            iconHeight = icon.getHeight();
+        }
+
+        if(!label.equals("")) {
+            textWidth = g.getFontMetrics().stringWidth(label);
+            textHeight = g.getFontMetrics().getHeight();
+        }
+
+        //Draw Icon
+        if(icon != null) {
+            int iconX;
+            if(textWidth != 0) {
+                iconX = (getClosedSize().x - iconWidth - textWidth - 10) / 2;
+            }
+            else {
+                iconX = (getClosedSize().x - iconWidth) / 2;
+            }
+            int iconY = (getClosedSize().y - iconHeight)/2;
+            Graphics2D g2 = (Graphics2D)imageBuffer.getGraphics();
+            g2.drawImage(icon, iconX, iconY, null);
+            g2.dispose();
+
+        }
 
         //Draw Label
         if(getFont() != null) {
             g.setFont(getFont());
         }
         g.setColor(this.getFontColor());
-        int textWidth = 0;
-        int textHeight = 0;
 
-
-        //Draw Icon
-        if(icon != null) {
-            int iconWidth = icon.getWidth();
-            int iconHeight = icon.getHeight();
-            textWidth += iconWidth;
-
-            int iconX = closedSize.x - iconWidth - 3;
-            int iconY = (closedSize.y - iconHeight - textHeight) / 2;
-            Graphics2D g2 = (Graphics2D)imageBuffer.getGraphics();
-            g2.drawImage(icon, iconX, iconY, null);
-            g2.dispose();
-        }
         if(!label.equals("")) {
-            textWidth += g.getFontMetrics().stringWidth(label);
-            textHeight = g.getFontMetrics().getHeight();
-            g.drawString(label, (closedSize.x - textWidth)/2, closedSize.y/2 + textHeight/2);
+            int labelX = (getClosedSize().x + iconWidth - textWidth) / 2;
+            int labelY = (getClosedSize().y - textHeight) / 2 + g.getFontMetrics().getAscent();
+            g.drawString(this.label, labelX, labelY);
         }
 
         g.dispose();

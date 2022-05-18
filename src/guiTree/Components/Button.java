@@ -86,6 +86,7 @@ public class Button extends MenuItem {
         //Get Graphics
         Graphics2D g = (Graphics2D)imageBuffer.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.setColor(getPaintColor());
 
         //Draw Button
@@ -97,8 +98,8 @@ public class Button extends MenuItem {
         int iconWidth = 0;
         int iconHeight = 0;
         if(icon != null) {
-            iconWidth = icon.getWidth();
-            iconHeight = icon.getHeight();
+            iconWidth = Math.min(icon.getWidth(), getWidth());
+            iconHeight = Math.min(icon.getHeight(), getHeight());
         }
 
         if(!label.equals("")) {
@@ -117,7 +118,7 @@ public class Button extends MenuItem {
             }
             int iconY = (getHeight() - iconHeight)/2;
             Graphics2D g2 = (Graphics2D)imageBuffer.getGraphics();
-            g2.drawImage(icon, iconX, iconY, null);
+            g2.drawImage(icon, iconX, iconY, iconWidth, iconHeight, null);
             g2.dispose();
 
         }
@@ -137,7 +138,7 @@ public class Button extends MenuItem {
         g.dispose();
     }
 
-    public void setRound(int round) {
+    public void setRound(Integer round) {
         this.round = round;
     }
 

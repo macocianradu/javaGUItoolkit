@@ -29,7 +29,6 @@ public class SideDropDown extends DropDown implements Menu {
                 if(isInside(mouseEvent.getXOnScreen(), mouseEvent.getYOnScreen())) {
                     return;
                 }
-                System.out.println("Exited somehow");
                 close();
                 addAnimation(new ColorAnimation(SideDropDown.this, getForegroundColor(), getBackgroundColor(), 70));
             }

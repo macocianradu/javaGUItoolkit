@@ -122,6 +122,38 @@ public class TitleBar extends Visual {
         this.icon = icon;
     }
 
+    @Override
+    public void setBackgroundColor(Color color) {
+        super.setBackgroundColor(color);
+        close.setBackgroundColor(color);
+        maximize.setBackgroundColor(color);
+        minimize.setBackgroundColor(color);
+    }
+
+    @Override
+    public void setAccentColor(Color color) {
+        super.setAccentColor(color);
+        close.setAccentColor(color);
+        maximize.setAccentColor(color);
+        minimize.setAccentColor(color);
+    }
+
+    @Override
+    public void setForegroundColor(Color color) {
+        super.setForegroundColor(color);
+        close.setForegroundColor(color);
+        maximize.setForegroundColor(color);
+        minimize.setForegroundColor(color);
+    }
+
+    @Override
+    public void setPaintColor(Color color) {
+        super.setPaintColor(color);
+        close.setPaintColor(color);
+        maximize.setPaintColor(color);
+        minimize.setPaintColor(color);
+    }
+
     public void setTitle(String title) {
         this.title = title;
         update();

@@ -244,22 +244,22 @@ public class Slider extends Visual {
         @Override
         public void mousePressed(MouseEvent mouseEvent) {
             if(direction == Direction.Vertical) {
-                start = mouseEvent.getY();
+                start = mouseEvent.getYOnScreen();
             }
             else {
-                start = mouseEvent.getX();
+                start = mouseEvent.getXOnScreen();
             }
         }
 
         @Override
         public void mouseDragged(MouseEvent mouseEvent) {
             if(direction == Direction.Vertical) {
-                moveSlider(mouseEvent.getY() - start);
-                start = mouseEvent.getY();
+                moveSlider(mouseEvent.getYOnScreen() - start);
+                start = mouseEvent.getYOnScreen();
             }
             else {
-                moveSlider(mouseEvent.getX() - start);
-                start = mouseEvent.getX();
+                moveSlider(mouseEvent.getXOnScreen() - start);
+                start = mouseEvent.getXOnScreen();
             }
             slider.update();
         }
